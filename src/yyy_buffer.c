@@ -119,6 +119,9 @@ unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer, char *output){
         
         if(c != 0x7F && (c == '\t' || c >= ' '))
             output[i++] = c;
+
+        if(remove == YYY_BUF_LEN)
+            remove = 0;
     }
     
     output[i] = '\0';
