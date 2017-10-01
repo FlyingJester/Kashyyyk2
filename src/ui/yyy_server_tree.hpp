@@ -91,8 +91,6 @@ private:
         Fl::repeat_timeout(0.5, TimeoutCallback, data);
         ServerTree *const tree = static_cast<ServerTree*>(data);
         tree->m_flash_tick = !tree->m_flash_tick;
-        printf("Flash_tick %i\n", (int)tree->m_flash_tick);
-        fflush(stdout);
         tree->updateChildren();
         tree->redraw();
     }

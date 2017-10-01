@@ -99,21 +99,14 @@ bool ServerThread::shouldDie(){
 /*---------------------------------------------------------------------------*/
 
 void ServerThread::threadCallback(){
-    puts("START!");
-    fflush(stdout);
     m_locked_should_die = false;
     while(!shouldDie()){
-        puts("ALIVE!");
-        fflush(stdout);
         struct YYY_WaitResult *results;
         const YYY_NetworkError err =
             YYY_WaitOnSocketGroup(m_socket_group, -1l, &results);
         
-        puts("LOL!");
-        fflush(stdout);
         switch(err){
             case eYYYNetworkPoked:
-                puts("[ServerThread]Poked!"); fflush(stdout);
                 break; // We were signalled to test shouldDie/reload the group.
             case eYYYNetworkSuccess:
                 {
@@ -134,18 +127,12 @@ void ServerThread::threadCallback(){
                 YYY_MILLISLEEP(10);
                 break;
             default:
-                printf("[ServerThread]Invalid socket group wait result %i\n", (int)err);
-                fprintf(stderr, "[ServerThread]Invalid socket group wait result %i\n", (int)err);
-                fflush(stdout);
-                fflush(stderr);
                 assert(false);
                 // TODO: Store some kind of status value.
                 return;
                 
         }
     }
-    puts("DYING!");
-    fflush(stdout);
 }
 
 /*---------------------------------------------------------------------------*/

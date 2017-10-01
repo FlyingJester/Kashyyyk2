@@ -105,9 +105,6 @@ enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *a_socket,
     /* Check for error */
     if(err < 0){
         err = YYY_GET_ERROR();
-        fputs("Error connecting ", stdout);
-        printf("%s:%i\n", address, (int)port);
-        fflush(stdout);
         YYY_CLOSE_SOCKET(a_socket);
         if(YYY_EQUALS_ERR(err, ECONNREFUSED))
             return eYYYNetworkRefused;
@@ -116,7 +113,6 @@ enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *a_socket,
         else if(YYY_EQUALS_ERR(err, ETIMEDOUT))
             return eYYYNetworkTimeout;
         else{
-            printf("WSA Z Error %i\n", err); fflush(stdout);
             return eYYYNetworkFailure;
         }
     }
@@ -148,9 +144,6 @@ enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *a_socket,
     /* Check for error */
     if(err < 0){
         err = YYY_GET_ERROR();
-        fputs("Error selecting ", stdout);
-        printf("%s:%i\n", address, (int)port);
-        fflush(stdout);
         YYY_CLOSE_SOCKET(a_socket);
         if(YYY_EQUALS_ERR(err, ECONNREFUSED))
             return eYYYNetworkRefused;
@@ -158,10 +151,8 @@ enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *a_socket,
             return eYYYNetworkAlreadyConnected;
         else if(YYY_EQUALS_ERR(err, ETIMEDOUT))
             return eYYYNetworkTimeout;
-        else{
-            printf("WSA 3 Error %i\n", err); fflush(stdout);
+        else
             return eYYYNetworkFailure;
-        }
     }
     
     /* Restore the socket to blocking again */

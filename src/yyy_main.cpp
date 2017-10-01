@@ -206,11 +206,6 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
     const char *name;
     Window &window = yyy_connection_args(uri, arg, name, name_len);
     
-    fputs("Connection Succeeded: ", stdout);
-    fwrite(name, name_len, 1, stdout);
-    fputc('\n', stdout);
-    fflush(stdout);
-    
     ServerCore &server = window.m_servers.create();
     server.createNewUi();
     server.setSocket(socket);

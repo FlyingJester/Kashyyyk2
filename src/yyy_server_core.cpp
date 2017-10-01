@@ -116,11 +116,6 @@ void ServerCore::firstConnected() const{
 void ServerCore::handleMessage(const char *str, unsigned len){
     assert(len < YYY_MAX_MSG_LEN);
     
-    fputs("[MESSAGE]", stdout);
-    fwrite(str, len, 1, stdout);
-    fputc('\n', stdout);
-    fflush(stdout);
-    
     Message msg;
     if(!m_protocol->parseMessage(str, len, msg)){
         puts("[ERROR parsing!]");

@@ -384,8 +384,6 @@ enum YYY_NetworkError YYY_WaitOnSocketGroup(struct YYY_SocketGroup *group,
         else{
             const struct YYY_NetworkSocket *const socket =
                 (const struct YYY_NetworkSocket *)group->sockets;
-            printf("There are %i sockets\n", group->num_sockets);
-            fflush(stdout);
             assert(group->num_sockets == 1);
             FD_SET(socket->socket, &err);
             FD_SET(socket->socket, &rd);
@@ -424,10 +422,6 @@ enum YYY_NetworkError YYY_WaitOnSocketGroup(struct YYY_SocketGroup *group,
                 if(YYY_CHECK_SIGNALLER(group->signaller))
                     return eYYYNetworkPoked;
             } while(err_no == 0);
-            if(err_no < 0){
-                const int err_code = YYY_GET_ERROR();
-                fprintf(stderr, "YYY Network Error %i\n", err_code);
-            }
         }
         if(err_no == 0)
             return eYYYNetworkTimeout;

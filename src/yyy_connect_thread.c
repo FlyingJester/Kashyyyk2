@@ -80,7 +80,6 @@ static struct YYY_NetworkSocket *yyy_do_connect(struct yyy_connection *conn){
 void *yyy_connect_thread_func(void *data){
     (void)data;
 
-    puts("[yyy_connect_thread_func]starting");
 yyy_connect_thread_begin:
     
     YYY_LockMonitor(yyy_connect_monitor);
@@ -89,12 +88,10 @@ yyy_connect_thread_begin:
 yyy_connect_thread_wait:
     if(yyy_should_die){
         YYY_UnlockMonitor(yyy_connect_monitor);
-        puts("[YYY_QueueConnection]ending");
         return NULL;
     }
     
     if(yyy_connection_list == NULL){
-        puts("[yyy_connect_thread_func]Waiting...");
         YYY_WaitMonitor(yyy_connect_monitor);
         goto yyy_connect_thread_wait;
     }
@@ -103,17 +100,14 @@ yyy_connect_thread_wait:
         yyy_connection_list = conn->next;
         YYY_UnlockMonitor(yyy_connect_monitor);
         
-        puts("[yyy_connect_thread_func]Attempting connection");
         YYY_AttemptingConnection(conn->url, conn->arg);
         
         {
             struct YYY_NetworkSocket *const socket = yyy_do_connect(conn);
             if(socket != NULL){
-                puts("[yyy_connect_thread_func]Adding connection");
                 YYY_AddConnection(socket, conn->url, conn->arg);
             }
             else{
-                puts("[yyy_connect_thread_func]Connection failed");
                 YYY_FailedConnection(conn->url, conn->arg);
             }
             free(conn);
@@ -178,7 +172,6 @@ void YYY_QueueConnection(const char *url, unsigned port, void *arg){
     /* Construct the new connection request */
     const unsigned len = strlen(url);
     struct yyy_connection *const conn = malloc(sizeof(struct yyy_connection) + len + 1);
-    puts("[YYY_QueueConnection]starting");
     conn->port = port;
     conn->next = NULL;
     conn->arg = arg;
@@ -187,7 +180,6 @@ void YYY_QueueConnection(const char *url, unsigned port, void *arg){
     /* Queue up the request */
     YYY_LockMonitor(yyy_connect_monitor);
     
-    puts("[YYY_QueueConnection]appending");
     if(yyy_connection_list != NULL){
         /* Find the last connection in the list, and add this to the end of that. */
         struct yyy_connection *list = yyy_connection_list;
@@ -199,9 +191,6 @@ void YYY_QueueConnection(const char *url, unsigned port, void *arg){
     else
         yyy_connection_list = conn;
 
-    puts("[YYY_QueueConnection]notifying");
-
     YYY_UnlockMonitor(yyy_connect_monitor);
     YYY_NotifyMonitor(yyy_connect_monitor);
-    puts("[YYY_QueueConnection]finishing");
 }
