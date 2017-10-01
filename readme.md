@@ -63,7 +63,7 @@ Kashyyyk 2 supports many compilers and platforms.
  - GCC 4, 6
  - OpenWatcom C/C++ 1.9
 
-### Support Platforms
+#### Supported Platforms
  - Windows 7, 10
  - Linux 2.6+
  - FreeBSD 10, 11
