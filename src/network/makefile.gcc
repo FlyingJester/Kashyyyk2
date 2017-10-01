@@ -1,0 +1,33 @@
+# GCC/Unix makefile
+# Builds yyynetwork
+
+include ../gcc.mk
+
+YYYLIB=$(LIBDIR)/libyyynetwork.a
+
+OBJS=$(OBJDIR)/yyy_network.o $(OBJDIR)/yyy_network_unix.o $(OBJDIR)/yyy_network_poll.o $(OBJDIR)/yyy_network_common.o
+
+all: $(YYYLIB)
+
+$(OBJDIR)/yyy_network_unix.o: yyy_network_unix.c yyy_network_unix.h
+	$(CC) -c yyy_network_unix.c $(CCFLAGS) -DYYY_NETWORK_UNIX -Wno-unused-function -o $(OBJDIR)/yyy_network_unix.o
+    
+$(OBJDIR)/yyy_network_poll.o: yyy_network_poll.c yyy_network_unix.h yyy_network.h yyy_network_common.h
+	$(CC) -c yyy_network_poll.c $(CFLAGS) -DYYY_NETWORK_UNIX -o $(OBJDIR)/yyy_network_poll.o
+
+$(OBJDIR)/yyy_network_common.o: yyy_network_common.c yyy_network_common.h
+	$(CC) -c yyy_network_common.c $(CCFLAGS) -o $(OBJDIR)/yyy_network_common.o
+    
+$(OBJDIR)/yyy_network.o: yyy_network.c yyy_network.h yyy_network_unix.h yyy_network_win32.h
+	$(CC) -c yyy_network.c $(CCFLAGS) -DYYY_NETWORK_UNIX -o $(OBJDIR)/yyy_network.o
+
+$(YYYLIB): $(OBJS)
+	ar -rc $(YYYLIB) $(OBJS)
+	ranlib $(YYYLIB)
+
+clean:
+	rm -rf $(OBJDIR)\*
+
+.IGNORE: clean
+.SILENT: clean
+.PHONY: clean

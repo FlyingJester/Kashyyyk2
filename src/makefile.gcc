@@ -1,0 +1,103 @@
+# bmake/gmake makefile for GCC-like compilers (GCC, Clang, Intel on Unix)
+# Builds Kashyyyk2 (including the yyy libs)
+
+include gcc.mk
+FLUID=../fltk-watcom/bin/fluid
+
+OBJ0=$(OBJDIR)/yyy_server_ui.o $(OBJDIR)/yyy_server_core.o
+OBJ1=$(OBJDIR)/yyy_channel_ui.o $(OBJDIR)/yyy_channel_core.o 
+OBJ2=$(OBJDIR)/kashyyyk2.o $(OBJDIR)/yyy_main.o $(OBJDIR)/yyy_buffer.o
+OBJ3=$(OBJDIR)/yyy_ask.o $(OBJDIR)/yyy_connect.o $(OBJDIR)/yyy_callbacks.o
+OBJ4=$(OBJDIR)/yyy_date.o $(OBJDIR)/yyy_prefs.o $(OBJDIR)/yyy_chat_widget.o
+OBJ5=$(OBJDIR)/yyy_server_thread.o $(OBJDIR)/yyy_connect_thread.o
+OBJ6=$(OBJDIR)/yyy_server_tree.o
+
+OBJS=$(OBJ0) $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6)
+
+all: kashyyyk2
+
+PX?=lib
+SX?=a
+MK=gcc
+
+MONBACKEND=win32
+
+SYSLIBS=-lGdi32 -lAdvapi32 -lShell32 -lUser32 -lOle32 -luuid -lcomctl32 -lWs2_32
+
+include libs.mk
+
+include yyy.mk
+
+kashyyyk2: $(OBJS) $(YYYLIBS)
+	$(LINKER) $(LINKFLAGS) -mwindows $(OBJS) -lfltk -lssp $(SYSLIBS) $(YYYLIBS) -o kashyyyk2
+
+# Fluid autogen files
+$(GENDIR)/yyy_connect.cpp $(GENDIR)/yyy_connect.hpp: ui/yyy_connect.fl
+	$(FLUID) -c ui/yyy_connect.fl
+	mv yyy_connect.cpp $(GENDIR)
+	mv yyy_connect.hpp $(GENDIR)
+
+$(GENDIR)/kashyyyk2.hpp $(GENDIR)/kashyyyk2.cpp: ui/kashyyyk2.fl
+	$(FLUID) -c ui/kashyyyk2.fl
+	mv kashyyyk2.cpp $(GENDIR)
+	mv kashyyyk2.hpp $(GENDIR)
+
+# Compile autogen files
+$(OBJDIR)/yyy_connect.o: $(YYY_CONNECT_DEP)
+	$(CXX) -c $(GENDIR)/yyy_connect.cpp $(CXXFLAGS) -I./ -o $(OBJDIR)/yyy_connect.o
+
+$(OBJDIR)/kashyyyk2.o: $(KASHYYYK2_DEP)
+	$(CXX) -c $(GENDIR)/kashyyyk2.cpp $(CXXFLAGS) -I./ -o $(OBJDIR)/kashyyyk2.o
+
+# Non-autogen source
+$(OBJDIR)/yyy_ask.o: $(YYY_ASK_DEP)
+	$(CXX) -c yyy_ask.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_ask.o
+
+$(OBJDIR)/yyy_callbacks.o: $(YYY_CALLBACKS_DEP)
+	$(CC) -c yyy_callbacks.c $(CFLAGS) -o $(OBJDIR)/yyy_callbacks.o
+
+$(OBJDIR)/yyy_main.o: $(YYY_MAIN_DEP)
+	$(CXX) -c yyy_main.cpp $(CXXFLAGS) -I$(GENDIR) -o $(OBJDIR)/yyy_main.o
+
+$(OBJDIR)/yyy_server_thread.o: $(YYY_SERVER_THREAD_DEP)
+	$(CXX) -c yyy_server_thread.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_server_thread.o
+
+$(OBJDIR)/yyy_connect_thread.o: $(YYY_CONNECT_THREAD_DEP)
+	$(CC) -c yyy_connect_thread.c $(CFLAGS) -o $(OBJDIR)/yyy_connect_thread.o
+
+# UI and Core
+$(OBJDIR)/yyy_chat_widget.o: $(YYY_CHAT_WIDGET_DEP)
+	$(CXX) -c ui/yyy_chat_widget.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_chat_widget.o
+
+$(OBJDIR)/yyy_server_tree.o: $(YYY_SERVER_TREE_DEP)
+	$(CXX) -c ui/yyy_server_tree.cpp $(CXXFLAGS) -Wno-missing-field-initializers -o $(OBJDIR)/yyy_server_tree.o
+
+$(OBJDIR)/yyy_channel_ui.o: $(YYY_CHANNEL_UI_DEP)
+	$(CXX) -c yyy_channel_ui.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_channel_ui.o
+
+$(OBJDIR)/yyy_channel_core.o: $(YYY_CHANNEL_CORE_DEP)
+	$(CXX) -c yyy_channel_core.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_channel_core.o
+
+$(OBJDIR)/yyy_server_ui.o: $(YYY_SERVER_UI_DEP)
+	$(CXX) -c yyy_server_ui.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_server_ui.o
+
+$(OBJDIR)/yyy_server_core.o: $(YYY_SERVER_CORE_DEP)
+	$(CXX) -c yyy_server_core.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_server_core.o
+
+# utils
+$(OBJDIR)/yyy_buffer.o: $(YYY_BUFFER_DEP)
+	$(CC) -c yyy_buffer.c $(CFLAGS) -o $(OBJDIR)/yyy_buffer.o
+    
+$(OBJDIR)/yyy_date.o: $(YYY_DATE_DEP)
+	$(CC) -c yyy_date.c $(CFLAGS) -Wno-attributes -o $(OBJDIR)/yyy_date.o
+    
+$(OBJDIR)/yyy_prefs.o: $(YYY_PREFS_DEP)
+	$(CC) -c yyy_prefs.c $(CFLAGS) -o $(OBJDIR)/yyy_prefs.o
+
+clean: libclean
+	rm -rf $(OBJS) || true
+	rm -rf $(GENDIR)/*
+
+.SILENT: clean libclean
+.IGNORE: clean libclean
+.PHONY: clean libclean

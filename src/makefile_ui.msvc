@@ -1,0 +1,42 @@
+# Any copyright of this file is dedicated to the Public Domain.
+# http://creativecommons.org/publicdomain/zero/1.0/
+OBJDIR=objects
+
+!INCLUDE yyy.mk
+
+OBJECTS=$(OBJDIR)\kashyyyk2.obj $(OBJDIR)\yyy_connect.obj $(OBJDIR)\yyy_chat_widget.obj $(OBJDIR)\yyy_server_tree.obj
+
+all: yyy2ui.lib
+
+yyy2ui.lib: $(OBJECTS)
+	lib /nologo /OUT:yyy2ui.lib $(OBJECTS)
+
+yyy_connect.cpp: ui\yyy_connect.fl
+	$(FLUID) -c ui\yyy_connect.fl
+
+kashyyyk2.cpp: ui\kashyyyk2.fl
+	$(FLUID) -c ui\kashyyyk2.fl
+
+CLFLAGS=/nologo /EHsc /DWIN32 /I$(FLTKDIR) /Iutils /M$(CRT)
+
+$(OBJDIR)\yyy_connect.obj: yyy_connect.cpp
+	@cl $(CLFLAGS) /c yyy_connect.cpp /Fo:$(OBJDIR)\yyy_connect.obj
+
+$(OBJDIR)\kashyyyk2.obj: kashyyyk2.cpp ui\yyy_chat_widget.hpp ui\yyy_server_tree.hpp yyy_connect.cpp
+	@cl $(CLFLAGS) /c kashyyyk2.cpp /Fo:$(OBJDIR)\kashyyyk2.obj
+
+$(OBJDIR)\yyy_chat_widget.obj: ui\yyy_chat_widget.cpp ui\yyy_chat_widget.hpp
+	@cl $(CLFLAGS) /c ui\yyy_chat_widget.cpp /Fo:$(OBJDIR)\yyy_chat_widget.obj
+
+$(OBJDIR)\yyy_server_tree.obj: ui\yyy_server_tree.cpp ui\yyy_server_tree.hpp
+	@cl $(CLFLAGS) /c ui\yyy_server_tree.cpp /Fo:$(OBJDIR)\yyy_server_tree.obj
+
+clean:
+	@del /Q kashyyyk2.cpp
+	@del /Q kashyyyk2.hpp
+	@del /Q yyy_connect.cpp
+	@del /Q yyy_connect.hpp
+	@del /Q $(OBJDIR)\kashyyyk2.obj
+	@del /Q $(OBJDIR)\yyy_connect.obj
+	@del /Q $(OBJDIR)\yyy_chat_widget.obj
+	@del /Q $(OBJDIR)\yyy_server_tree.obj

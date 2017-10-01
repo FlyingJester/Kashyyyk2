@@ -1,0 +1,52 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0304
+use_FL_COMMAND
+header_name {.hpp}
+code_name {.cpp}
+decl {\#include "yyy_assert.h"} {private local
+}
+
+decl {\#include "yyy_callbacks.h"} {private local
+}
+
+decl {bool yyy_initialized = false;} {
+  comment {// Used to ensure this function is only called once, and to prevent memory leaks of extern'ed variables otherwise.} private local
+}
+
+Function {YYY_CreateConnectDialog()} {open
+} {
+  code {YYY_Assert(yyy_initialized == false, "Connection dialog created more than once.");
+yyy_initialized = true;} {}
+  Fl_Window connect_window {open
+    private xywh {863 703 555 230} type Double color 51 visible
+  } {
+    Fl_Browser recent_list {
+      label Recent
+      xywh {15 70 395 145} type Select selection_color 133 align 1
+    }
+    Fl_Input uri_input {
+      label URI
+      private xywh {40 15 240 25} selection_color 93
+    }
+    Fl_Input port_input {
+      label Port
+      callback {if(o->value()[0] == '\\0')
+	o->static_value("1", 1);}
+      private xywh {320 15 90 25} type Int selection_color 133
+    }
+    Fl_Button {} {
+      label {Clear Recent}
+      callback {recent_list->clear();}
+      xywh {425 70 115 25} box THIN_UP_BOX
+    }
+    Fl_Return_Button {} {
+      label Connect
+      callback {const char *const uri = uri_input->value();
+if(*uri != '\\0'){
+	YYY_Connect(uri, atoi(port_input->value()));
+	connect_window->hide();
+}} selected
+      xywh {425 15 115 25} box THIN_UP_BOX
+    }
+  }
+}

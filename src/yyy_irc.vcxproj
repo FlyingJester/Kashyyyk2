@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseWithAsserts|Win32">
+      <Configuration>ReleaseWithAsserts</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseWithAsserts|x64">
+      <Configuration>ReleaseWithAsserts</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="irc\makefile.msvc">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="irc\yyy_irc.cpp" />
+    <ClCompile Include="irc\yyy_irc.hpp" />
+    <ClCompile Include="irc\yyy_irc_core.c" />
+    <ClCompile Include="irc\yyy_irc_core.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1A177771-C5C0-455F-8ADC-D39EF6D26E25}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithAsserts|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithAsserts|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithAsserts|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithAsserts|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=Dd MODE=DEBUG BITS=32</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=DEBUG BITS=32</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=Dd MODE=DEBUG BITS=32</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <OutDir>$(SolutionDir)src\irc</OutDir>
+    <IntDir>$(SolutionDir)src\irc\objects</IntDir>
+    <NMakeOutput>$(SolutionDir)src\irc\lib\yyy_irc32d.lib</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RELEASE BITS=32</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=RELEASE BITS=32</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RELEASE BITS=32</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <OutDir>$(SolutionDir)src\irc</OutDir>
+    <IntDir>$(SolutionDir)src\irc\objects</IntDir>
+    <NMakeOutput>$(SolutionDir)src\irc\lib\yyy_irc32.lib</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithAsserts|Win32'">
+    <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RDEBUG BITS=32</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=RDEBUG BITS=32</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RDEBUG BITS=32</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <OutDir>$(SolutionDir)src\irc</OutDir>
+    <IntDir>$(SolutionDir)src\irc\objects</IntDir>
+    <NMakeOutput>$(SolutionDir)src\irc\lib\yyy_irc32rd.lib</NMakeOutput>
+    <NMakeIncludeSearchPath>$(SolutionDir)src\chat</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RELEASE BITS=64</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RELEASE BITS=64</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=RELEASE BITS=64</NMakeCleanCommandLine>
+    <OutDir>$(SolutionDir)src\irc</OutDir>
+    <IntDir>$(SolutionDir)src\irc\objects</IntDir>
+    <NMakeOutput>$(SolutionDir)src\irc\lib\yyy_irc64.lib</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithAsserts|x64'">
+    <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RDEBUG BITS=64</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RDEBUG BITS=64</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=RDEBUG BITS=64</NMakeCleanCommandLine>
+    <OutDir>$(SolutionDir)src\irc</OutDir>
+    <IntDir>$(SolutionDir)src\irc\objects</IntDir>
+    <NMakeOutput>$(SolutionDir)src\irc\lib\yyy_irc64rd.lib</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=Dd MODE=DEBUG BITS=64</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=Dd MODE=DEBUG BITS=64</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=DEBUG BITS=64</NMakeCleanCommandLine>
+    <OutDir>$(SolutionDir)src\irc</OutDir>
+    <IntDir>$(SolutionDir)src\irc\objects</IntDir>
+    <NMakeOutput>$(SolutionDir)src\irc\lib\yyy_irc64d.lib</NMakeOutput>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,186 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0304
+use_FL_COMMAND
+header_name {.hpp}
+code_name {.cpp}
+decl {\#include "ui/yyy_chat_widget.hpp"} {public global
+}
+
+decl {\#include "ui/yyy_server_tree.hpp"} {public global
+}
+
+decl {\#include "yyy_callbacks.h"} {private global
+}
+
+decl {\#include "yyy_connect.hpp"} {private global
+}
+
+Function {YYY_MakeWindow()} {open
+} {
+  Fl_Window {} {
+    label {Kashyyyk 2} open
+    xywh {1668 773 630 490} type Double resizable
+    code0 {o->size_range(480, 320);} size_range {300 200 0 0} visible
+  } {
+    Fl_Box {} {
+      xywh {-5 0 640 25} box THIN_UP_BOX color 52
+    }
+    Fl_Tile {} {open
+      xywh {5 24 620 432} labelfont 4 resizable
+    } {
+      Fl_Box {} {
+        xywh {70 48 470 381} resizable
+      }
+      Fl_Browser user_list {
+        xywh {505 25 120 430} box THIN_DOWN_BOX selection_color 133
+        code0 {user_list->end();}
+      }
+      Fl_Tree server_tree {
+        xywh {5 25 105 430} box THIN_DOWN_BOX selection_color 133
+        code0 {server_tree->end();}
+        code2 {server_tree->showroot(0);}
+        class {YYY::ServerTree}
+      }
+      Fl_Pack {} {open
+        xywh {110 24 395 432} type HORIZONTAL
+      } {
+        Fl_Box {} {
+          xywh {110 24 5 430} box THIN_DOWN_BOX
+        }
+        Fl_Box chat_widget {
+          xywh {115 25 370 430} box THIN_DOWN_BOX color 7 selection_color 133 resizable
+          class {YYY::ChatWidget}
+        }
+        Fl_Scrollbar chat_scroll {
+          xywh {485 25 15 430} selection_color 52
+        }
+        Fl_Box {} {
+          xywh {500 25 5 430} box THIN_DOWN_BOX
+        }
+      }
+    }
+    Fl_Group {} {open
+      xywh {0 455 630 35} box FLAT_BOX color 52
+    } {
+      Fl_Return_Button {} {
+        callback {YYY_Say(chat_box->value());}
+        xywh {595 460 30 25} box THIN_UP_BOX
+      }
+      Fl_Input chat_box {
+        xywh {5 460 585 25} box THIN_DOWN_BOX selection_color 133 textfont 4 resizable
+      }
+    }
+    Fl_Menu_Bar {} {open
+      xywh {0 0 630 25} box NO_BOX color 52 selection_color 21
+    } {
+      Submenu {} {
+        label File open
+        xywh {0 0 62 20}
+      } {
+        MenuItem {} {
+          label {Connect...}
+          callback {static Fl_Window *const connect_dialog = YYY_CreateConnectDialog();
+if(connect_dialog->shown()){
+	const int x = connect_dialog->x(), y = connect_dialog->y();
+	connect_dialog->hide();
+	connect_dialog->show();
+	connect_dialog->position(x, y);
+}
+else
+	connect_dialog->show();}
+          xywh {0 0 30 20} shortcut 0x4006b divider
+        }
+        MenuItem {} {
+          label Quit
+          callback {exit(EXIT_SUCCESS);} selected
+          xywh {0 0 30 20} shortcut 0x40071
+        }
+      }
+      Submenu {} {
+        label Edit open
+        xywh {0 0 62 20}
+      } {
+        MenuItem {} {
+          label Cut
+          xywh {0 0 30 20} shortcut 0x40078
+        }
+        MenuItem {} {
+          label Copy
+          xywh {10 10 30 20} shortcut 0x40063
+        }
+        MenuItem {} {
+          label Paste
+          xywh {20 20 30 20} shortcut 0x40076
+        }
+        MenuItem {} {
+          label {Select All}
+          xywh {30 30 30 20} shortcut 0x40061
+        }
+      }
+      Submenu {} {
+        label View open
+        xywh {0 0 62 20}
+      } {
+        MenuItem {} {
+          label {Zoom In}
+          xywh {0 0 30 20} shortcut 0x4003d
+        }
+        MenuItem {} {
+          label {Zoom Out}
+          xywh {10 10 30 20} shortcut 0x4002d
+        }
+        MenuItem {} {
+          label {Reset Zoom}
+          xywh {20 20 30 20} shortcut 0x40030 divider
+        }
+        MenuItem {} {
+          label {Light Theme}
+          xywh {0 0 30 20}
+        }
+        MenuItem {} {
+          label {Sunset Theme}
+          xywh {10 10 30 20}
+        }
+        MenuItem {} {
+          label {Dark Theme}
+          xywh {10 10 30 20}
+        }
+      }
+      Submenu {} {
+        label Server open
+        xywh {0 0 62 20}
+      } {
+        MenuItem join_menu_item {
+          label {Join...}
+          xywh {0 0 30 20} deactivate divider
+        }
+        MenuItem disconnect_menu_item {
+          label Disconnect
+          xywh {0 0 30 20} shortcut 0x40064 deactivate
+        }
+        MenuItem reconnect_menu_item {
+          label Reconnect
+          xywh {10 10 30 20} shortcut 0x40072 deactivate
+        }
+      }
+      Submenu {} {
+        label Channel open
+        xywh {5 5 62 20}
+      } {
+        MenuItem {} {
+          label Say
+          callback {YYY_Say(chat_box->value());}
+          xywh {0 0 30 20} deactivate
+        }
+        MenuItem {} {
+          label Leave
+          xywh {0 0 30 20} shortcut 0x40077 deactivate
+        }
+        MenuItem {} {
+          label Rejoin
+          xywh {10 10 30 20} deactivate
+        }
+      }
+    }
+  }
+}

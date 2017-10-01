@@ -1,0 +1,25 @@
+# GCC/Unix makefile
+# Builds yyythread
+
+include ../gcc.mk
+
+YYYLIB=$(LIBDIR)/libyyythread.a
+
+all: $(YYYLIB)
+
+BACKEND_SRC=yyy_thread_$(BACKEND).c
+
+$(OBJDIR)/yyy_thread_pthreads.o: yyy_thread_pthreads.c yyy_thread.h
+	$(CC) -c yyy_thread_pthreads.c $(CFLAGS) -o $(OBJDIR)/yyy_thread_pthreads.o
+
+$(YYYLIB): $(OBJDIR)/yyy_thread_pthreads.o
+	ar -rc $(YYYLIB) $(OBJDIR)/yyy_thread_pthreads.o
+	ranlib $(YYYLIB)
+
+clean:
+	rm $(OBJDIR)/yyy_thread_pthreads.o || true
+	rm $(YYYLIB) || true
+
+.PHONY: clean
+.IGNORE: clean
+.SILENT: clean

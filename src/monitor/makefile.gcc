@@ -1,0 +1,28 @@
+# GCC/Unix makefile
+# Builds yyymonitor
+
+include ../gcc.mk
+
+YYYLIB=$(LIBDIR)\libyyymonitor.a
+
+all: $(YYYLIB)
+
+OBJS=$(OBJDIR)/yyy_monitor_pthreads.o $(OBJDIR)/yyy_monitor.o
+
+$(OBJDIR)/yyy_monitor_pthreads.o: yyy_monitor_backend.h yyy_monitor_pthreads.c
+	$(CC) -c yyy_monitor_pthreads.c $(CFLAGS) -o $(OBJDIR)/yyy_monitor_pthreads.o
+
+$(OBJDIR)/yyy_monitor.o: yyy_monitor.cpp yyy_monitor.hpp yyy_monitor_backend.h
+	$(CXX) -c yyy_monitor.cpp $(CXXFLAGS) -o $(OBJDIR)/yyy_monitor.o
+
+$(YYYLIB): $(OBJS)
+	ar -rc $(YYYLIB) $(OBJS)
+	ranlib $(YYYLIB)
+
+clean:
+	rm -rf $(OBJDIR)/*
+	rm -rf $(LIBDIR)/*
+
+.SILENT: clean
+.IGNORE: clean
+.PHONY: clean
