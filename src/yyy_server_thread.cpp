@@ -105,12 +105,9 @@ void ServerThread::threadCallback(){
     while(!shouldDie()){
         puts("ALIVE!");
         fflush(stdout);
-        void *vserver = NULL;
-        YYY_NetworkSocket *socket = NULL;
         struct YYY_WaitResult *results;
         const YYY_NetworkError err =
             YYY_WaitOnSocketGroup(m_socket_group, -1l, &results);
-        ServerCore *const server = static_cast<ServerCore*>(vserver);
         
         puts("LOL!");
         fflush(stdout);
@@ -120,10 +117,15 @@ void ServerThread::threadCallback(){
                 break; // We were signalled to test shouldDie/reload the group.
             case eYYYNetworkSuccess:
                 {
-                    char buffer[YYY_MAX_MSG_LEN-1];
-                    unsigned long len;
-                    YYY_ReadSocket(socket, buffer, sizeof(buffer), &len);
-                    server->giveMessage(buffer, len);
+                    void *user_data;
+                    while(YYY_GetNextWaitResult(results, &user_data) == eYYYNetworkSuccess){
+                        ServerCore *const server = (ServerCore*)user_data;
+                        char buffer[YYY_MAX_MSG_LEN-1];
+                        unsigned long len;
+                        YYY_ReadSocket(server->getSocket(), buffer, sizeof(buffer), &len);
+                        server->giveMessage(buffer, len);
+                    }
+                    YYY_DestroyWaitResult(results);
                 }
                 break;
             case eYYYNetworkFailure:

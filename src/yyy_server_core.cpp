@@ -46,10 +46,9 @@ namespace YYY {
 ServerCore::ServerCore()
   : m_protocol(NULL)
   , m_ui(NULL)
-  , m_socket((YYY_NetworkSocket*)malloc(YYY_NetworkSocketSize()))
+  , m_socket(NULL)
   , m_buffer((YYY_MSGBuffer*)malloc(YYY_MSGBufferSize()))
   , m_channel(){
-    YYY_InitSocket(m_socket);
     YYY_InitMSGBuffer(m_buffer);
 #ifndef NDEBUG
     m_first_connected = false;
@@ -60,11 +59,13 @@ ServerCore::ServerCore()
 
 ServerCore::~ServerCore(){
     
-    YYY_CloseSocket(m_socket);
-    YYY_DestroySocket(m_socket);
+    if(m_socket != NULL){
+        YYY_CloseSocket(m_socket);
+        YYY_DestroySocket(m_socket);
+        free(m_socket);
+    }
     YYY_DestroyMSGBuffer(m_buffer);
     
-    free(m_socket);
     free(m_buffer);
 }
 
@@ -74,6 +75,13 @@ void ServerCore::setUI(ServerUI &ui){
     assert(m_ui == NULL);
     m_ui = &ui;
     m_channel.setUI(ui.serverChannel());
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ServerCore::setSocket(YYY_NetworkSocket *socket){
+    assert(m_socket == NULL);
+    m_socket = socket;
 }
 
 /*---------------------------------------------------------------------------*/

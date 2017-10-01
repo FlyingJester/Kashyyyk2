@@ -208,11 +208,10 @@ void YYY_AddSocketToGroup(struct YYY_NetworkSocket *socket, void *user_data,
         else{
             if(group->num_sockets != 0){
                 /* Uhhh... */
-            assert(0&&"Invalid number of sockets for a zero-capacity group");
+                assert(0&&"Invalid number of sockets for a zero-capacity group");
             }
             group->sockets = (struct YYY_NetworkSocket **)socket;
             group->num_sockets = 1;
-            group->sockets = (struct YYY_NetworkSocket **)socket;
             group->user_data = (void**)user_data;
         }
     }
@@ -360,11 +359,14 @@ enum YYY_NetworkError YYY_WaitOnSocketGroup(struct YYY_SocketGroup *group,
     
     out_result[0] = NULL;
     
+    /* TODO: LOCK! */
+
     /* Prepare the fd_set's with the sockets. */
     if(group->socket_capacity == 0){
         /* Handle zero-capacity optimizations. */
         if(group->num_sockets == 0){
             /* We are waiting on a poke. */
+            /* TODO: UNLOCK! */
             const long t = timeout_in_microsecond;
             if(t < 0){
                 YYY_WAIT_SIGNALLER(group->signaller);
@@ -401,6 +403,8 @@ enum YYY_NetworkError YYY_WaitOnSocketGroup(struct YYY_SocketGroup *group,
         }
     }
     
+    /* TODO: UNLOCK! */
+    
     {
         int err_no;
         long time_remaining = timeout_in_microsecond;
@@ -420,6 +424,10 @@ enum YYY_NetworkError YYY_WaitOnSocketGroup(struct YYY_SocketGroup *group,
                 if(YYY_CHECK_SIGNALLER(group->signaller))
                     return eYYYNetworkPoked;
             } while(err_no == 0);
+            if(err_no < 0){
+                const int err_code = YYY_GET_ERROR();
+                fprintf(stderr, "YYY Network Error %i\n", err_code);
+            }
         }
         if(err_no == 0)
             return eYYYNetworkTimeout;
@@ -427,6 +435,7 @@ enum YYY_NetworkError YYY_WaitOnSocketGroup(struct YYY_SocketGroup *group,
             return eYYYNetworkFailure;
     }
     
+    /* TODO: LOCK! Below, add unlocks! */
     if(group->socket_capacity == 0){
         /* No need to do any loops here, only one socket could succeed. */
         struct YYY_NetworkSocket *const socket =

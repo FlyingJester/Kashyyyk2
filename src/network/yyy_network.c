@@ -96,7 +96,7 @@ enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *a_socket,
     /* We make the socket nonblocking first, so that if there is a timeout we
      * can use select to wait for the socket to become ready.
      */
-    if(timeout_in_microsecond < 0l)
+    if(timeout_in_microsecond < 0)
         YYY_MakeSocketNonBlocking(a_socket);
     
     err = connect(a_socket->socket, (const void*)(&a_socket->sockaddr),

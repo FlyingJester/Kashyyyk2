@@ -213,6 +213,7 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
     
     ServerCore &server = window.m_servers.create();
     server.createNewUi();
+    server.setSocket(socket);
     
     window.m_server_thread->addServer(server);
     

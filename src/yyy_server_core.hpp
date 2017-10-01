@@ -75,7 +75,7 @@ class ServerCore {
     ServerUI *m_ui; //!< Back reference to the UI
     Maintainer<ChannelCore> m_channels;
     
-    YYY_NetworkSocket *const m_socket;
+    YYY_NetworkSocket *m_socket;
     YYY_MSGBuffer *const m_buffer;
     Monitor m_monitor;
     
@@ -101,6 +101,14 @@ public:
     void setUI(ServerUI &ui);
     
     /**
+     * @brief Sets the UI. Defined to allow a default constructor.
+     *
+     * Asserts that this object was default constructed and had not been
+     * assigned before.
+     */
+    void setSocket(YYY_NetworkSocket *socket);
+    
+    /**
      * @brief Sets the protocol. Defined to allow a default constructor
      *
      * Asserts that this object was default constructed and had not been
@@ -110,6 +118,8 @@ public:
 
     void createNewUi();
     
+    inline YYY_NetworkSocket *getSocket() { return m_socket; }
+
     ChannelCore &serverChannel() { return m_channel; }
     const ChannelCore &serverChannel() const { return m_channel; }
     
