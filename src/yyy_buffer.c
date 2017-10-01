@@ -101,15 +101,15 @@ void YYY_PutMSGBuffer(struct YYY_MSGBuffer *buffer,
 /*---------------------------------------------------------------------------*/
 
 unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer, char *output){
-    unsigned short i = 0, insert = buffer->insert;
-    const unsigned short remove = buffer->remove;
+    unsigned short i = 0, remove = buffer->remove;
+    const unsigned short insert = buffer->insert;
     char last_char = '\0';
     
     if(buffer->crlf_count == 0)
         return 0;
     
-    while(insert != remove){
-        const char c = buffer->buffer[insert++];
+    while(remove != insert){
+        const char c = buffer->buffer[remove++];
         if(last_char == '\r' && c == '\n'){
             buffer->crlf_count--;
             break;
@@ -123,6 +123,6 @@ unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer, char *output){
     
     output[i] = '\0';
     
-    buffer->insert = insert;
+    buffer->remove = remove;
     return i;
 }
