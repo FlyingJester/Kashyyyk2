@@ -88,7 +88,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=T</NMakeBuildCommandLine>
-    <NMakeOutput>k2ui.lib</NMakeOutput>
+    <NMakeOutput>
+    </NMakeOutput>
     <NMakeCleanCommandLine>nmake /nologo /f makefile_ui.msvc clean</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>nmake /nologo /f makefile_ui.msvc clean &amp;&amp; nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=T </NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>

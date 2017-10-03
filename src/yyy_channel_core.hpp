@@ -62,7 +62,7 @@ public:
     void setUI(ChannelUI &ui);
     
     //! Stores a single IRC message.
-    struct Message {
+    struct ChannelMessage {
         enum {
             eNormalMessage,
             eMentionMessage,
@@ -80,7 +80,7 @@ public:
     
     //! Used to store messages in a linked list.
     struct MessageList {
-        struct Message m_message;
+        struct ChannelMessage m_message;
         struct MessageList *m_next;
     };
     
@@ -90,7 +90,7 @@ public:
     unsigned short numMessages() const { return m_num_messages; }
     
     //! Creates a new message in the front of the list, and returns a reference to it.
-    Message &pushFront();
+    ChannelMessage &pushFront();
     
     const struct MessageList *messages() const { return m_messages; }
     

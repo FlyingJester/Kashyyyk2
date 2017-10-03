@@ -119,8 +119,8 @@
     <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RDEBUG BITS=32</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=RDEBUG BITS=32</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RDEBUG BITS=32</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <OutDir>$(SolutionDir)src\irc</OutDir>
+    <NMakePreprocessorDefinitions>WIN32;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <OutDir>$(SolutionDir)src\irc\lib</OutDir>
     <IntDir>$(SolutionDir)src\irc\objects</IntDir>
     <NMakeOutput>$(SolutionDir)src\irc\lib\yyy_irc32rd.lib</NMakeOutput>
     <NMakeIncludeSearchPath>$(SolutionDir)src\chat</NMakeIncludeSearchPath>

@@ -34,11 +34,6 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-typedef ChannelCore::MessageList MessageList;
-typedef ChannelCore::Message Message;
-
-/*---------------------------------------------------------------------------*/
-
 const unsigned ChannelCore::c_default_max_messages = 312;
 
 /*---------------------------------------------------------------------------*/
@@ -94,10 +89,11 @@ unsigned short ChannelCore::maxMessages(unsigned short m){
 
 /*---------------------------------------------------------------------------*/
 
-Message &ChannelCore::pushFront(){
+ChannelCore::ChannelMessage &ChannelCore::pushFront(){
     assert(m_num_messages != 0 || m_messages != NULL);
     
-    struct MessageList *const new_msg = (m_spare != NULL) ? m_spare : new MessageList();
+    struct MessageList *const new_msg =
+        (m_spare != NULL) ? m_spare : new MessageList();
     m_spare = NULL;
     
     new_msg->m_next = m_messages;
@@ -136,7 +132,9 @@ void ChannelCore::FreeList(struct MessageList *list){
 
 /*---------------------------------------------------------------------------*/
 
-MessageList *ChannelCore::GetElement(struct MessageList *list, unsigned element_index){
+ChannelCore::MessageList *ChannelCore::GetElement(struct MessageList *list,
+    unsigned element_index){
+    
     for(unsigned i = 0; i < element_index; i++){
         assert(list != NULL);
         list = list->m_next;
@@ -146,7 +144,7 @@ MessageList *ChannelCore::GetElement(struct MessageList *list, unsigned element_
 
 /*---------------------------------------------------------------------------*/
 
-MessageList *ChannelCore::Tail(struct MessageList *list){
+ChannelCore::MessageList *ChannelCore::Tail(struct MessageList *list){
     if(list == NULL)
         return NULL;
     
