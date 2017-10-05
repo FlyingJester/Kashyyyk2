@@ -28,6 +28,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 namespace YYY{
 
@@ -61,6 +62,12 @@ void ChatProtocol::createResponseToPingMessage(const Message &in, Message &out){
     assert(in.type == eYYYChatPong);
     copyMessage(in, out);
     out.type = eYYYChatPong;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ChatProtocol::compareIdentifiers(const char *str0, const char *str1, unsigned short len){
+    return memcmp(str0, str1, len) == 0;
 }
 
 } // namespace YYY

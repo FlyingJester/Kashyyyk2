@@ -42,7 +42,8 @@ public:
     virtual const char *messageToString(const Message &msg, size_t &len);
 
     virtual void freeMessageString(const char *str);
-
+    
+    virtual bool compareIdentifiers(const char *str0, const char *str1, unsigned short len);
 };
 
 } // namespace YYY

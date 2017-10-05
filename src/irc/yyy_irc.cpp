@@ -33,16 +33,40 @@
 
 namespace YYY {
 
+static inline char irc_to_lower(const char c){
+    return (c >= 'A' && c <= 'Z') ? ((c - 'A') + 'a') :
+        (c == '{') ? '[' : 
+        (c == '|') ? '\\' : 
+        (c == '}') ? ']' : c;
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool IRCProtocol::parseMessage(const char *src, size_t len, Message &out){
     return YYY_IRCParseMessage(src, len, &out) != 0;
 }
+
+/*---------------------------------------------------------------------------*/
 
 const char *IRCProtocol::messageToString(const Message &msg, size_t &len){
     return YYY_IRCMessageToString(&msg, &len);
 }
 
+/*---------------------------------------------------------------------------*/
+
 void IRCProtocol::freeMessageString(const char *str){
     free((void*)str);
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ChatProtocol::compareIdentifiers(const char *str0, const char *str1, unsigned short len){
+    for(unsigned short i = 0; i < len; i++){
+        const char c0 = str0[i], c1 = str1[i];
+        if(c0 != c1 && irc_to_lower(c0) != irc_to_lower(c1))
+            return false;
+    }
+    return true;
 }
 
 } // namespace YYY

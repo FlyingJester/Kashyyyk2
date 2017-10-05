@@ -106,6 +106,8 @@ public:
      */
     virtual void createResponseToPingMessage(const Message &in, Message &out);
     
+    virtual bool compareIdentifiers(const char *str0, const char *str1, unsigned short len);
+
 };
 
 } // namespace YYY
