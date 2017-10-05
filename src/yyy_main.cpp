@@ -245,10 +245,12 @@ static void yyy_server_tree_callback(Fl_Widget *w, void *arg){
         ServerTree::ServerData *const data =
             (ServerTree::ServerData*)(item->user_data());
         assert(data != NULL);
-        ServerUI *const server = (ServerUI*)(data->arg);
+        ServerCore *const server = data->arg;
         if(ServerTree::IsConnected(data)){
             assert(server != NULL);
-            ChannelUI &channel = server->serverChannel();
+            ServerUI *const serverUI = server->getUI();
+            assert(serverUI != NULL);
+            ChannelUI &channel = serverUI->serverChannel();
             channel.updateScroll(*chat_scroll);
             channel.updateChatWidget(*chat_widget, *chat_scroll);
             chat_scroll->redraw();

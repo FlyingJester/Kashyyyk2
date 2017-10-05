@@ -101,6 +101,16 @@ public:
     void setUI(ServerUI &ui);
     
     /**
+     * @brief Gets the UI.
+     */
+    inline ServerUI *getUI() { return m_ui; }
+    
+    /**
+     * @brief Gets the UI.
+     */
+    inline const ServerUI *getUI() const { return m_ui; }
+    
+    /**
      * @brief Sets the UI. Defined to allow a default constructor.
      *
      * Asserts that this object was default constructed and had not been

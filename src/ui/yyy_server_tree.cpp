@@ -41,11 +41,6 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-typedef ServerTree::ServerStatus ServerStatus;
-typedef ServerTree::ServerData ServerData;
-
-/*---------------------------------------------------------------------------*/
-
 Fl_Menu_Item ServerTree::s_right_click_menu[9] = {
     {"Disconnect"},
     {"Reconnect"},
@@ -125,13 +120,13 @@ int ServerTree::handle(int e){
 
 /*---------------------------------------------------------------------------*/
 
-ServerData *ServerTree::getData(const std::string &server_name){
+ServerTree::ServerData *ServerTree::getData(const std::string &server_name){
     Fl_Tree_Item *const l_root = root();
     const unsigned num = l_root->children();
     for(unsigned i = 0; i < num; i++){
         Fl_Tree_Item *const l_child = l_root->child(i);
         if(l_child->label() == server_name)
-            return static_cast<ServerData*>(l_child->user_data());
+            return static_cast<ServerTree::ServerData*>(l_child->user_data());
     }
     
     return NULL;
@@ -139,14 +134,14 @@ ServerData *ServerTree::getData(const std::string &server_name){
 
 /*---------------------------------------------------------------------------*/
 
-ServerData *ServerTree::getData(const char *name, unsigned name_len){
+ServerTree::ServerData *ServerTree::getData(const char *name, unsigned name_len){
     Fl_Tree_Item *const l_root = root();
     const unsigned num = l_root->children();
     for(unsigned i = 0; i < num; i++){
         Fl_Tree_Item *const l_child = l_root->child(i);
         const char *const l_label = l_child->label();
         if(strncmp(l_label, name, name_len) == 0 && l_label[name_len] == '\0')
-            return static_cast<ServerData*>(l_child->user_data());
+            return static_cast<ServerTree::ServerData*>(l_child->user_data());
     }
     
     return NULL;
@@ -154,8 +149,8 @@ ServerData *ServerTree::getData(const char *name, unsigned name_len){
 
 /*---------------------------------------------------------------------------*/
 
-ServerStatus ServerTree::getServerStatus(const std::string &server_name) const{
-    const ServerData *const data =
+ServerTree::ServerStatus ServerTree::getServerStatus(const std::string &server_name) const{
+    const ServerTree::ServerData *const data =
         const_cast<ServerTree*>(this)->getData(server_name);
     if(data)
         return data->status;
@@ -165,8 +160,8 @@ ServerStatus ServerTree::getServerStatus(const std::string &server_name) const{
 
 /*---------------------------------------------------------------------------*/
 
-ServerStatus ServerTree::getServerStatus(const char *name, unsigned name_len) const{
-    const ServerData *const data =
+ServerTree::ServerStatus ServerTree::getServerStatus(const char *name, unsigned name_len) const{
+    const ServerTree::ServerData *const data =
         const_cast<ServerTree*>(this)->getData(name, name_len);
     if(data)
         return data->status;
@@ -177,8 +172,11 @@ ServerStatus ServerTree::getServerStatus(const char *name, unsigned name_len) co
 /*---------------------------------------------------------------------------*/
 
 // Note that Fl::lock should be called for multithreaded access to this.
-void ServerTree::setServerStatus(const std::string &server_name, ServerStatus status, void *arg){
-    ServerData *const data = getData(server_name);
+void ServerTree::setServerStatus(const std::string &server_name,
+    ServerTree::ServerStatus status,
+    ServerCore *arg){
+    
+    ServerTree::ServerData *const data = getData(server_name);
     if(data){
         data->status = status;
         data->arg = arg;
@@ -187,8 +185,12 @@ void ServerTree::setServerStatus(const std::string &server_name, ServerStatus st
 
 /*---------------------------------------------------------------------------*/
 
-void ServerTree::setServerStatus(const char *name, unsigned name_len, ServerStatus status, void *arg){
-    ServerData *const data = getData(name, name_len);
+void ServerTree::setServerStatus(const char *name,
+    unsigned name_len,
+    ServerTree::ServerStatus status,
+    ServerCore *arg){
+
+    ServerTree::ServerData *const data = getData(name, name_len);
     if(data){
         data->status = status;
         data->arg = arg;
@@ -199,7 +201,8 @@ void ServerTree::setServerStatus(const char *name, unsigned name_len, ServerStat
 // Fastcall forces flash to be on the stack, which for Watcom allows it to be
 // put in the same stack slot for the entire body of updateChildren.
 static void YYY_FASTCALL yyy_apply_item_color(Fl_Tree_Item *const item,
-    ServerStatus s, bool flash){
+    ServerTree::ServerStatus s,
+    bool flash){
     
     switch(s){
         case ServerTree::eConnected:
@@ -252,8 +255,8 @@ void ServerTree::updateChildren(){
         Fl_Tree_Item *const l_server = l_root.child(i);
         const unsigned num_channels = l_server->children();
         
-        ServerData *const l_data =
-            static_cast<ServerData *>(l_server->user_data());
+        ServerTree::ServerData *const l_data =
+            static_cast<ServerTree::ServerData *>(l_server->user_data());
         
         int s = (int)l_data->status;
         
@@ -267,11 +270,11 @@ void ServerTree::updateChildren(){
                 assert(other_s <= (int)eChannelEnd);
                 if(other_s > s)
                     s = other_s;
-                yyy_apply_item_color(l_channel, (ServerStatus)other_s, false);
+                yyy_apply_item_color(l_channel, (ServerTree::ServerStatus)other_s, false);
             }
         }
-        l_data->status = (ServerStatus)s;
-        yyy_apply_item_color(l_server, (ServerStatus)s, m_flash_tick);
+        l_data->status = (ServerTree::ServerStatus)s;
+        yyy_apply_item_color(l_server, (ServerTree::ServerStatus)s, m_flash_tick);
     }
 }
 

@@ -1,28 +1,67 @@
+/* 
+ *  Copyright (c) 2014-2017 Martin McDonough.  All rights reserved.
+ * 
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ * 
+ * - Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ * 
+ * - Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 
+ * - Products derived from this software may not be called "Kashyyyk", nor may
+ *     "YYY" appear in their name, without prior written permission of
+ *     the copyright holders.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+/*---------------------------------------------------------------------------*/
+/** 
+ * @file yyy_server_tree.hpp
+ * @brief Tree Widget to display Server and Channel names
+ * @author Martin McDonough
+ * @date 2017
+ */
+
+#ifndef YYY_SERVER_TREE_HPP
+#define YYY_SERVER_TREE_HPP
 #pragma once
 
 #include <FL/Fl_Image.H>
 #include <FL/Fl_Tree.H>
 #include <FL/Fl_Menu_Item.H>
 
+/*---------------------------------------------------------------------------*/
+
 #ifdef __WATCOMC__
 #undef max
 #undef min
 #endif
+
+/*---------------------------------------------------------------------------*/
 
 #include <vector>
 #include <string>
 
 #include <cassert>
 
-/** 
- * @file yyy_server_tree.hpp
- * @brief Tree Widget to display Server and Channel names
- * @author Martin McDonough
- * @date 2017
- * @copyright YYY Project License
- */
-
 namespace YYY {
+
+/*---------------------------------------------------------------------------*/
+
+class ServerCore;
+
+/*---------------------------------------------------------------------------*/
+
+class ChannelCore;
 
 /**
  * @brief Tree Widget used to sort a two-level hierarchy with a status for each
@@ -58,13 +97,13 @@ public:
     
     struct ServerData {
         ServerStatus status;
-        void *arg;
+        ServerCore *arg;
         const char uri[]; //!< Null-terminated
     };
     
     struct ChannelData {
         ServerStatus status;
-        void *arg;
+        ChannelCore *arg;
     };
     
     static inline bool IsConnected(const ServerStatus s){
@@ -105,7 +144,7 @@ public:
     void addConnectingServer(const char *uri,
         const char *name, unsigned name_len);
     
-    inline void connectionSucceeded(const char *name, unsigned name_len, void *arg = NULL){
+    inline void connectionSucceeded(const char *name, unsigned name_len, ServerCore *arg = NULL){
         setServerStatus(name, name_len, eConnected, arg);
         updateChildren();
         assert(m_num_connecting != 0);
@@ -113,7 +152,7 @@ public:
             Fl::remove_timeout(TimeoutCallback, this);
     }
     
-    inline void connectionSucceeded(const std::string &name, void *arg = NULL){
+    inline void connectionSucceeded(const std::string &name, ServerCore *arg = NULL){
         setServerStatus(name, eConnected, arg);
         updateChildren();
         assert(m_num_connecting != 0);
@@ -143,8 +182,8 @@ public:
     ServerStatus getServerStatus(const char *name, unsigned name_len) const;
 
     // Note that Fl::lock should be called for multithreaded access to this.
-    void setServerStatus(const std::string &server_name, ServerStatus, void *arg = NULL);
-    void setServerStatus(const char *name, unsigned name_len, ServerStatus, void *arg = NULL);
+    void setServerStatus(const std::string &server_name, ServerStatus, ServerCore *arg = NULL);
+    void setServerStatus(const char *name, unsigned name_len, ServerStatus, ServerCore *arg = NULL);
     
     ServerData *getData(const std::string &server_name);
     ServerData *getData(const char *name, unsigned name_len);
@@ -154,3 +193,5 @@ public:
 };
 
 } // namespace YYY
+
+#endif // YYY_SERVER_TREE_HPP
