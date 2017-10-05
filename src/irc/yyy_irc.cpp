@@ -31,7 +31,11 @@
 
 #include <stdlib.h>
 
+/*---------------------------------------------------------------------------*/
+
 namespace YYY {
+
+/*---------------------------------------------------------------------------*/
 
 static inline char irc_to_lower(const char c){
     return (c >= 'A' && c <= 'Z') ? ((c - 'A') + 'a') :
@@ -60,7 +64,7 @@ void IRCProtocol::freeMessageString(const char *str){
 
 /*---------------------------------------------------------------------------*/
 
-bool ChatProtocol::compareIdentifiers(const char *str0, const char *str1, unsigned short len){
+bool IRCProtocol::compareIdentifiers(const char *str0, const char *str1, unsigned short len){
     for(unsigned short i = 0; i < len; i++){
         const char c0 = str0[i], c1 = str1[i];
         if(c0 != c1 && irc_to_lower(c0) != irc_to_lower(c1))
