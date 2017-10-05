@@ -35,6 +35,9 @@
     <ClCompile Include="chat\yyy_chat.cpp" />
     <ClCompile Include="chat\yyy_chat.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="chat\yyy_chat_message.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{205AAA74-3E34-41C7-AFB1-39B94F602D81}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>

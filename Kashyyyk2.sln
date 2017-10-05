@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yyy_chat", "src\yyy_chat.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yyy_irc", "src\yyy_irc.vcxproj", "{1A177771-C5C0-455F-8ADC-D39EF6D26E25}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yyy_irc_test", "src\yyy_irc_test.vcxproj", "{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -123,6 +125,18 @@ Global
 		{1A177771-C5C0-455F-8ADC-D39EF6D26E25}.ReleaseWithAsserts|x64.Build.0 = ReleaseWithAsserts|x64
 		{1A177771-C5C0-455F-8ADC-D39EF6D26E25}.ReleaseWithAsserts|x86.ActiveCfg = ReleaseWithAsserts|Win32
 		{1A177771-C5C0-455F-8ADC-D39EF6D26E25}.ReleaseWithAsserts|x86.Build.0 = ReleaseWithAsserts|Win32
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Debug|x64.ActiveCfg = Debug|x64
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Debug|x64.Build.0 = Debug|x64
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Debug|x86.ActiveCfg = Debug|Win32
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Debug|x86.Build.0 = Debug|Win32
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Release|x64.ActiveCfg = Debug|x64
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Release|x64.Build.0 = Debug|x64
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Release|x86.ActiveCfg = Debug|Win32
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.Release|x86.Build.0 = Debug|Win32
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.ReleaseWithAsserts|x64.ActiveCfg = Debug|x64
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.ReleaseWithAsserts|x64.Build.0 = Debug|x64
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.ReleaseWithAsserts|x86.ActiveCfg = Debug|Win32
+		{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}.ReleaseWithAsserts|x86.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

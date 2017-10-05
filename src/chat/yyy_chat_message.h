@@ -33,6 +33,8 @@
     
 enum YYY_MessageType {
     eYYYChatNotification,
+    eYYYChatNick,
+    eYYYChatIdentify,
     eYYYChatPing,
     eYYYChatPong,
     eYYYChatMessage,
@@ -49,6 +51,7 @@ enum YYY_MessageType {
  * It is only intended as an intermediate format from a chat protocol to
  * Kashyyyk.
  */
+
 struct YYY_Message {
     
     enum YYY_MessageType type;
@@ -59,18 +62,36 @@ struct YYY_Message {
         struct {
             const char *from; /**< Sender's name */
             unsigned short from_len;
-        } from;
-
-        struct {
-            const char *message; /**< Ping/pong message */
-            unsigned short message_len;
-        } ping, pong;
+        } any_from;
+        
+        /** Used to read a message from data */
         struct {
             const char *from; /**< Sender's name */
             unsigned short from_len;
-            const char *message;  /**< Notification message */
+            const char *message;  /**< Message */
             unsigned short message_len;
-        } notification;
+        } any_message;
+        
+        struct {
+            const char *from; /**< Sender's name */
+            unsigned short from_len;
+            const char *nick; /**< New nick */
+            unsigned short nick_len;
+        } nick;
+        struct {
+            const char *from; /**< Sender's name */
+            unsigned short from_len;
+            const char *user; /**< Username */
+            unsigned short user_len;
+            const char *real; /**< Realname */
+            unsigned short real_len;
+        } identify;
+        struct {
+            const char *from; /**< Sender's name */
+            unsigned short from_len;
+            const char *message; /**< Ping/pong message */
+            unsigned short message_len;
+        } ping, pong, quit;
         struct {
             const char *from; /**< Sender's name */
             unsigned short from_len;
@@ -78,12 +99,10 @@ struct YYY_Message {
             unsigned short message_len;
             const char *to;  /**< Message destination (room or user) */
             unsigned short to_len;
-        } message;
+        } message, notification;
         struct {
             const char *from; /**< Joiner/Parter's name */
             unsigned short from_len;
-            const char *message; /** Joining/Parting message */
-            unsigned short message_len;
             const char *where; /**< Room the sender joined/parted */
             unsigned short where_len;
         } join, part;

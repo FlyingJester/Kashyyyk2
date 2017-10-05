@@ -3,7 +3,8 @@
 
 # YYY Chat MSVC NMake file
 
-OBJDIR=objects
+OBJDIR=objects\$(MODE)
+DEBUGOBJDIR=objects\DEBUG
 
 !IF ("$(MODE)"=="RELEASE")
 DEBUGMACRO=/DNDEBUG
@@ -22,10 +23,13 @@ LIBSUFFIX=rd
 
 CLFLAGS=/nologo $(DEBUGMACRO) $(OPTFLAGS) /M$(CRT) /I..\chat 
 
+YYYTEST=test\yyy_irc_core_test.exe
 YYYLIB=lib\yyy_irc$(BITS)$(LIBSUFFIX).lib
 OBJECTS=$(OBJDIR)\yyy_irc.obj $(OBJDIR)\yyy_irc_core.obj
 
 all: $(YYYLIB)
+
+test: $(YYYTEST)
 
 $(YYYLIB): $(OBJECTS)
 	lib /nologo $(OBJECTS) /OUT:$(YYYLIB)
@@ -35,6 +39,20 @@ $(OBJDIR)\yyy_irc.obj: yyy_irc.cpp yyy_irc.hpp yyy_irc_core.h ..\chat\yyy_chat.h
 
 $(OBJDIR)\yyy_irc_core.obj: yyy_irc_core.c yyy_irc_core.h
 	@cl $(CLFLAGS) /c yyy_irc_core.c /Fo:$(OBJDIR)\yyy_irc_core.obj
+
+$(OBJDIR)\yyy_irc_core_test.obj: yyy_irc_core_test.c yyy_irc_core.h
+	@cl $(CLFLAGS) /I../../test /c yyy_irc_core_test.c /Fo:$(OBJDIR)\yyy_irc_core_test.obj
+
+TESTOBJECTS=$(DEBUGOBJDIR)\yyy_irc_core.obj $(DEBUGOBJDIR)\yyy_irc_core_test.obj
+
+$(YYYTEST): yyy_irc_core_test.c yyy_irc_core.h yyy_irc_core.c ../../test/yyy_test.h ../chat/yyy_chat_message.h
+	$(MAKE) /nologo /f makefile.msvc MODE=DEBUG CRT=Dd BITS=$(BITS) $(TESTOBJECTS)
+	link /nologo $(TESTOBJECTS) /out:$(YYYTEST)
+	$(YYYTEST)
+
+test_clean:
+	@del /Q $(TESTOBJECTS)
+	@del /Q $(YYYTEST)
 
 clean:
 	@del /Q $(OBJDIR)\yyy_irc.obj
