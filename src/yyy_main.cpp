@@ -38,6 +38,7 @@
 #include <vector>
 
 // Included early to fix warnings about unary & operators.
+#include <FL/fl_ask.H>
 #include <FL/Fl_Image.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Tree.H>

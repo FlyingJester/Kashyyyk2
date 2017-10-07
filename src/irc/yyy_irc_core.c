@@ -141,6 +141,8 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
         out_msg->m.WHAT.TO = src + i;\
         while(i + 1 < len && !(src[i] == '\r' && src[i+1] == '\n'))\
             i++;\
+        if(src[i] != '\r')\
+            i = len;\
         out_msg->m.WHAT.TO ## _len = i - WHAT ## TO ## len;\
     }while(0)
 #define YYY_IRC_GET_ARG(WHAT, TO)\

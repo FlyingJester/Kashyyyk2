@@ -70,6 +70,29 @@ ChannelCore::~ChannelCore(){
 
 /*---------------------------------------------------------------------------*/
 
+void ChannelCore::ChannelMessage::assignMessage(const char *msg, unsigned short len){
+    m_data |= len << 6;
+    char *dest;
+    if(IsInArray(len))
+        dest = m_message.m_array;
+    else
+        dest = m_message.m_ptr = (char *)malloc(len+1);
+
+    memcpy(dest, msg, len);
+    dest[len] = '\0';
+}
+
+/*---------------------------------------------------------------------------*/
+
+const char *ChannelCore::ChannelMessage::message(unsigned short &len) const {
+    if(IsInArray(len = messageLength()))
+        return m_message.m_array;
+    else
+        return m_message.m_ptr;
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ChannelCore::setUI(ChannelUI &ui){
     assert(m_ui == NULL);
     m_ui = &ui;

@@ -253,7 +253,6 @@
     <ClCompile Include="yyy_connect_thread.c" />
     <ClCompile Include="yyy_date.c" />
     <ClCompile Include="yyy_main.cpp" />
-    <ClCompile Include="yyy_prefs.c" />
     <ClCompile Include="yyy_server_core.cpp" />
     <ClCompile Include="yyy_server_thread.cpp" />
     <ClCompile Include="yyy_server_ui.cpp" />
@@ -274,7 +273,6 @@
     <ClInclude Include="yyy_connect_thread.h" />
     <ClInclude Include="yyy_date.h" />
     <ClInclude Include="yyy_main.h" />
-    <ClInclude Include="yyy_prefs.h" />
     <ClInclude Include="yyy_server_core.hpp" />
     <ClInclude Include="yyy_server_thread.hpp" />
     <ClInclude Include="yyy_server_ui.hpp" />

@@ -72,7 +72,7 @@ void ChannelUI::updateChatWidget(ChatWidget &to,
     
     for(unsigned i = 0; i < maximum; i++){
         YYY_Assert(msg != NULL, "Channel message count is inconsistent");
-        to.setMessageStatic(maximum - (i + 1), msg->m_message.m_user, msg->m_message.m_message.c_str());
+        to.setMessageStatic(maximum - (i + 1), msg->m_message.m_user, msg->m_message.message());
         msg = msg->m_next;
     }
     to.redraw();
