@@ -73,6 +73,11 @@
 #include "irc/yyy_discord.hpp"
 #endif
 
+#ifdef _WIN32
+#include "Windows.h"
+#include "TCHAR.h"
+#endif
+
 const char help_string[] = "Kashyyyk2\n"\
     "    -v, --version   Display version information\n"\
     "    -h, --help      Display this help information\n";
@@ -298,6 +303,24 @@ static bool Main(unsigned num_args, const std::string *args){
 
     YYY_StartConnectThread();
     yyy_main_window.m_window = YYY_MakeWindow();
+#if _WIN32
+    // Get the application icon, and set the FLTK window to this icon.
+    {
+        const HINSTANCE instance = GetModuleHandle(NULL);
+        HICON icon = LoadIcon(instance, IDI_APPLICATION);
+        if(icon != NULL){
+            yyy_main_window.m_window->icon(icon);
+        }
+        else{
+            const int err = GetLastError();
+            (void)err;
+            TCHAR buffer[81];
+            _sntprintf(buffer, 40, TEXT("Could not load icon: %i\n"), err);
+            buffer[80] = *TEXT("");
+            OutputDebugString(buffer);
+        }
+    }
+#endif
     yyy_main_window.m_server_tree = server_tree;
     yyy_main_window.m_window->show();
     yyy_main_window.m_server_thread = new ServerThread();
