@@ -25,6 +25,8 @@
  */
 /*---------------------------------------------------------------------------*/
 
+#include "kashyyyk2.hpp"
+
 #include "yyy_server_core.hpp"
 
 #include "yyy_server_ui.hpp"
@@ -137,7 +139,11 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                 yyy_msg.type(ChannelCore::ChannelMessage::eNormalMessage);
                 yyy_msg.assignMessage(msg.m.notification.message, msg.m.notification.message_len);
                 YYY_DateSetNow(&yyy_msg.m_date);
-
+                ChannelUI &channel = m_ui->serverChannel();
+                channel.updateScroll(*chat_scroll);
+                channel.updateChatWidget(*chat_widget, *chat_scroll);
+                chat_scroll->redraw();
+                chat_widget->redraw();
             }
             break;
         default: break;
@@ -150,8 +156,13 @@ void ServerCore::giveMessage(const char *msg, unsigned len){
     assert(len < YYY_MAX_MSG_LEN);
     YYY_PutMSGBuffer(m_buffer, msg, len);
     char buffer[YYY_MAX_MSG_LEN];
-    while(unsigned long n = YYY_GetMSGBuffer(m_buffer, buffer)){
-        handleMessage(buffer, n);
+    unsigned long n = YYY_GetMSGBuffer(m_buffer, buffer);
+    if(n){
+        Fl::lock();
+        do{
+            handleMessage(buffer, n);
+        }while(n = YYY_GetMSGBuffer(m_buffer, buffer));
+        Fl::unlock();
     }
 }
 

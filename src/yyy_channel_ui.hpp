@@ -58,7 +58,7 @@ class ChannelUI {
     // Must not be a reference to allow us to have a default constructor so
     // that this can be held in a vector in older C++ standard compilers.
     ChannelCore &m_core;
-    
+
     ServerTree::ChannelData *m_ui_data;
     
     // Message at the bottom of the screen. This is zero for the default.

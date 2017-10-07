@@ -77,5 +77,4 @@ void ChannelUI::updateChatWidget(ChatWidget &to,
     }
     to.redraw();
 }
-
 } // namespace YYY
