@@ -17,7 +17,7 @@ yyy_connect.cpp: ui\yyy_connect.fl
 kashyyyk2.cpp: ui\kashyyyk2.fl
 	$(FLUID) -c ui\kashyyyk2.fl
 
-CLFLAGS=/nologo /EHsc /DWIN32 /I$(FLTKDIR) /Iutils /M$(CRT)
+CLFLAGS=/nologo /EHsc /DWIN32 /I$(FLTKDIR) /Iutils /M$(CRT) /Zi
 
 $(OBJDIR)\yyy_connect.obj: yyy_connect.cpp
 	@cl $(CLFLAGS) /c yyy_connect.cpp /Fo:$(OBJDIR)\yyy_connect.obj

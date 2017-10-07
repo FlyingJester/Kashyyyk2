@@ -121,12 +121,6 @@ void ServerCore::handleMessage(const char *str, unsigned len){
         puts("[ERROR parsing!]");
     }
 
-    {
-        std::string str(str, len);
-        str += '\n';
-        OutputDebugStringA(str.c_str());
-    }
-
     switch(msg.type){
         case eYYYChatPing:
             m_protocol->createResponseToPingMessage(msg, msg);
@@ -137,7 +131,15 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                 m_protocol->freeMessageString(pong);
             }
             break;
-        
+        case eYYYChatNotification:
+            {
+                ChannelCore::ChannelMessage &yyy_msg = m_channel.pushFront();
+                yyy_msg.m_type = ChannelCore::ChannelMessage::eNormalMessage;
+                yyy_msg.m_message.assign(msg.m.notification.message,
+                    msg.m.notification.message_len);
+                YYY_DateSetNow(&yyy_msg.m_date);
+            }
+            break;
         default: break;
     }
 }

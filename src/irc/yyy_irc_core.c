@@ -26,6 +26,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include "yyy_irc_core.h"
+#include "yyy_irc_numerics.h"
 #include <stddef.h>
 #include <assert.h>
 #include <string.h>
@@ -97,7 +98,25 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
     }
 
     /* Parse the command type */
-    {
+    if(i + 4 < len && YYY_STRING_IS_NUMERIC(src+i)){
+        /* Numeric command */
+        const enum YYY_NumericCode code =
+            YYY_STRING_TO_NUMERIC_CODE(src+i);
+        i += 3;
+
+        /* TODO! 
+        switch(code){
+            
+
+        }
+        */
+        while(i+1 < len && src[i] != ' ')
+            i++;
+        while(i+1 < len && src[i] == ' ')
+            i++;
+
+    }
+    else{
         char type_buffer[10];
         unsigned at = 0, n;
         while(at < sizeof(type_buffer) && i + 1 < len && src[i] != ' ')
@@ -159,7 +178,7 @@ yyy_msg_found_colon:
             if(i + 1 < len && src[i] == ':')
                 i++;
             YYY_IRC_FINISH_ARG(notification, message);
-            
+            return 1;
         case eYYYChatQuit:
             if(src[i] == '\r' && src[i+1] == '\n')
                 break;

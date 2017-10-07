@@ -90,7 +90,7 @@ unsigned short ChannelCore::maxMessages(unsigned short m){
 /*---------------------------------------------------------------------------*/
 
 ChannelCore::ChannelMessage &ChannelCore::pushFront(){
-    assert(m_num_messages != 0 || m_messages != NULL);
+    assert((m_num_messages == 0) == (m_messages == NULL));
     
     struct MessageList *const new_msg =
         (m_spare != NULL) ? m_spare : new MessageList();

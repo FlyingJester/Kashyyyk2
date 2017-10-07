@@ -57,23 +57,23 @@ struct YYY_Date {
  */
 /*---------------------------------------------------------------------------*/
 
-unsigned YYY_PURE_INLINE(YYY_GetYear(const struct YYY_Date date));
+unsigned YYY_PURE_INLINE(YYY_DateGetYear(const struct YYY_Date date));
 
 /*---------------------------------------------------------------------------*/
 
-unsigned YYY_PURE_INLINE(YYY_GetMonth(const struct YYY_Date date));
+unsigned YYY_PURE_INLINE(YYY_DateGetMonth(const struct YYY_Date date));
 
 /*---------------------------------------------------------------------------*/
 
-unsigned YYY_PURE_INLINE(YYY_GetDay(const struct YYY_Date date));
+unsigned YYY_PURE_INLINE(YYY_DateGetDay(const struct YYY_Date date));
 
 /*---------------------------------------------------------------------------*/
 
-unsigned YYY_PURE_INLINE(YYY_GetHour(const struct YYY_Date date));
+unsigned YYY_PURE_INLINE(YYY_DateGetHour(const struct YYY_Date date));
 
 /*---------------------------------------------------------------------------*/
 
-unsigned YYY_PURE_INLINE(YYY_GetMinute(const struct YYY_Date date));
+unsigned YYY_PURE_INLINE(YYY_DateGetMinute(const struct YYY_Date date));
 
 /**
  * @}
@@ -85,23 +85,27 @@ unsigned YYY_PURE_INLINE(YYY_GetMinute(const struct YYY_Date date));
  */
 /*---------------------------------------------------------------------------*/
 
-void YYY_PURE_INLINE(YYY_SetYear(struct YYY_Date *date, unsigned y));
+void YYY_PURE_INLINE(YYY_DateSetYear(struct YYY_Date *date, unsigned y));
 
 /*---------------------------------------------------------------------------*/
 
-void YYY_PURE_INLINE(YYY_SetMonth(struct YYY_Date *date, unsigned m));
+void YYY_PURE_INLINE(YYY_DateSetMonth(struct YYY_Date *date, unsigned m));
 
 /*---------------------------------------------------------------------------*/
 
-void YYY_PURE_INLINE(YYY_SetDay(struct YYY_Date *date, unsigned d));
+void YYY_PURE_INLINE(YYY_DateSetDay(struct YYY_Date *date, unsigned d));
 
 /*---------------------------------------------------------------------------*/
 
-void YYY_PURE_INLINE(YYY_SetHour(struct YYY_Date *date, unsigned h));
+void YYY_PURE_INLINE(YYY_DateSetHour(struct YYY_Date *date, unsigned h));
 
 /*---------------------------------------------------------------------------*/
 
-void YYY_PURE_INLINE(YYY_SetMinute(struct YYY_Date *date, unsigned m));
+void YYY_PURE_INLINE(YYY_DateSetMinute(struct YYY_Date *date, unsigned m));
+
+/*---------------------------------------------------------------------------*/
+
+void YYY_DateSetNow(struct YYY_Date *date);
 
 /**
  * @}

@@ -21,7 +21,7 @@ OPTFLAGS=/O1 /GL
 LIBSUFFIX=rd
 !ENDIF
 
-CLFLAGS=/nologo $(DEBUGMACRO) $(OPTFLAGS) /M$(CRT) /I..\chat 
+CLFLAGS=/nologo $(DEBUGMACRO) $(OPTFLAGS) /Zi /M$(CRT) /I..\chat 
 
 YYYTEST=test\yyy_irc_core_test.exe
 YYYLIB=lib\yyy_irc$(BITS)$(LIBSUFFIX).lib
