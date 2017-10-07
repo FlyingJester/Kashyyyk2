@@ -196,6 +196,28 @@ static int yyy_parse_nick_test1(void){
 
 /*---------------------------------------------------------------------------*/
 
+static int yyy_parse_notice_test0(void){
+    int SUCCESS_INDICATOR = 1;
+ 
+    
+    #define YYY_NOTICE_FROM_0 "hobana.freenode.net"
+    #define YYY_NOTICE_MSG_0 "*** Looking up your hostname..."
+    YYY_PARSE_TEST(":" YYY_NOTICE_FROM_0 " NOTICE * :" YYY_NOTICE_MSG_0);
+    YYY_ASSERT_INT_EQ(YYY_MSG.type, eYYYChatNotification);
+    fwrite(YYY_MSG.m.notification.message, 1, YYY_MSG.m.notification.message_len, stdout); putchar('\n');
+    YYY_ASSERT_YYY_STR_EQ_LITERAL_N(YYY_MSG.m.notification.message,
+        YYY_MSG.m.notification.message_len, YYY_NOTICE_MSG_0);
+    YYY_ASSERT_YYY_STR_EQ_LITERAL_N(YYY_MSG.m.notification.from,
+        YYY_MSG.m.notification.from_len, YYY_NOTICE_FROM_0);
+    
+    YYY_ASSERT_YYY_STR_EQ_LITERAL_N(YYY_MSG.m.notification.to,
+        YYY_MSG.m.notification.to_len, "*");
+    
+    return SUCCESS_INDICATOR;
+}
+
+/*---------------------------------------------------------------------------*/
+
 int YYY_DummyParseTest(void) { return 1; }
 int YYY_DummyStringifyTest(void) { return 1; }
 
@@ -203,7 +225,8 @@ int YYY_DummyStringifyTest(void) { return 1; }
 
 const struct YYY_Test YYY_IRCParseTests[] = {
     YYY_TEST(yyy_parse_nick_test0),
-    YYY_TEST(yyy_parse_nick_test1)
+    YYY_TEST(yyy_parse_nick_test1),
+    YYY_TEST(yyy_parse_notice_test0)
 };
 
 const struct YYY_Test YYY_IRCStringifyTests[] = {

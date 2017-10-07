@@ -139,7 +139,27 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
     switch(out_msg->type){
         case eYYYChatNotification: 
         case eYYYChatMessage:
+            YYY_IRC_GET_ARG(notification, to);
+                        /* If we don't find a colon, remember the final space character and
+             * resest to that location */
+            {
+                unsigned last_space = ++i;
+                while(i + 1 < len && !(src[i] == '\r' && src[i+1] == '\n')){
+                    const char c = src[i++];
+                    if(c == ':')
+                        goto yyy_msg_found_colon;
+                    if(c == ' ')
+                        last_space = i;
+                }
 
+                /* If we made it this far, there was no colon. */
+                i = last_space;
+            }
+yyy_msg_found_colon:
+            if(i + 1 < len && src[i] == ':')
+                i++;
+            YYY_IRC_FINISH_ARG(notification, message);
+            
         case eYYYChatQuit:
             if(src[i] == '\r' && src[i+1] == '\n')
                 break;

@@ -25,7 +25,7 @@ CLFLAGS=/nologo $(DEBUGMACRO) $(OPTFLAGS) /M$(CRT) /I..\chat
 
 YYYTEST=test\yyy_irc_core_test.exe
 YYYLIB=lib\yyy_irc$(BITS)$(LIBSUFFIX).lib
-OBJECTS=$(OBJDIR)\yyy_irc.obj $(OBJDIR)\yyy_irc_core.obj
+OBJECTS=$(OBJDIR)\yyy_irc.obj $(OBJDIR)\yyy_irc_core.obj $(OBJDIR)\yyy_irc_numerics.obj
 
 all: $(YYYLIB)
 
@@ -37,15 +37,18 @@ $(YYYLIB): $(OBJECTS)
 $(OBJDIR)\yyy_irc.obj: yyy_irc.cpp yyy_irc.hpp yyy_irc_core.h ..\chat\yyy_chat.hpp
 	@cl $(CLFLAGS) /c yyy_irc.cpp /Fo:$(OBJDIR)\yyy_irc.obj
 
-$(OBJDIR)\yyy_irc_core.obj: yyy_irc_core.c yyy_irc_core.h
+$(OBJDIR)\yyy_irc_core.obj: yyy_irc_core.c yyy_irc_core.h yyy_irc_numerics.h
 	@cl $(CLFLAGS) /c yyy_irc_core.c /Fo:$(OBJDIR)\yyy_irc_core.obj
+
+$(OBJDIR)\yyy_irc_numerics.obj: yyy_irc_numerics.c yyy_irc_numerics.h
+	@cl $(CLFLAGS) /c yyy_irc_numerics.c /Fo:$(OBJDIR)\yyy_irc_numerics.obj
 
 $(OBJDIR)\yyy_irc_core_test.obj: yyy_irc_core_test.c yyy_irc_core.h
 	@cl $(CLFLAGS) /I../../test /c yyy_irc_core_test.c /Fo:$(OBJDIR)\yyy_irc_core_test.obj
 
 TESTOBJECTS=$(DEBUGOBJDIR)\yyy_irc_core.obj $(DEBUGOBJDIR)\yyy_irc_core_test.obj
 
-$(YYYTEST): yyy_irc_core_test.c yyy_irc_core.h yyy_irc_core.c ../../test/yyy_test.h ../chat/yyy_chat_message.h
+$(YYYTEST): yyy_irc_core_test.c yyy_irc_core.h yyy_irc_core.c yyy_irc_numerics.c yyy_irc_numerics.h ../../test/yyy_test.h ../chat/yyy_chat_message.h
 	$(MAKE) /nologo /f makefile.msvc MODE=DEBUG CRT=Dd BITS=$(BITS) $(TESTOBJECTS)
 	link /nologo $(TESTOBJECTS) /out:$(YYYTEST)
 	$(YYYTEST)

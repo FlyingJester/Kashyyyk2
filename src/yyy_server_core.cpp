@@ -120,7 +120,13 @@ void ServerCore::handleMessage(const char *str, unsigned len){
     if(!m_protocol->parseMessage(str, len, msg)){
         puts("[ERROR parsing!]");
     }
-    
+
+    {
+        std::string str(str, len);
+        str += '\n';
+        OutputDebugStringA(str.c_str());
+    }
+
     switch(msg.type){
         case eYYYChatPing:
             m_protocol->createResponseToPingMessage(msg, msg);

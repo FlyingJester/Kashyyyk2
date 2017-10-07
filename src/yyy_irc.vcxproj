@@ -36,6 +36,10 @@
     <ClCompile Include="irc\yyy_irc.hpp" />
     <ClCompile Include="irc\yyy_irc_core.c" />
     <ClCompile Include="irc\yyy_irc_core.h" />
+    <ClCompile Include="irc\yyy_irc_numerics.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="irc\yyy_irc_numerics.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1A177771-C5C0-455F-8ADC-D39EF6D26E25}</ProjectGuid>
