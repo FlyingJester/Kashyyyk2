@@ -29,7 +29,6 @@
 
 #include "yyy_assert.h"
 #include "yyy_connect_thread.h"
-#include "yyy_prefs.h"
 
 // Vector must be included before Fl_Window or else Watcom literally crashes.
 // The issue seems related with FL_x.H including Windows.h, which redefines
@@ -88,7 +87,6 @@ struct Window {
     
     ServerTree *m_server_tree;
     ServerThread *m_server_thread;
-    YYY_Prefs m_prefs;
     
 } yyy_main_window;
 

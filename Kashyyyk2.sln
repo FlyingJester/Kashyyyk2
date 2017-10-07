@@ -30,6 +30,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yyy_irc", "src\yyy_irc.vcxproj", "{1A177771-C5C0-455F-8ADC-D39EF6D26E25}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yyy_irc_test", "src\yyy_irc_test.vcxproj", "{72E1EB4B-2EDB-4C68-9FDC-7D29B2CAB0FD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1A177771-C5C0-455F-8ADC-D39EF6D26E25} = {1A177771-C5C0-455F-8ADC-D39EF6D26E25}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
