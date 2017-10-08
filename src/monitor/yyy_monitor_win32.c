@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <Windows.h>
 #include <assert.h>
-#undef WIN32_LEAN_AND_MEAN
 
 struct YYY_Monitor {
 	CONDITION_VARIABLE cv;

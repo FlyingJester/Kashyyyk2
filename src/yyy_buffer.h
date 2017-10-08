@@ -75,8 +75,14 @@ void YYY_PutMSGBuffer(struct YYY_MSGBuffer *buffer,
     const void *message, unsigned message_len);
 
 /*---------------------------------------------------------------------------*/
-/* Returns the amount written. Zero indicates no messages ready. Output will
- * also be null-terminated. */
+/**
+ * @brief Retrieves a message from a buffer, or zero if there are no messages.
+ *
+ * Output will be null-terminated. @p output must be at least YYY_MAX_MSG_LEN
+ * bytes long.
+ *
+ * @returns Number of characters written.
+ */
 unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer,
     char output[YYY_MAX_MSG_LEN]);
 

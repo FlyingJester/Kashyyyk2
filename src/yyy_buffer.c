@@ -27,6 +27,8 @@
 
 #include "yyy_buffer.h"
 
+#include <assert.h>
+
 #define YYY_BUF_LEN 640
 
 /*---------------------------------------------------------------------------*/
@@ -93,7 +95,7 @@ void YYY_PutMSGBuffer(struct YYY_MSGBuffer *buffer,
             if(insert == YYY_BUF_LEN - 1)
                 buffer->insert = 0;
             else
-                buffer->insert = insert+1;
+                buffer->insert++;
         }
     }
 }
@@ -120,7 +122,8 @@ unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer, char *output){
         if(c != 0x7F && (c == '\t' || c >= ' '))
             output[i++] = c;
 
-        if(remove == YYY_BUF_LEN)
+        assert(remove <= YYY_BUF_LEN + 1);
+        if(remove >= YYY_BUF_LEN + 1)
             remove = 0;
     }
     

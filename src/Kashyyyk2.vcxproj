@@ -128,7 +128,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fltkd.lib;ws2_32.lib;monitor\lib\yyy_monitor32d.lib;chat\lib\yyy_chat32d.lib;irc\lib\yyy_irc32d.lib;thread\lib\yyy_thread32d.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltkd.lib;ws2_32.lib;Fwpuclnt.lib;monitor\lib\yyy_monitor32d.lib;chat\lib\yyy_chat32d.lib;irc\lib\yyy_irc32d.lib;thread\lib\yyy_thread32d.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)fltk\32</AdditionalLibraryDirectories>
       <LinkStatus>true</LinkStatus>
     </Link>
@@ -288,8 +288,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\art\yyy.ico" />
-    <Image Include="icon1.ico" />
-    <Image Include="icon2.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

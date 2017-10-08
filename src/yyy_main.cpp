@@ -74,6 +74,7 @@
 #endif
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 #include "TCHAR.h"
 #endif
@@ -314,12 +315,7 @@ static bool Main(unsigned num_args, const std::string *args){
             DestroyIcon(icon);
         }
         else{
-            const int err = GetLastError();
-            (void)err;
-            TCHAR buffer[81];
-            _sntprintf(buffer, 40, TEXT("Could not load icon: %i\n"), err);
-            buffer[80] = *TEXT("");
-            OutputDebugString(buffer);
+            OutputDebugString(TEXT("Could not load icon\n"));
         }
     }
 #endif
