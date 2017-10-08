@@ -55,6 +55,9 @@ struct YYY_NetworkSocket{
     struct hostent *host;
     struct sockaddr_in sockaddr;
     SOCKET socket;
+#ifndef YYY_NETWORK_DISABLE_TLS
+    unsigned char has_tls;
+#endif
 };
 
 /*---------------------------------------------------------------------------*/

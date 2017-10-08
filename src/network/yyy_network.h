@@ -71,9 +71,20 @@ enum YYY_NetworkError YYY_InitSocket(struct YYY_NetworkSocket *socket);
 enum YYY_NetworkError YYY_DestroySocket(struct YYY_NetworkSocket *socket);
 
 /**
+ * @brief Enables a TLS/SSL with the socket.
+ *
+ * This must be called after YYY_InitSocket, but before YYY_ConnectSocket.
+ * If yyy_network was compiled with YYY_NETWORK_DISABLE_TLS then this function
+ * will always return failure.
+ */
+enum YYY_NetworkError YYY_EnableSocketTLS(struct YYY_NetworkSocket *socket);
+
+/**
  * @brief Tries to connect a socket to the specified address.
  *
- * The socket must be initialized with YYY_InitSocket.
+ * The socket must be initialized with YYY_InitSocket. If SSL/TLS is needed,
+ * YYY_EnableSocketTLS must have been called on the socket before this
+ * function is used.
  *
  * @param socket Socket to connect
  * @param address Address to connect to. This can be an IP address, a hostname,

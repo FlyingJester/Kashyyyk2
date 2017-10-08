@@ -33,17 +33,23 @@
 #include "yyy_network_unix.h"
 #endif
 
+#ifndef YYY_NETWORK_DISABLE_TLS
+#define YYY_TLS_INTERNAL 1
+#include "yyy_network_tls.h"
+#undef YYY_TLS_INTERNAL
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------*/
 
 unsigned YYY_NetworkSocketSize(){
     return sizeof(struct YYY_NetworkSocket);
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------*/
 
 enum YYY_NetworkError YYY_InitSocket(struct YYY_NetworkSocket *socket){
     assert(socket != NULL);
@@ -54,7 +60,7 @@ enum YYY_NetworkError YYY_InitSocket(struct YYY_NetworkSocket *socket){
     return eYYYNetworkSuccess;
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------*/
 
 enum YYY_NetworkError YYY_DestroySocket(struct YYY_NetworkSocket *socket) {
     (void)socket;
@@ -62,7 +68,16 @@ enum YYY_NetworkError YYY_DestroySocket(struct YYY_NetworkSocket *socket) {
     return (socket == NULL) ? eYYYNetworkFailure : eYYYNetworkSuccess;
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------*/
+
+/* We have no backend, we must dummy this symbol out. */
+#ifdef YYY_NETWORK_DISABLE_TLS
+enum YYY_NetworkError YYY_EnableSocketTLS(struct YYY_NetworkSocket *){
+    return eYYYNetworkFailure;
+}
+#endif
+
+/*---------------------------------------------------------------------------*/
 
 enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *a_socket,
     const char *address, unsigned long port, long timeout_in_microsecond){
@@ -158,21 +173,30 @@ enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *a_socket,
     /* Restore the socket to blocking again */
     YYY_MakeSocketBlocking(a_socket);
     
+#ifndef YYY_NETWORK_DISABLE_TLS
+    if(a_socket->has_tls)
+        YYY_TLSBeginConnection(a_socket);
+#endif
+
     return eYYYNetworkSuccess;
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------*/
 
 enum YYY_NetworkError YYY_CloseSocket(struct YYY_NetworkSocket *a_socket){
     if(a_socket == NULL)
         return eYYYNetworkFailure;
     if(!YYY_SOCKET_IS_VALID(a_socket))
         return eYYYNetworkNotConnected;
+#ifndef YYY_NETWORK_DISABLE_TLS
+    if(a_socket->has_tls)
+        YYY_TLSEndConnection(a_socket);
+#endif
     YYY_CLOSE_SOCKET(a_socket);
     return eYYYNetworkSuccess;
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------*/
 
 enum YYY_NetworkError YYY_ReadSocket(
     struct YYY_NetworkSocket * YYY_NETWORK_RESTRICT a_socket,
@@ -188,12 +212,24 @@ enum YYY_NetworkError YYY_ReadSocket(
         out_length_read[0] = 0;
     else{
         const int err = recv(a_socket->socket, output, length_to_read, 0);
+
         if(err < 0){
             out_length_read[0] = 0;
             return eYYYNetworkFailure;
         }
         else{
+#ifndef YYY_NETWORK_DISABLE_TLS
+            size_t n;
+            void *const decoded =
+                YYY_TLSDecode(a_socket, output, length_to_read, &n);
+            assert(n <= length_to_read);
+            if(decoded != output)
+                memcpy(output, decoded, n);
+            YYY_TLSFreeDecode(a_socket, decoded);
+            out_length_read[0] = n;
+#else
             out_length_read[0] = err;
+#endif
         }
     }
     /* TODO: Check for closure error. */
@@ -201,7 +237,7 @@ enum YYY_NetworkError YYY_ReadSocket(
     return eYYYNetworkSuccess;
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------*/
 
 enum YYY_NetworkError YYY_WriteSocket(
     struct YYY_NetworkSocket * YYY_NETWORK_RESTRICT socket,
@@ -211,7 +247,15 @@ enum YYY_NetworkError YYY_WriteSocket(
     assert(input != NULL || length_to_write == 0);
         
     if(length_to_write > 0){
-        const long err = send(socket->socket, input, length_to_write, 0);
+        const void *to_send = input;
+        size_t write_len = length_to_write;
+#ifndef YYY_NETWORK_DISABLE_TLS
+        to_send = YYY_TLSEncode(socket, input, length_to_write, &write_len);
+#endif
+        const long err = send(socket->socket, to_send, write_len, 0);
+#ifndef YYY_NETWORK_DISABLE_TLS
+        YYY_TLSFreeEncode(socket, (void*)to_send);
+#endif
         if(err < 0)
             return eYYYNetworkFailure;
         /* TODO: Handle specific errors. */
