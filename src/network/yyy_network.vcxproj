@@ -22,11 +22,13 @@
     <ClCompile Include="yyy_network.c" />
     <ClCompile Include="yyy_network_common.c" />
     <ClCompile Include="yyy_network_select.c" />
+    <ClCompile Include="yyy_network_tls_win32.c" />
     <ClCompile Include="yyy_network_win32.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="yyy_network.h" />
     <ClInclude Include="yyy_network_common.h" />
+    <ClInclude Include="yyy_network_tls.h" />
     <ClInclude Include="yyy_network_win32.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
