@@ -211,9 +211,10 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
     Window &window = yyy_connection_args(uri, arg, name, name_len);
     
     ServerCore &server = window.m_servers.create();
+    server.setName(name, name_len);
     server.createNewUi();
     server.setSocket(socket);
-
+    
     // TEST: Assume IRC for now.
     server.setProtocol(*irc_protocol);
     
@@ -310,6 +311,7 @@ static bool Main(unsigned num_args, const std::string *args){
         HICON icon = LoadIcon(instance, IDI_APPLICATION);
         if(icon != NULL){
             yyy_main_window.m_window->icon(icon);
+            DestroyIcon(icon);
         }
         else{
             const int err = GetLastError();

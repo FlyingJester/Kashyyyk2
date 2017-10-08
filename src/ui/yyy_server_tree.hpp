@@ -179,17 +179,22 @@ public:
     void addChannel(const char *server, const std::string &name);
     
     ServerStatus getServerStatus(const std::string &server_name) const;
-    ServerStatus getServerStatus(const char *name, unsigned name_len) const;
+    ServerStatus getServerStatus(const char *name, size_t name_len) const;
 
     // Note that Fl::lock should be called for multithreaded access to this.
     void setServerStatus(const std::string &server_name, ServerStatus, ServerCore *arg = NULL);
-    void setServerStatus(const char *name, unsigned name_len, ServerStatus, ServerCore *arg = NULL);
+    void setServerStatus(const char *name, size_t name_len, ServerStatus, ServerCore *arg = NULL);
     
     ServerData *getData(const std::string &server_name);
-    ServerData *getData(const char *name, unsigned name_len);
+    ServerData *getData(const char *name, size_t name_len);
     
     virtual int handle(int e);
     
+    // Note that Fl::lock should be called for multithreaded access to this.
+    bool isSelected(const char *server_name, size_t server_len,
+        const char *channel_name, size_t channel_len) const;
+    bool isSelected(const std::string &server_name, const std::string& channel_name) const;
+
 };
 
 } // namespace YYY

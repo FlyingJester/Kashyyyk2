@@ -84,6 +84,8 @@ class ServerCore {
     //! @brief Holds the channel core for the server's notice channel
     ChannelCore m_channel;
 
+    std::string m_username, m_name;
+
 #ifndef NDEBUG
     mutable bool m_first_connected;
 #endif
@@ -92,6 +94,22 @@ public:
     ServerCore();
     ~ServerCore();
     
+    /**
+     * @brief Sets the server name. Defined to allow a default constructor.
+     *
+     * Asserts that this object was default constructed and had not been
+     * assigned before.
+     */
+    void setName(const std::string &name);
+    
+    /**
+     * @brief Sets the server name. Defined to allow a default constructor.
+     *
+     * Asserts that this object was default constructed and had not been
+     * assigned before.
+     */
+    void setName(const char *name, size_t name_len);
+
     /**
      * @brief Sets the UI. Defined to allow a default constructor.
      *

@@ -245,6 +245,8 @@ static void YYY_FASTCALL yyy_apply_item_color(Fl_Tree_Item *const item,
     return;
 }
 
+/*---------------------------------------------------------------------------*/
+
 void ServerTree::updateChildren(){
     
     assert(root() != NULL);
@@ -276,6 +278,49 @@ void ServerTree::updateChildren(){
         l_data->status = (ServerTree::ServerStatus)s;
         yyy_apply_item_color(l_server, (ServerTree::ServerStatus)s, m_flash_tick);
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ServerTree::isSelected(const char *server_name, size_t server_len,
+    const char *channel_name, size_t channel_len) const{
+    
+    assert(server_len > 0);
+    
+    const size_t buffer_size = server_len + channel_len + 2;
+    const bool use_alloca = buffer_size < 0xFF;
+
+    char *const buffer = (char *)(use_alloca ? YYY_ALLOCA(buffer_size) : malloc(buffer_size));
+
+    memcpy(buffer, server_name, server_len);
+    
+    if(channel_len == 0){
+        buffer[server_len] = '\0';
+    }
+    else{
+        buffer[server_len] = '/';
+        memcpy(buffer + server_len + 1, channel_name, channel_len);
+        buffer[server_len + channel_len + 1] = '\0';
+    }
+
+    // Not sure why Fl_Tree::is_selected(const char *) is not a const method...
+    const bool ret = const_cast<ServerTree*>(this)->Fl_Tree::is_selected((const char *)buffer);
+
+    if(use_alloca){
+        YYY_ALLOCA_FREE(buffer);
+    }
+    else{
+        free(buffer);
+    }
+
+    return ret;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ServerTree::isSelected(const std::string &server_name, const std::string& channel_name) const{
+    return isSelected(server_name.c_str(), server_name.length(),
+        channel_name.c_str(), channel_name.length());
 }
 
 } // namespace YYY

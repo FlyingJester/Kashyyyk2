@@ -73,6 +73,20 @@ ServerCore::~ServerCore(){
 
 /*---------------------------------------------------------------------------*/
 
+void ServerCore::setName(const std::string &name){
+    assert(m_name.empty());
+    m_name = name;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ServerCore::setName(const char *name, size_t name_len){
+    assert(m_name.empty());
+    m_name.assign(name, name_len);
+}
+    
+/*---------------------------------------------------------------------------*/
+
 void ServerCore::setUI(ServerUI &ui){
     assert(m_ui == NULL);
     m_ui = &ui;
@@ -123,6 +137,8 @@ void ServerCore::handleMessage(const char *str, unsigned len){
         puts("[ERROR parsing!]");
     }
 
+    ChannelCore *dest = NULL;
+
     switch(msg.type){
         case eYYYChatPing:
             m_protocol->createResponseToPingMessage(msg, msg);
@@ -134,16 +150,69 @@ void ServerCore::handleMessage(const char *str, unsigned len){
             }
             break;
         case eYYYChatNotification:
+            dest = &m_channel;
+        case eYYYChatMessage:
             {
-                ChannelCore::ChannelMessage &yyy_msg = m_channel.pushFront();
-                yyy_msg.type(ChannelCore::ChannelMessage::eNormalMessage);
-                yyy_msg.assignMessage(msg.m.notification.message, msg.m.notification.message_len);
+                const char *const message = msg.m.message.message;
+                const unsigned short message_len = msg.m.message.message_len;
+
+                ChannelCore::ChannelMessage::Type type =
+                    ChannelCore::ChannelMessage::eNormalMessage;
+
+                // Find the destination channel.
+                if(dest == NULL){
+                    
+                    // We are checking for the username in the message in this NULL check because
+                    // this means we will only check if for messages, not notifications.
+                    assert(msg.type == eYYYChatMessage);
+
+                    // Check if our username exists in the message.
+                    if(!m_username.empty()){
+                        const char *const name = m_username.c_str();
+                        const unsigned short name_len = (unsigned short)m_username.length();
+                        for(unsigned short i = 0; i + name_len < message_len; i++){
+                            if(m_protocol->compareIdentifiers(name, message, name_len)){
+                                type = ChannelCore::ChannelMessage::eMentionMessage;
+                                break;
+                            }
+                        }
+                    }
+
+                    const char *const from = msg.m.any_from.from;
+                    const unsigned short from_len = msg.m.any_from.from_len;
+                    for(Maintainer<ChannelCore>::iterator iter = m_channels.begin();
+                        iter != m_channels.end(); iter++){
+                        const std::string &channel_name = iter->name();
+                        if(channel_name.length() == from_len &&
+                            m_protocol->compareIdentifiers(channel_name.c_str(), from, from_len)){
+                            dest = &(*iter);
+                            break;
+                        }
+                    }
+
+                    // We either reached the end, or we found the channel.
+                    if(dest == NULL){
+                        // TODO: Add this new channel.
+                        break;
+                    }
+                }
+
+                // We found the destination.
+                assert(dest != NULL);
+                ChannelCore::ChannelMessage &yyy_msg = dest->pushFront();
+
+                yyy_msg.type(type);
+                yyy_msg.assignMessage(message, message_len);
                 YYY_DateSetNow(&yyy_msg.m_date);
-                ChannelUI &channel = m_ui->serverChannel();
-                channel.updateScroll(*chat_scroll);
-                channel.updateChatWidget(*chat_widget, *chat_scroll);
-                chat_scroll->redraw();
-                chat_widget->redraw();
+
+                const std::string &channel_name = dest->name();
+                if(server_tree->isSelected(m_name, channel_name)){
+                    ChannelUI &channel = m_ui->serverChannel();
+                    channel.updateScroll(*chat_scroll);
+                    channel.updateChatWidget(*chat_widget, *chat_scroll);
+                    chat_scroll->redraw();
+                    chat_widget->redraw();
+                }
             }
             break;
         default: break;

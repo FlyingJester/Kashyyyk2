@@ -200,7 +200,7 @@ public:
         }
         
         inline bool operator != (const iterator &other) const {
-            return *this != other;
+            return !(*this == other);
         }
         
         inline iterator &operator++(){
@@ -233,10 +233,9 @@ public:
             return m_block->m_data[i];
         }
         
-        inline T &operator->() {
-            return m_block->m_data[i];
+        inline T *operator->() {
+            return m_block->m_data + i;
         }
-        
     };
     
     inline iterator begin() { return iterator(m_blocks); }
