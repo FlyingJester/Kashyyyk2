@@ -122,6 +122,7 @@ public:
 private:
     
     static Fl_Menu_Item s_right_click_menu[9];
+    Fl_Tree_Item *m_last_clicked;
     
     bool m_flash_tick;
     unsigned char m_num_connecting;

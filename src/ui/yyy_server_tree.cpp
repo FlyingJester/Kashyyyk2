@@ -63,6 +63,7 @@ Fl_Menu_Item ServerTree::s_right_click_menu[9] = {
 
 ServerTree::ServerTree(int a_x, int a_y, int a_w, int a_h, const char *a_title)
   : Fl_Tree(a_x, a_y, a_w, a_h, a_title)
+  , m_last_clicked(NULL)
   , m_flash_tick(false)
   , m_num_connecting(0){
     
@@ -96,6 +97,24 @@ void ServerTree::addConnectingServer(const char *uri,
 /*---------------------------------------------------------------------------*/
 
 int ServerTree::handle(int e){
+
+    // Check that the last clicked item is still in the tree.
+    bool still_exists = false;
+    if(m_last_clicked != NULL){
+        for(Fl_Tree_Item *item = first(); item; item = next(item)){
+            if(item == m_last_clicked){
+                still_exists = true;
+                break;
+            }
+        }
+    }
+
+    if(m_last_clicked == NULL || !still_exists){
+        m_last_clicked = first();
+        if(m_last_clicked == root())
+            m_last_clicked = next(m_last_clicked);
+        select_only(m_last_clicked);
+    }
     if(e == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE){
         
         Fl_Tree_Item *const l_item = find_clicked();
@@ -114,8 +133,20 @@ int ServerTree::handle(int e){
         */
         return 1;
     }
-    else
-        return Fl_Tree::handle(e);
+
+do_default_handle:
+    // Update the m_last_clicked.
+    m_last_clicked = first_selected_item();
+    if(m_last_clicked == root())
+        m_last_clicked = next(m_last_clicked);
+
+    // Do the default handle
+    const int ret = Fl_Tree::handle(e);
+
+    // If we deselected everything, reselect the last item.
+    if(first_selected_item() == NULL);
+        select_only(m_last_clicked);
+    return ret;
 }
 
 /*---------------------------------------------------------------------------*/
