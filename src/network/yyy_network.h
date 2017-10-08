@@ -52,49 +52,97 @@ YYY_NETWORK_CONST(
     unsigned YYY_NetworkSocketSize()
 );
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Initializes a socket.
+ *
+ * The socket must have been allocated by the application. You can get the size
+ * of a YYY_NetworkSocket with YYY_NetworkSocketSize. You must use
+ * YYY_InitSocket before any other function can be called on the socket.
+ */
 enum YYY_NetworkError YYY_InitSocket(struct YYY_NetworkSocket *socket);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Destroys the resources associated with a socket.
+ *
+ * @note It is the application's responsibility to allocate and free the memory
+ * that @p socket actually points to. This function just frees the resources
+ * allocated by YYY_InitSocket.
+ */
 enum YYY_NetworkError YYY_DestroySocket(struct YYY_NetworkSocket *socket);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Tries to connect a socket to the specified address.
+ *
+ * The socket must be initialized with YYY_InitSocket.
+ *
+ * @param socket Socket to connect
+ * @param address Address to connect to. This can be an IP address, a hostname,
+ *    or a DNS-resolvable name.
+ * @param port Port to connect to. Depending on the platform, ports may be
+ *    limited to 1-0xFFFF.
+ * @param timeout_in_microsecond Timeout for connection. If a negative number
+ *    is specified, the timeout defaults to the system default (usually very
+ *    long).
+ */
 enum YYY_NetworkError YYY_ConnectSocket(struct YYY_NetworkSocket *socket,
     const char *address, unsigned long port, long timeout_in_microsecond);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Closes connected socket.
+ *
+ * The socket cannot be reused. The only valid function call on the socket
+ * after YYY_CloseSocket is YYY_DestroySocket.
+ */
 enum YYY_NetworkError YYY_CloseSocket(struct YYY_NetworkSocket *socket);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Reads data from a socket.
+ *
+ * Reads @p length_to_read from @p socket. If the socket has been marked as
+ * non-blocking, then any available data up to @p length_to_read is read.
+ * Otherwise, this call blocks until @p length_to_read is read or an error
+ * occurs. Either way, the amount of data that has been read is placed into
+ * @p out_length_read.
+ *
+ * @param socket Socket to read from. Must be connected.
+ * @param output Buffer to place data in.
+ * @param length_to_read Maximum amount to read.
+ * @param out_length_read [out] Receives the amount that was read.
+ */
 enum YYY_NetworkError YYY_ReadSocket(
     struct YYY_NetworkSocket * YYY_NETWORK_RESTRICT socket,
     void * YYY_NETWORK_RESTRICT output,
     unsigned long length_to_read,
     unsigned long * YYY_NETWORK_RESTRICT out_length_read);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Writes data to a socket.
+ */
 enum YYY_NetworkError YYY_WriteSocket(
     struct YYY_NetworkSocket * YYY_NETWORK_RESTRICT socket,
     const void * YYY_NETWORK_RESTRICT input, unsigned long length_to_write);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Makes reads from a socket blocking.
+ *
+ * @sa YYY_ReadSocket
+ * @sa YYY_MakeSocketNonBlocking
+ */
 enum YYY_NetworkError YYY_MakeSocketBlocking(
     struct YYY_NetworkSocket *socket);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Makes reads from a socket non-blocking.
+ *
+ * @sa YYY_ReadSocket
+ * @sa YYY_MakeSocketBlocking
+ */
 enum YYY_NetworkError YYY_MakeSocketNonBlocking(
     struct YYY_NetworkSocket *socket);
 
-/*---------------------------------------------------------------------------*/
-
+/**
+ * @brief Checks if a socket is connected, disconnected, or has an error.
+ */
 YYY_NETWORK_WARN_UNUSED_RESULT(
     enum YYY_NetworkError YYY_SocketStatus(
         const struct YYY_NetworkSocket *socket)
