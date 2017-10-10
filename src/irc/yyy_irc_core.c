@@ -192,8 +192,10 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
                 return 1;
             case YYY_IRCNoSuchNameNum:
                 out_msg->type = eYYYChatNotification;
-                out_msg->m.any_message.message = "No suck destination!";
-                out_msg->m.any_message.message_len = sizeof("No suck destination!") - 1;
+#define IRC_NOSUCHNAME_MSG "No such destination!"
+                out_msg->m.any_message.message = IRC_NOSUCHNAME_MSG;
+                out_msg->m.any_message.message_len = sizeof(IRC_NOSUCHNAME_MSG) - 1;
+#undef IRC_NOSUCHNAME_MSG
                 return 1;
             case YYY_IRCTopicNum:
                 out_msg->type = eYYYChatTopic;
