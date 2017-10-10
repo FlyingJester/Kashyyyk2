@@ -9,10 +9,33 @@ decl {\#include "ui/yyy_chat_widget.hpp"} {public global
 decl {\#include "ui/yyy_server_tree.hpp"} {public global
 }
 
+decl {\#include "yyy_theme.h"} {private global
+}
+
 decl {\#include "yyy_callbacks.h"} {private global
 }
 
 decl {\#include "yyy_connect.hpp"} {private global
+}
+
+decl {\#include <assert.h>} {private global
+}
+
+decl {\#include <string>} {private global
+}
+
+decl {\#include <vector>} {private global
+}
+
+decl {std::vector<Fl_Window*> yyy_windows;} {selected private local
+}
+
+Function {theme_menu_callback(Fl_Widget *what, void *theme_p)} {
+  comment {Callback for theme submenu items. The user_data is cast to a YYY_EnumTheme.} open private C return_type void
+} {
+  code {const YYY_EnumTheme theme = (YYY_EnumTheme)((int)theme_p);
+assert(theme < eYYY_NumThemes);
+YYY_SetTheme(theme);} {}
 }
 
 Function {YYY_MakeWindow()} {open
@@ -20,7 +43,8 @@ Function {YYY_MakeWindow()} {open
   Fl_Window {} {
     label {Kashyyyk 2} open
     xywh {841 344 630 490} type Double resizable
-    code0 {o->size_range(480, 320);} size_range {300 200 0 0} visible
+    code0 {o->size_range(480, 320);}
+    code1 {yyy_windows.push_back(o);} size_range {300 200 0 0} visible
   } {
     Fl_Box {} {
       xywh {-5 0 640 25} box THIN_UP_BOX color 52
@@ -133,21 +157,13 @@ else
           label {Reset Zoom}
           xywh {20 20 30 20} shortcut 0x40030 divider
         }
-        MenuItem {} {
-          label {Light Theme}
-          xywh {0 0 30 20}
-        }
-        MenuItem {} {
-          label {Sunset Theme}
-          xywh {10 10 30 20}
-        }
-        MenuItem {} {
-          label {Dark Theme}
-          xywh {10 10 30 20}
-        }
+        Submenu theme_sub_menu {
+          label Theme
+          xywh {0 0 62 20}
+        } {}
       }
       Submenu {} {
-        label Server open selected
+        label Server open
         xywh {0 0 62 20}
       } {
         MenuItem join_channel_menu_item {
@@ -187,4 +203,21 @@ else
       }
     }
   }
+  code {const std::string base_name = theme_sub_menu->label();
+for(unsigned i = 0; i < (unsigned)eYYY_NumThemes; i++){
+    theme_sub_menu->add((base_name + '/' + YYY_Themes[i].name).c_str(),
+        0, theme_menu_callback, (void*)i, 0);
+}} {}
+}
+
+Function {YYY_GetNumWindows()} {
+  comment {Gets the number of windows available from YYY_GetWindow} open C return_type unsigned
+} {
+  code {return yyy_windows.size();} {}
+}
+
+Function {YYY_GetWindow(unsigned i)} {open C return_type {Fl_Window *}
+} {
+  code {assert(yyy_windows.size() > i);
+return yyy_windows[i];} {}
 }

@@ -6,7 +6,7 @@
 YYY_UTILS=utils/yyy_alloca.h utils/yyy_maintainer.hpp utils/yyy_attributes.h
 
 YYY_CONNECT_DEP=$(GENDIR)/yyy_connect.cpp $(GENDIR)/yyy_connect.hpp yyy_callbacks.h
-KASHYYYK2_DEP=$(GENDIR)/kashyyyk2.cpp $(GENDIR)/kashyyyk2.hpp yyy_callbacks.h $(GENDIR)/yyy_connect.hpp ui/yyy_chat_widget.hpp
+KASHYYYK2_DEP=$(GENDIR)/kashyyyk2.cpp $(GENDIR)/kashyyyk2.hpp yyy_callbacks.h $(GENDIR)/yyy_connect.hpp ui/yyy_chat_widget.hpp yyy_theme.h
 YYY_ASK_DEP=yyy_ask.cpp yyy_ask.h
 YYY_CALLBACKS_DEP=yyy_callbacks.c yyy_callbacks.h
 YYY_MAIN_DEP=yyy_main.cpp yyy_main.h yyy_prefs.h $(GENDIR)/kashyyyk2.hpp yyy_buffer.h ui/yyy_server_tree.hpp $(YYY_UTILS)

@@ -51,6 +51,7 @@
 #include "yyy_server_core.hpp"
 #include "yyy_server_ui.hpp"
 #include "yyy_server_thread.hpp"
+#include "yyy_theme.h"
 
 #include "yyy_maintainer.hpp"
 #include "yyy_alloca.h"
@@ -289,6 +290,9 @@ static bool Main(unsigned num_args, const std::string *args){
     #else
         Fl::scheme("gtk+");
     #endif
+
+    YYY_InitThemes();
+
 #else
     Fl::scheme("gtk+");
 #endif
@@ -328,6 +332,8 @@ static bool Main(unsigned num_args, const std::string *args){
     
     server_tree->callback(yyy_server_tree_callback, &yyy_main_window);
     
+    YYY_SetTheme(eYYY_DefaultTheme);
+
     Fl::lock();
     Fl::run();
     Fl::unlock();

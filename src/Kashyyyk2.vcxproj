@@ -256,6 +256,7 @@
     <ClCompile Include="yyy_server_core.cpp" />
     <ClCompile Include="yyy_server_thread.cpp" />
     <ClCompile Include="yyy_server_ui.cpp" />
+    <ClCompile Include="yyy_theme.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -277,6 +278,7 @@
     <ClInclude Include="yyy_server_core.hpp" />
     <ClInclude Include="yyy_server_thread.hpp" />
     <ClInclude Include="yyy_server_ui.hpp" />
+    <ClInclude Include="yyy_theme.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="network\yyy_network.vcxproj">
