@@ -19,7 +19,7 @@ Function {YYY_MakeWindow()} {open
 } {
   Fl_Window {} {
     label {Kashyyyk 2} open
-    xywh {1668 773 630 490} type Double resizable
+    xywh {841 344 630 490} type Double resizable
     code0 {o->size_range(480, 320);} size_range {300 200 0 0} visible
   } {
     Fl_Box {} {
@@ -92,7 +92,7 @@ else
         }
         MenuItem {} {
           label Quit
-          callback {exit(EXIT_SUCCESS);} selected
+          callback {exit(EXIT_SUCCESS);}
           xywh {0 0 30 20} shortcut 0x40071
         }
       }
@@ -147,11 +147,15 @@ else
         }
       }
       Submenu {} {
-        label Server open
+        label Server open selected
         xywh {0 0 62 20}
       } {
-        MenuItem join_menu_item {
-          label {Join...}
+        MenuItem join_channel_menu_item {
+          label {Join Channel...}
+          xywh {0 0 30 20} deactivate
+        }
+        MenuItem change_nick_menu_item {
+          label {Change Nick...}
           xywh {0 0 30 20} deactivate divider
         }
         MenuItem disconnect_menu_item {
