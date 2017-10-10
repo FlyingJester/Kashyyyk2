@@ -50,7 +50,9 @@ ServerCore::ServerCore()
   , m_ui(NULL)
   , m_socket(NULL)
   , m_buffer((YYY_MSGBuffer*)malloc(YYY_MSGBufferSize()))
-  , m_channel(){
+  , m_channel()
+  , m_username("KashyyykUser")
+  , m_real("MilleniumYYY"){
     YYY_InitMSGBuffer(m_buffer);
 #ifndef NDEBUG
     m_first_connected = false;
@@ -118,20 +120,30 @@ void ServerCore::createNewUi(){
 
 /*---------------------------------------------------------------------------*/
 
-void ServerCore::firstConnected() const{
-#ifndef NDEBUG
+void ServerCore::firstConnected(){
     assert(!m_first_connected);
     m_first_connected = true;
-#endif
     
-    
+    struct Configuration conf;
+    conf.m_nick = m_username.c_str();
+    conf.m_user = "KashyyykUser";
+    conf.m_real = m_real.c_str();
+
+    for(unsigned i = 0; i < m_protocol->getNumHelloMessages(); i++){
+        Message msg;
+        m_protocol->createHelloMessage(i, conf, msg);
+        size_t len;
+        const char *msg_str = m_protocol->messageToString(msg, len);
+        YYY_WriteSocket(m_socket, msg_str, len);
+        m_protocol->freeMessageString(msg_str);
+    }
 }
- 
+
 /*---------------------------------------------------------------------------*/
 
 void ServerCore::handleMessage(const char *str, unsigned len){
     assert(len < YYY_MAX_MSG_LEN);
-    
+
     Message msg;
     if(!m_protocol->parseMessage(str, len, msg)){
         puts("[ERROR parsing!]");
@@ -212,11 +224,18 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                     channel.updateChatWidget(*chat_widget, *chat_scroll);
                     chat_scroll->redraw();
                     chat_widget->redraw();
+                    chat_widget->parent()->redraw();
+                    
                 }
             }
             break;
-        default: break;
+        default:
+            __nop();
+            break;
     }
+    
+    if(m_first_connected == false)
+        firstConnected();
 }
 
 /*---------------------------------------------------------------------------*/

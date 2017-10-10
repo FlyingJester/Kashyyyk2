@@ -42,7 +42,8 @@ enum YYY_MessageType {
     eYYYChatJoin,
     eYYYChatQuit,
     eYYYChatBan,
-    eYYYChatKick
+    eYYYChatKick,
+    eYYYChatTopic
 };
 
 /**
@@ -72,6 +73,12 @@ struct YYY_Message {
             unsigned short message_len;
         } any_message;
         
+        struct {
+            const char *from; /**< Sender's name */
+            unsigned short from_len;
+            const char *topic;  /**< Message */
+            unsigned short topic_len;
+        } topic;
         struct {
             const char *from; /**< Sender's name */
             unsigned short from_len;

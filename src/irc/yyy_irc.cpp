@@ -30,6 +30,8 @@
 #include "yyy_irc_core.h"
 
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -71,6 +73,33 @@ bool IRCProtocol::compareIdentifiers(const char *str0, const char *str1, unsigne
             return false;
     }
     return true;
+}
+
+/*---------------------------------------------------------------------------*/
+
+size_t IRCProtocol::getNumHelloMessages() const {
+    return 2;
+}
+
+/*---------------------------------------------------------------------------*/
+
+#define YYY_IRC_USER_NAME "KashyyykUser"
+
+void IRCProtocol::createHelloMessage(size_t i, const Configuration &conf, Message &out_msg) const{
+    assert(i == 0 || i == 1);
+    out_msg.m.any_from.from_len = 0;
+#define SET_PARAM(TYPE, WHAT, FROM) out_msg.m.TYPE.WHAT = conf.m_ ## FROM; out_msg.m.TYPE.WHAT ## _len = strlen(conf.m_ ## FROM);
+    switch(i){
+        case 0:
+            out_msg.type = eYYYChatIdentify;
+            SET_PARAM(identify, user, user);
+            SET_PARAM(identify, real, real);
+            return;
+        case 1:
+            out_msg.type = eYYYChatNick;
+            SET_PARAM(nick, nick, nick);
+            return;
+    }
 }
 
 } // namespace YYY

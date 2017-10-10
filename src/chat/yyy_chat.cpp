@@ -59,7 +59,7 @@ void ChatProtocol::copyMessage(const Message &in, Message &out){
 /*---------------------------------------------------------------------------*/
 
 void ChatProtocol::createResponseToPingMessage(const Message &in, Message &out){
-    assert(in.type == eYYYChatPong);
+    assert(in.type == eYYYChatPing);
     copyMessage(in, out);
     out.type = eYYYChatPong;
 }

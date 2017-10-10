@@ -45,6 +45,7 @@ static const char *const yyy_message_names[] = {
     "QUIT",     /* eYYYChatQuit, */
     "BAN",      /* eYYYChatBan, */
     "KICK",     /* eYYYChatKick */
+    "TOPIC"     /* eYYYChatTopic */
 };
 
 static const unsigned char yyy_message_lengths[] = {
@@ -58,8 +59,51 @@ static const unsigned char yyy_message_lengths[] = {
     4,  /* eYYYChatJoin, */
     4,  /* eYYYChatQuit, */
     3,  /* eYYYChatBan, */
-    4   /* eYYYChatKick */
+    4,  /* eYYYChatKick */
+    5   /* eYYYChatTopic */
 };
+
+/*---------------------------------------------------------------------------*/
+
+static size_t find_last_arg_start(const char *src, size_t len, size_t i){
+    /* If we don't find a colon, remember the final space character and
+        * resest to that location */
+    {
+        unsigned last_space = ++i;
+        while(i + 1 < len && !(src[i] == '\r' && src[i+1] == '\n')){
+            const char c = src[i++];
+            if(c == ':')
+                return i;
+            if(c == ' ')
+                last_space = i;
+        }
+
+        /* If we made it this far, there was no colon. */
+        return last_space;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+static size_t check_for_colon_arg(const char *src, size_t len, size_t i){
+    const size_t start = i;
+    while(i + 1 < len){
+        switch(src[i]){
+            case '\r':
+                if(src[i + 1] == '\n')
+                    return start;
+            case ':':
+                return i + 1;
+            case ' ':
+                if(src[i + 1] == ':')
+                    return i + 2;
+                else
+                    return start;
+        }
+        i++;
+    }
+    return start;
+}
 
 /*---------------------------------------------------------------------------*/
 
@@ -97,43 +141,6 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
         out_msg->m.any_from.from_len = 0;
     }
 
-    /* Parse the command type */
-    if(i + 4 < len && YYY_STRING_IS_NUMERIC(src+i)){
-        /* Numeric command */
-        const enum YYY_NumericCode code =
-            YYY_STRING_TO_NUMERIC_CODE(src+i);
-        i += 3;
-
-        /* TODO! 
-        switch(code){
-            
-
-        }
-        */
-        while(i+1 < len && src[i] != ' ')
-            i++;
-        while(i+1 < len && src[i] == ' ')
-            i++;
-
-    }
-    else{
-        char type_buffer[10];
-        unsigned at = 0, n;
-        while(at < sizeof(type_buffer) && i + 1 < len && src[i] != ' ')
-            type_buffer[at++] = src[i++];
-        
-        for(n = 0; n < num_message_types; n++){
-            if(at == yyy_message_lengths[n] &&
-                memcmp(type_buffer, yyy_message_names[n], at) == 0){
-                out_msg->type = (enum YYY_MessageType)n;
-                break;
-            }
-        }
-
-        if(n == num_message_types)
-            return 0;
-    }
-
     /* Macros to save some typing when parsing IRC args */
 #define YYY_IRC_FINISH_ARG(WHAT, TO)\
     do{\
@@ -154,6 +161,71 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
         out_msg->m.WHAT.TO ## _len = i - WHAT ## TO ## len;\
     }while(0)
 
+    /* Parse the command type */
+    if(i + 4 < len && YYY_STRING_IS_NUMERIC(src+i)){
+        
+        /* Numeric command */
+        const enum YYY_NumericCode code =
+            YYY_STRING_TO_NUMERIC_CODE(src+i);
+        
+        /* Since most numeric responses simply result in a direct move to a
+         * parameter, we check if the message ends in a crlf to see what the
+         * total length really is. */
+        const bool ends_in_crlf = src[len - 2] == '\r' && src[len - 2] == '\n';
+        const unsigned real_len = len - (ends_in_crlf ? 2 : 0);
+
+        i += 3;
+
+        while(i+1 < len && src[i] != ' ')
+            i++;
+        while(i+1 < len && src[i] == ' ')
+            i++;
+
+        switch(code){
+            case YYY_IRCWelcomeNum:
+            case YYY_IRCYourHostNum:
+            case YYY_IRCCreatedNum:
+                i = check_for_colon_arg(src, len, i);
+                out_msg->type = eYYYChatNotification;
+                out_msg->m.any_message.message = src + i;
+                out_msg->m.any_message.message_len = real_len - i;
+                return 1;
+            case YYY_IRCNoSuchNameNum:
+                out_msg->type = eYYYChatNotification;
+                out_msg->m.any_message.message = "No suck destination!";
+                out_msg->m.any_message.message_len = sizeof("No suck destination!") - 1;
+                return 1;
+            case YYY_IRCTopicNum:
+                out_msg->type = eYYYChatTopic;
+                out_msg->m.topic.topic = src + i;
+                out_msg->m.topic.topic_len = real_len - i;
+                return 1;
+            case YYY_IRCNoTopicNum:
+                out_msg->type = eYYYChatTopic;
+                out_msg->m.topic.topic = NULL;
+                out_msg->m.topic.topic_len = 0;
+                return 1;
+        }
+        return 0;
+    }
+    else{
+        char type_buffer[10];
+        unsigned at = 0, n;
+        while(at < sizeof(type_buffer) && i + 1 < len && src[i] != ' ')
+            type_buffer[at++] = src[i++];
+        
+        for(n = 0; n < num_message_types; n++){
+            if(at == yyy_message_lengths[n] &&
+                memcmp(type_buffer, yyy_message_names[n], at) == 0){
+                out_msg->type = (enum YYY_MessageType)n;
+                break;
+            }
+        }
+
+        if(n == num_message_types)
+            return 0;
+    }
+
     /* Parse any arguments */
     while(i + 1 < len && src[i] == ' ')
         i++;
@@ -161,22 +233,7 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
         case eYYYChatNotification: 
         case eYYYChatMessage:
             YYY_IRC_GET_ARG(notification, to);
-                        /* If we don't find a colon, remember the final space character and
-             * resest to that location */
-            {
-                unsigned last_space = ++i;
-                while(i + 1 < len && !(src[i] == '\r' && src[i+1] == '\n')){
-                    const char c = src[i++];
-                    if(c == ':')
-                        goto yyy_msg_found_colon;
-                    if(c == ' ')
-                        last_space = i;
-                }
-
-                /* If we made it this far, there was no colon. */
-                i = last_space;
-            }
-yyy_msg_found_colon:
+            i = find_last_arg_start(src, len, i);
             if(i + 1 < len && src[i] == ':')
                 i++;
             YYY_IRC_FINISH_ARG(notification, message);
@@ -198,23 +255,9 @@ yyy_msg_found_colon:
             return 1;
         case eYYYChatIdentify:
             YYY_IRC_GET_ARG(identify, user);
-
-            /* If we don't find a colon, remember the final space character and
-             * resest to that location */
-            {
-                unsigned last_space = ++i;
-                while(i + 1 < len && !(src[i] == '\r' && src[i+1] == '\n')){
-                    const char c = src[i++];
-                    if(c == ':')
-                        goto yyy_identify_found_colon;
-                    if(c == ' ')
-                        last_space = i;
-                }
-
-                /* If we made it this far, there was no colon. */
-                i = last_space;
-            }
-yyy_identify_found_colon:
+            i = find_last_arg_start(src, len, i);
+            if(i + 1 < len && src[i] == ':')
+                i++;
             YYY_IRC_FINISH_ARG(nick, nick);
             return 1;
         case eYYYChatJoin: /* FALLTHROUGH */
@@ -234,6 +277,8 @@ yyy_identify_found_colon:
 }
 
 /*---------------------------------------------------------------------------*/
+
+#define USER_CORE_STR " 0 * :"
 
 const char *YYY_IRC_CALL YYY_IRCMessageToString(const struct YYY_Message *msg,
     size_t *out_len){
@@ -283,9 +328,8 @@ const char *YYY_IRC_CALL YYY_IRCMessageToString(const struct YYY_Message *msg,
             msg_len += msg->m.nick.nick_len;
             break;
         case eYYYChatIdentify:
-            /* Add one for the space and one for a leading colond on the last
-             * arg. */
-            msg_len += msg->m.identify.user_len + 2 +
+            msg_len += msg->m.identify.user_len +
+                (sizeof(USER_CORE_STR) - 1) +
                 msg->m.identify.real_len;
             break;
         case eYYYChatJoin: /* FALLTHROUGH */
@@ -320,6 +364,7 @@ const char *YYY_IRC_CALL YYY_IRCMessageToString(const struct YYY_Message *msg,
         /* Add the message type name */
         memcpy(out_message + at, msg_name, msg_name_len);
         at += msg_name_len;
+        out_message[at++] = ' ';
         
         switch(msg->type){
             case eYYYChatNotification: /* FALLTHROUGH */
@@ -362,8 +407,8 @@ const char *YYY_IRC_CALL YYY_IRCMessageToString(const struct YYY_Message *msg,
                         real_len = msg->m.identify.real_len;
                     memcpy(out_message + at, msg->m.identify.user, user_len);
                     at += user_len;
-                    out_message[at++] = ' ';
-                    out_message[at++] = ':';
+                    strcpy(out_message + at, USER_CORE_STR);
+                    at += sizeof(USER_CORE_STR) - 1;
                     memcpy(out_message + at, msg->m.identify.real, real_len);
 #ifndef NDEBUG
                     at += real_len;
@@ -412,4 +457,3 @@ const char *YYY_IRC_CALL YYY_IRCMessageToString(const struct YYY_Message *msg,
         return out_message;
     }
 }
-

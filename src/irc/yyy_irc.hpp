@@ -44,6 +44,10 @@ public:
     virtual void freeMessageString(const char *str);
     
     virtual bool compareIdentifiers(const char *str0, const char *str1, unsigned short len);
+    
+    virtual size_t getNumHelloMessages() const;
+
+    virtual void createHelloMessage(size_t i, const Configuration &conf, Message &out_msg) const;
 };
 
 } // namespace YYY

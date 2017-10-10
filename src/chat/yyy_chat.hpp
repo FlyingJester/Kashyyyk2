@@ -38,6 +38,15 @@
 namespace YYY {
 
 /**
+ * @brief POD structure for the configuration of a protocol's connection.
+ */
+struct Configuration {
+    const char *m_nick;
+    const char *m_user;
+    const char *m_real;
+};
+
+/**
  * @brief POD structure representing a message.
  *
  * It is only intended as an intermediate format from a chat protocol to
@@ -87,6 +96,10 @@ public:
     const char *messageToString(const Message &msg);
     
     virtual void freeMessageString(const char *str) = 0;
+
+    virtual size_t getNumHelloMessages() const = 0;
+
+    virtual void createHelloMessage(size_t i, const Configuration &conf, Message &out_msg) const = 0;
 
     /**
      * @brief Creates a copy of a YYY::Message structure

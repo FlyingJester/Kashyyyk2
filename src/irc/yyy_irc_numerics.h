@@ -29,6 +29,8 @@
 #define YYY_IRC_NUMERICS_H
 #pragma once
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

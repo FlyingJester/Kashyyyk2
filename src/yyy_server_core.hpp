@@ -84,11 +84,9 @@ class ServerCore {
     //! @brief Holds the channel core for the server's notice channel
     ChannelCore m_channel;
 
-    std::string m_username, m_name;
+    std::string m_username, m_real, m_name;
 
-#ifndef NDEBUG
-    mutable bool m_first_connected;
-#endif
+    bool m_first_connected;
 
 public:
     ServerCore();
@@ -156,7 +154,7 @@ public:
      *
      * Asserts that this is called only once.
      */
-    void firstConnected() const;
+    void firstConnected();
     
     /**
      * @brief Gives the server core a new message.
