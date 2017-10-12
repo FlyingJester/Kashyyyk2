@@ -46,6 +46,11 @@
 #undef min
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4200) // Flexible array element.
+#endif
+
 /*---------------------------------------------------------------------------*/
 
 #include <vector>
@@ -199,5 +204,9 @@ public:
 };
 
 } // namespace YYY
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif // YYY_SERVER_TREE_HPP

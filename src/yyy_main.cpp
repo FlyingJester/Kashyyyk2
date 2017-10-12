@@ -57,9 +57,13 @@
 #include "yyy_alloca.h"
 
 #include "monitor/yyy_monitor.hpp"
+
 #include "thread/yyy_thread.h"
 
 #include <FL/Fl.H>
+
+#include "utils/yyy_fl_locker.hpp"
+
 #include <string>
 #include <stdlib.h>
 #include <assert.h>
@@ -177,12 +181,11 @@ void YYY_FASTCALL YYY_AttemptingConnection(const char *uri, void *arg){
     const char *name;
     Window &window = yyy_connection_args(uri, arg, name, name_len);
     
-    Fl::lock();
-
-    window.m_server_tree->addConnectingServer(uri, name, name_len);
-    window.m_server_tree->redraw();
-    
-    Fl::unlock();
+    {
+        YYY::FlLocker locker;
+        window.m_server_tree->addConnectingServer(uri, name, name_len);
+        window.m_server_tree->redraw();
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -194,12 +197,11 @@ void YYY_FASTCALL YYY_FailedConnection(const char *uri, void *arg){
     const char *name;
     Window &window = yyy_connection_args(uri, arg, name, name_len);
     
-    Fl::lock();
-
-    window.m_server_tree->connectionFailed(name, name_len);
-    window.m_server_tree->redraw();
-    
-    Fl::unlock();
+    {
+        YYY::FlLocker locker;
+        window.m_server_tree->connectionFailed(name, name_len);
+        window.m_server_tree->redraw();
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -224,12 +226,11 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
     
     window.m_server_thread->addServer(server);
     
-    Fl::lock();
-
-    window.m_server_tree->connectionSucceeded(name, name_len, &server);
-    window.m_server_tree->redraw();
-    
-    Fl::unlock();
+    {
+        YYY::FlLocker locker;
+        window.m_server_tree->connectionSucceeded(name, name_len, &server);
+        window.m_server_tree->redraw();
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -333,10 +334,11 @@ static bool Main(unsigned num_args, const std::string *args){
     server_tree->callback(yyy_server_tree_callback, &yyy_main_window);
     
     YYY_SetTheme(eYYY_DefaultTheme);
-
-    Fl::lock();
-    Fl::run();
-    Fl::unlock();
+    
+    {
+        YYY::FlLocker locker;
+        Fl::run();
+    }
     
     YYY_StopConnectThread();
     
