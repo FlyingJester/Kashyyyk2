@@ -33,6 +33,8 @@
 
 #include "yyy_date.h"
 
+#include "utils/yyy_maintainer.hpp"
+
 #include <utility>
 #include <string>
 #include <vector>
@@ -52,6 +54,7 @@ class ChannelCore {
     // Must not be a reference to allow us to have a default constructor so
     // that this can be held in a vector in older C++ standard compilers.
     ChannelUI *m_ui; //!< Back reference to the UI
+
 public:
     ChannelCore(const std::string& name);
     ChannelCore(const char *name = NULL, unsigned name_len = 0);
@@ -173,8 +176,17 @@ public:
     
     const std::string& name() const { return m_name; }
     std::string &name() { return m_name; }
-    std::string &name(const std::string &name) { return m_name = name; }
+    void name(const std::string &name) { m_name = name; }
+    void name(const char *name) { m_name = name; }
     
+    //! @brief Used to iterate the current users.
+    Maintainer<std::string>::const_iterator getUsersBegin() const;
+    //! @brief Used to iterate the current users.
+    Maintainer<std::string>::const_iterator getUsersEnd() const;
+    
+    void addUser(const char *user, const size_t user_len);
+    inline void addUser(const std::string &user) { addUser(&(user[0]), user.length()); }
+
 private:
     
     static void FreeList(struct MessageList *list);
@@ -185,24 +197,28 @@ private:
         TruncateList(struct MessageList *list, unsigned len)
     );
     
-private:
-    
-    /// Current username.
-    ///
-    /// TODO: This should be on the server?
+    //! @brief  Channel Name
     std::string m_name;
     
-    /// Maximum messages to store in m_messages before beginning to remove the
-    /// last message.
+    //! @brief Channel Topic
+    std::string m_topic;
+    
+    //! Maximum messages to store in m_messages before beginning to remove the last message.
     unsigned short m_max_messages;
     
-    /// A vector of ref-counted user names that are contained in m_messages.
+    /**
+     * @brief A vector of ref-counted user names that are contained in m_messages.
+     *
+     * Under normal circumstances, the vector is faster than a std::map.
+     */
     std::vector<std::pair<const char *, unsigned> > m_message_users;
     
-    /// @brief Users currently in the channel.
-    ///
-    /// This is unrelated to m_message_users.
-    std::vector<std::string> m_users;
+    /**
+     * @brief Users currently in the channel.
+     *
+     * This is unrelated to m_message_users.
+     */
+    Maintainer<std::string> m_users;
     
     /// A list of messages
     struct MessageList *m_messages;

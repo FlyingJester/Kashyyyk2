@@ -30,6 +30,11 @@
 
 #include <assert.h>
 
+#if ( defined _MSC_VER ) && _MSC_VER >= 1500
+// This is needed for std::find for some reason.
+#include <type_traits>
+#endif
+
 namespace YYY {
 
 /*---------------------------------------------------------------------------*/
@@ -140,6 +145,31 @@ ChannelCore::ChannelMessage &ChannelCore::pushFront(){
         m_num_messages++;
     
     return new_msg->m_message;
+}
+
+/*---------------------------------------------------------------------------*/
+
+Maintainer<std::string>::const_iterator ChannelCore::getUsersBegin() const{
+    return m_users.cbegin();
+}
+
+/*---------------------------------------------------------------------------*/
+
+Maintainer<std::string>::const_iterator ChannelCore::getUsersEnd() const{
+    return m_users.cend();
+}
+    
+/*---------------------------------------------------------------------------*/
+
+void ChannelCore::addUser(const char *user, const size_t user_len){
+#if (!defined NDEBUG ) && !(( defined _MSC_VER ) && ( _MSC_VER >= 1500 ))
+    {
+        const std::string user_str = std::string(user, user_len);
+        YYY_Assert(std::find(m_users.begin(), m_users.end(), user_str) == m_users.cend(),
+            "Tried to add a user that already exists!");
+    }
+#endif
+    m_users.create().assign(user, user_len);
 }
 
 /*---------------------------------------------------------------------------*/

@@ -75,6 +75,7 @@ public:
     // the handlers for the appropriate ServerUI's.
     static void HandleTreeClick(Fl_Tree &tree);
 
+    ChannelUI &addChannel(const char *name);
 };
 
 } // namespace YYY

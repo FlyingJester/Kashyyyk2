@@ -34,25 +34,48 @@
 
 #include "yyy_assert.h"
 
+#include <assert.h>
+
 namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
 ChannelUI::ChannelUI(ChannelCore &channel)
-  : m_core(channel){
+  : m_core(&channel){
     
 }
 
 /*---------------------------------------------------------------------------*/
 
-bool ChannelUI::matches(const ChannelCore &c) const { return &m_core == &c; }
+void ChannelUI::setCore(ChannelCore &core){
+    assert(m_core == NULL);
+    m_core = &core;
+}
+
+/*---------------------------------------------------------------------------*/
+
+ChannelCore &ChannelUI::getCore(){
+    assert(m_core != NULL);
+    return *m_core;
+}
+
+/*---------------------------------------------------------------------------*/
+
+const ChannelCore &ChannelUI::getCore() const{
+    assert(m_core != NULL);
+    return *m_core;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ChannelUI::matches(const ChannelCore &c) const { return m_core == &c; }
 
 /*---------------------------------------------------------------------------*/
 
 void ChannelUI::updateScroll(Fl_Valuator &to) const {
     to.step(1);
     to.step(1.0);
-    const unsigned n = m_core.numMessages();
+    const unsigned n = m_core->numMessages();
     to.range(0.0, n);
     to.value(n);
 }
@@ -63,12 +86,12 @@ void ChannelUI::updateChatWidget(ChatWidget &to,
     const Fl_Valuator &scroll) const {
     
     const unsigned max_lines = to.maxLines(),
-        num_msg = m_core.numMessages(),
+        num_msg = m_core->numMessages(),
         maximum = (max_lines > num_msg) ? num_msg : max_lines;
     
     to.resize(maximum);
     
-    const struct ChannelCore::MessageList *msg = m_core.messages();
+    const struct ChannelCore::MessageList *msg = m_core->messages();
     
     for(unsigned i = 0; i < maximum; i++){
         YYY_Assert(msg != NULL, "Channel message count is inconsistent");

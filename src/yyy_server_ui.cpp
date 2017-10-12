@@ -49,4 +49,11 @@ ServerUI::ServerUI(ServerCore &core)
     
 }
 
+ChannelUI &ServerUI::addChannel(const char *name){
+    ChannelCore &core = m_core.addChannel(name);
+    ChannelUI &ui = m_channels.create();
+    core.setUI(ui);
+    return ui;
+}
+
 } // namespace YYY

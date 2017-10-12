@@ -36,6 +36,8 @@
 
 #include "network/yyy_network.h"
 
+#include "utils/yyy_fl_locker.hpp"
+
 #include <stdlib.h>
 #include <assert.h>
 
@@ -120,6 +122,14 @@ void ServerCore::createNewUi(){
 
 /*---------------------------------------------------------------------------*/
 
+ChannelCore &ServerCore::addChannel(const char *name){
+    ChannelCore &channel = m_channels.create();
+    channel.name(name);
+    return channel;
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ServerCore::firstConnected(){
     assert(!m_first_connected);
     m_first_connected = true;
@@ -160,6 +170,25 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                 YYY_WriteSocket(m_socket, pong, len);
                 m_protocol->freeMessageString(pong);
             }
+            break;
+        case eYYYChatJoin:
+            // Check if this is a join for one of our current channels, or a confirmation of a
+            // previous join attempt.
+            {
+                bool found = false;
+                for(Maintainer<ChannelCore>::iterator iter = m_channels.begin();
+                    iter != m_channels.cend(); iter++){
+                    const std::string &name = iter->name();
+                    if(name.length() == msg.m.join.where_len &&
+                        memcmp(&(name[0]), msg.m.join.where, msg.m.join.where_len) == 0){
+                        // This is a join for a channel we are already in.
+                        iter->addUser(msg.m.join.from, msg.m.join.from_len);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
             break;
         case eYYYChatNotification:
             dest = &m_channel;
@@ -204,7 +233,7 @@ void ServerCore::handleMessage(const char *str, unsigned len){
 
                     // We either reached the end, or we found the channel.
                     if(dest == NULL){
-                        // TODO: Add this new channel.
+                        // TODO: Add this new channel?
                         break;
                     }
                 }
@@ -230,7 +259,12 @@ void ServerCore::handleMessage(const char *str, unsigned len){
             }
             break;
         default:
-            __nop();
+#ifndef NDEBUG
+            { // Debugging target.
+                volatile int i = 0;
+                i = 1;
+            }
+#endif
             break;
     }
     
@@ -246,11 +280,10 @@ void ServerCore::giveMessage(const char *msg, unsigned len){
     char buffer[YYY_MAX_MSG_LEN];
     unsigned long n = YYY_GetMSGBuffer(m_buffer, buffer);
     if(n){
-        Fl::lock();
+        YYY::FlLocker locker;
         do{
             handleMessage(buffer, n);
         }while(n = YYY_GetMSGBuffer(m_buffer, buffer));
-        Fl::unlock();
     }
 }
 

@@ -34,7 +34,6 @@
 #include "ui/yyy_server_tree.hpp"
 
 #include <stdlib.h>
-#include <assert.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -57,7 +56,7 @@ class ChannelCore;
 class ChannelUI {
     // Must not be a reference to allow us to have a default constructor so
     // that this can be held in a vector in older C++ standard compilers.
-    ChannelCore &m_core;
+    ChannelCore *m_core;
 
     ServerTree::ChannelData *m_ui_data;
     
@@ -65,8 +64,18 @@ class ChannelUI {
     unsigned m_at;
 public:
     
+    ChannelUI() : m_core(NULL){}
     ChannelUI(ChannelCore &channel);
     
+    /**
+     * @brief Sets the ChannelCore.
+     *
+     * This asserts that the current core is NULL, and should only be called during initialization.
+     */
+    void setCore(ChannelCore &core);
+    ChannelCore &getCore();
+    const ChannelCore &getCore() const;
+
     // Allows us to check the core without actually exposing it.
     bool matches(const ChannelCore &c) const;
     void updateScroll(Fl_Valuator &to) const;

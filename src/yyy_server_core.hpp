@@ -149,6 +149,8 @@ public:
     ChannelCore &serverChannel() { return m_channel; }
     const ChannelCore &serverChannel() const { return m_channel; }
     
+    ChannelCore &addChannel(const char *name);
+    
     /**
      * @brief Called when first connected to send handshake data to the server.
      *
