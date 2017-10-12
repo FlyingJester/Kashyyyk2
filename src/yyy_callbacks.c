@@ -43,3 +43,9 @@ void YYY_Connect(const char *uri, unsigned long port){
         port = 6667;
     YYY_QueueConnection(uri, port, NULL);
 }
+
+/*---------------------------------------------------------------------------*/
+
+void YYY_Join(const char *channel){
+    (void)channel;
+}

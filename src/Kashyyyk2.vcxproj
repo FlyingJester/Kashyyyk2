@@ -128,7 +128,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fltkd.lib;ws2_32.lib;Fwpuclnt.lib;monitor\lib\yyy_monitor32d.lib;chat\lib\yyy_chat32d.lib;irc\lib\yyy_irc32d.lib;thread\lib\yyy_thread32d.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltkd.lib;ws2_32.lib;Fwpuclnt.lib;monitor\lib\yyy_monitor32d.lib;chat\lib\yyy_chat32d.lib;irc\lib\yyy_irc32d.lib;thread\lib\yyy_thread32d.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;objects\yyy_join;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)fltk\32</AdditionalLibraryDirectories>
       <LinkStatus>true</LinkStatus>
     </Link>
@@ -147,7 +147,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fltkd.lib;ws2_32.lib;monitor\lib\yyy_monitor64d.lib;chat\lib\yyy_chat64d.lib;irc\lib\yyy_irc64d.lib;thread\lib\yyy_thread64d.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltkd.lib;ws2_32.lib;monitor\lib\yyy_monitor64d.lib;chat\lib\yyy_chat64d.lib;irc\lib\yyy_irc64d.lib;thread\lib\yyy_thread64d.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;objects\yyy_join;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)fltk\64</AdditionalLibraryDirectories>
       <LinkStatus>true</LinkStatus>
     </Link>
@@ -169,7 +169,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor32.lib;chat\lib\yyy_chat32.lib;irc\lib\yyy_irc32.lib;thread\lib\yyy_thread32.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor32.lib;chat\lib\yyy_chat32.lib;irc\lib\yyy_irc32.lib;thread\lib\yyy_thread32.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;objects\yyy_join;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)fltk\32</AdditionalLibraryDirectories>
       <LinkStatus>true</LinkStatus>
     </Link>
@@ -191,7 +191,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor32rd.lib;chat\lib\yyy_chat32rd.lib;irc\lib\yyy_irc32rd.lib;thread\lib\yyy_thread32rd.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor32rd.lib;chat\lib\yyy_chat32rd.lib;irc\lib\yyy_irc32rd.lib;thread\lib\yyy_thread32rd.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;objects\yyy_join;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)fltk\32</AdditionalLibraryDirectories>
       <LinkStatus>
       </LinkStatus>
@@ -215,7 +215,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor64.lib;chat\lib\yyy_chat64.lib;irc\lib\yyy_irc64.lib;thread\lib\yyy_thread64.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor64.lib;chat\lib\yyy_chat64.lib;irc\lib\yyy_irc64.lib;thread\lib\yyy_thread64.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;objects\yyy_join;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)fltk\64</AdditionalLibraryDirectories>
       <LinkStatus>true</LinkStatus>
     </Link>
@@ -238,7 +238,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor64rd.lib;chat\lib\yyy_chat64rd.lib;irc\lib\yyy_irc64rd.lib;thread\lib\yyy_thread64rd.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk.lib;ws2_32.lib;monitor\lib\yyy_monitor64rd.lib;chat\lib\yyy_chat64rd.lib;irc\lib\yyy_irc64rd.lib;thread\lib\yyy_thread64rd.lib;objects\kashyyyk2;objects\yyy_chat_widget;objects\yyy_server_tree;objects\yyy_connect;objects\yyy_join;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)fltk\64</AdditionalLibraryDirectories>
       <LinkStatus>true</LinkStatus>
     </Link>

@@ -41,6 +41,10 @@ void YYY_Say(const char *text);
 
 void YYY_Connect(const char *uri, unsigned long port);
 
+/*---------------------------------------------------------------------------*/
+
+void YYY_Join(const char *channel);
+
 #ifdef __cplusplus
 }
 #endif

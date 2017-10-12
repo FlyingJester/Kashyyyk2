@@ -25,6 +25,7 @@
     </None>
     <None Include="ui\kashyyyk2.fl" />
     <None Include="ui\yyy_connect.fl" />
+    <None Include="ui\yyy_join.fl" />
     <None Include="yyy.mk" />
   </ItemGroup>
   <ItemGroup>

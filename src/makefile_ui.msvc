@@ -4,7 +4,7 @@ OBJDIR=objects
 
 !INCLUDE yyy.mk
 
-OBJECTS=$(OBJDIR)\kashyyyk2.obj $(OBJDIR)\yyy_connect.obj $(OBJDIR)\yyy_chat_widget.obj $(OBJDIR)\yyy_server_tree.obj
+OBJECTS=$(OBJDIR)\kashyyyk2.obj $(OBJDIR)\yyy_connect.obj $(OBJDIR)\yyy_join.obj $(OBJDIR)\yyy_chat_widget.obj $(OBJDIR)\yyy_server_tree.obj
 
 all: yyy2ui.lib
 
@@ -14,6 +14,9 @@ yyy2ui.lib: $(OBJECTS)
 yyy_connect.cpp: ui\yyy_connect.fl
 	$(FLUID) -c ui\yyy_connect.fl
 
+yyy_join.cpp: ui\yyy_join.fl
+	$(FLUID) -c ui\yyy_join.fl
+
 kashyyyk2.cpp: ui\kashyyyk2.fl
 	$(FLUID) -c ui\kashyyyk2.fl
 
@@ -21,6 +24,9 @@ CLFLAGS=/nologo /EHsc /DWIN32 /I$(FLTKDIR) /Iutils /M$(CRT) /Zi
 
 $(OBJDIR)\yyy_connect.obj: yyy_connect.cpp
 	@cl $(CLFLAGS) /c yyy_connect.cpp /Fo:$(OBJDIR)\yyy_connect.obj
+
+$(OBJDIR)\yyy_join.obj: yyy_join.cpp
+	@cl $(CLFLAGS) /c yyy_join.cpp /Fo:$(OBJDIR)\yyy_join.obj
 
 $(OBJDIR)\kashyyyk2.obj: kashyyyk2.cpp ui\yyy_chat_widget.hpp ui\yyy_server_tree.hpp yyy_connect.cpp
 	@cl $(CLFLAGS) /c kashyyyk2.cpp /Fo:$(OBJDIR)\kashyyyk2.obj

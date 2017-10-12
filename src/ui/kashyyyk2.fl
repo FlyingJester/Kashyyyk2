@@ -27,7 +27,7 @@ decl {\#include <string>} {private global
 decl {\#include <vector>} {private global
 }
 
-decl {std::vector<Fl_Window*> yyy_windows;} {selected private local
+decl {std::vector<Fl_Window*> yyy_windows;} {private local
 }
 
 Function {theme_menu_callback(Fl_Widget *what, void *theme_p)} {
@@ -42,7 +42,7 @@ Function {YYY_MakeWindow()} {open
 } {
   Fl_Window {} {
     label {Kashyyyk 2} open
-    xywh {841 344 630 490} type Double resizable
+    xywh {438 231 630 490} type Double resizable
     code0 {o->size_range(480, 320);}
     code1 {yyy_windows.push_back(o);} size_range {300 200 0 0} visible
   } {
@@ -94,11 +94,11 @@ Function {YYY_MakeWindow()} {open
         xywh {5 460 585 25} box THIN_DOWN_BOX selection_color 133 textfont 4 resizable
       }
     }
-    Fl_Menu_Bar {} {open
-      xywh {0 0 630 25} box NO_BOX color 52 selection_color 21
+    Fl_Menu_Bar kashyyyk2_menu_bar {open
+      private xywh {0 0 630 25} box NO_BOX color 52 selection_color 21
     } {
       Submenu {} {
-        label File open
+        label File
         xywh {0 0 62 20}
       } {
         MenuItem {} {
@@ -121,7 +121,7 @@ else
         }
       }
       Submenu {} {
-        label Edit open
+        label Edit
         xywh {0 0 62 20}
       } {
         MenuItem {} {
@@ -160,10 +160,16 @@ else
         Submenu theme_sub_menu {
           label Theme
           xywh {0 0 62 20}
-        } {}
+        } {
+          MenuItem {} {
+            label placeholder
+            callback {// This is needed because an empty submenu would eat the next base submenu.}
+            xywh {0 0 30 20} hide deactivate
+          }
+        }
       }
       Submenu {} {
-        label Server open
+        label Server
         xywh {0 0 62 20}
       } {
         MenuItem join_channel_menu_item {
@@ -184,7 +190,7 @@ else
         }
       }
       Submenu {} {
-        label Channel open
+        label Channel
         xywh {5 5 62 20}
       } {
         MenuItem {} {
@@ -205,9 +211,10 @@ else
   }
   code {const std::string base_name = theme_sub_menu->label();
 for(unsigned i = 0; i < (unsigned)eYYY_NumThemes; i++){
-    theme_sub_menu->add((base_name + '/' + YYY_Themes[i].name).c_str(),
+    kashyyyk2_menu_bar->add((base_name + '/' + YYY_Themes[i].name).c_str(),
         0, theme_menu_callback, (void*)i, 0);
-}} {}
+}} {selected
+  }
 }
 
 Function {YYY_GetNumWindows()} {

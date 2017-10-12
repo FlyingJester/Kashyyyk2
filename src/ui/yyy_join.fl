@@ -1,0 +1,53 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0304
+use_FL_COMMAND
+header_name {.hpp}
+code_name {.cpp}
+decl {\#include "yyy_assert.h"} {private local
+}
+
+decl {\#include "yyy_callbacks.h"} {private local
+}
+
+decl {bool yyy_initialized = false;} {
+  comment {// Used to ensure this function is only called once, and to prevent memory leaks of extern'ed variables otherwise.} private local
+}
+
+Function {YYY_CreateJoinDialog()} {open
+} {
+  code {YYY_Assert(yyy_initialized == false, "Connection dialog created more than once.");
+yyy_initialized = true;} {}
+  Fl_Window join_window {open
+    private xywh {654 415 555 230} type Double color 51 visible
+  } {
+    Fl_Browser search_list {
+      label {Search Results} selected
+      xywh {15 70 525 105} type Select selection_color 133 align 1 deactivate
+    }
+    Fl_Input channel_name_input {
+      label Channel
+      private xywh {70 15 210 25} selection_color 93
+    }
+    Fl_Input pass_input {
+      label Pass
+      private xywh {320 15 90 25} type Int selection_color 133 deactivate
+    }
+    Fl_Return_Button {} {
+      label Join
+      callback {const char *const channel_name = channel_name_input->value();
+if(channel_name != NULL && *channel_name != '\\0'){
+	YYY_Join(channel_name);
+	join_window->hide();
+}}
+      xywh {425 15 115 25} box THIN_UP_BOX
+    }
+    Fl_Input search_input {
+      label Search
+      private xywh {70 190 335 25} selection_color 93 deactivate
+    }
+    Fl_Button {} {
+      label Search
+      xywh {425 190 115 25} deactivate
+    }
+  }
+}
