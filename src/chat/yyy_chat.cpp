@@ -23,12 +23,15 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+/*---------------------------------------------------------------------------*/
 
 #include "yyy_chat.hpp"
 
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*---------------------------------------------------------------------------*/
 
 namespace YYY{
 
@@ -51,6 +54,7 @@ const char *ChatProtocol::messageToString(const Message &msg){
 }
 
 /*---------------------------------------------------------------------------*/
+
 void ChatProtocol::copyMessage(const Message &in, Message &out){
     if(&in != &out)
         out = in;
