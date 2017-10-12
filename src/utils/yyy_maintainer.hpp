@@ -1,4 +1,35 @@
+/* 
+ *  Copyright (c) 2016-2017 Martin McDonough.  All rights reserved.
+ * 
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ * 
+ * - Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ * 
+ * - Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 
+ * - Products derived from this software may not be called "Kashyyyk", nor may
+ *     "YYY" appear in their name, without prior written permission of
+ *     the copyright holders.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+/*---------------------------------------------------------------------------*/
+
+#ifndef YYY_MAINTAINER_HPP
+#define YYY_MAINTAINER_HPP
 #pragma once
+
+/*---------------------------------------------------------------------------*/
 
 #include <iterator>
 
@@ -16,9 +47,24 @@
 #pragma warning 391 10
 #endif
 
+#if (( defined _MSC_VER ) && ( _MSC_VER >= 1500 )) || ( defined __GNUC__ )
+#define YYY_ITERATORS_NEED_TYPE_TRAITS
+#include <type_traits>
+#include <iterator>
+
+#ifdef _MSC_VER
+#define YYY_MSC_ONLY_TYPENAME typename
+#else
+#define YYY_MSC_ONLY_TYPENAME
+#endif
+
+#endif
+
+/*---------------------------------------------------------------------------*/
+
 namespace YYY {
 
-/*===========================================================================*/
+/*---------------------------------------------------------------------------*/
 // Defines a container that does not have strong ordering, but under which
 // no operations will invalidate any references or iterators other than an
 // erase (which invalidates the erased iterator).
@@ -167,91 +213,124 @@ public:
         that = in;
     }
     
-    class iterator {
-        struct Block *m_block;
-        unsigned short i;
-        iterator(struct Block *block, unsigned n)
+    template<typename Type, typename BlockType>
+    class iterator_base
+    {
+#ifdef YYY_ITERATORS_NEED_TYPE_TRAITS
+        static constexpr bool type_is_const = std::is_const<Type>::value;
+#endif
+        typedef iterator_base<Type, BlockType> this_type;
+        BlockType *m_block;
+        unsigned short m_i;
+        this_type(BlockType *block, unsigned n)
           : m_block(block)
-          , i(n){}
+          , m_i(n){}
         
         inline void increment(){
             do{
                 do{
-                    i++;
-                }while(i < c_block_size && !m_block->m_used[i]);
-            }while(i >= c_block_size && (m_block = m_block->next()));
+                    m_i++;
+                }while(m_i < c_block_size && !m_block->m_used[m_i]);
+            }while(m_i >= c_block_size && (m_block = m_block->next()));
         }
         
     public:
+#ifdef YYY_ITERATORS_NEED_TYPE_TRAITS
+        struct const_forward_iterator_t : public std::forward_iterator_tag, public std::output_iterator_tag {};
+        typedef YYY_MSC_ONLY_TYPENAME std::conditional<
+            type_is_const,
+            std::forward_iterator_tag,
+            const_forward_iterator_t>::type iterator_category;
+#endif
         
+        typedef Type value_type;
+        typedef unsigned short distance_type;
+        typedef Type &reference;
+        typedef Type *pointer;
+
         // Used only for certain performance tricks in erase.
-        inline struct Block *block() { return m_block; }
-        inline const struct Block *block() const { return m_block; }
-        
-        iterator(struct Block *block)
+        inline BlockType *block() { return m_block; }
+        inline const BlockType *block() const { return m_block; }
+        inline unsigned short getI() const { return m_i; }
+
+        this_type(BlockType *block)
           : m_block(block)
-          , i(0){
+          , m_i(0){
             if(m_block && !(*m_block->m_used))
                 increment();
         }
         
-        inline bool operator == (const iterator &other) const {
-            return other.m_block == m_block && (m_block == NULL || other.i == i);
+        template<typename OtherT, typename OtherBlock>
+        inline bool operator == (const iterator_base<OtherT, OtherBlock> &other) const {
+            return other.block() == m_block && (m_block == NULL || other.getI() == m_i);
         }
         
-        inline bool operator != (const iterator &other) const {
+        template<typename OtherType>
+        inline bool operator != (const OtherType &other) const {
             return !(*this == other);
         }
         
-        inline iterator &operator++(){
+        inline this_type &operator++(){
             increment();
             return *this;
         }
         
-        inline iterator operator+(int i) const {
+        inline this_type operator+(int i) const {
             assert(i >= 0);
-            iterator iter(m_block, i);
+            this_type iter(m_block, i);
             while(i--)
                 iter.increment();
             return iter;
         }
         
-        inline iterator &operator+=(int i){
+        inline this_type &operator+=(int i){
             assert(i >= 0);
             while(i--)
                 increment();
             return *this;
         }
         
-        inline iterator operator++(int){
-            iterator z(m_block, i);
+        inline this_type operator++(int){
+            this_type z(m_block, m_i);
             increment();
             return z;
         }
         
-        inline T &operator*(){
-            return m_block->m_data[i];
+        inline Type &operator*(){
+            return m_block->m_data[m_i];
         }
         
-        inline T *operator->() {
-            return m_block->m_data + i;
+        inline Type *operator->() {
+            return m_block->m_data + m_i;
         }
     };
     
+    typedef iterator_base<T, Block> iterator;
+    typedef iterator_base<const T, const Block> const_iterator;
+    
     inline iterator begin() { return iterator(m_blocks); }
-    inline iterator end() {
-        if(!m_blocks)
-            return iterator(NULL);
+    inline const_iterator begin() const { return const_iterator(m_blocks); }
+    inline const_iterator cbegin() const { return const_iterator(m_blocks); }
+
+    // Used to create the values for end() and cend()
+    template<typename Type, typename BlockType>
+    static inline iterator_base<Type, BlockType> GetEnd(BlockType *blocks) {
+        if(blocks == NULL)
+            return iterator_base<Type, BlockType>(NULL);
         
-        struct Block *const last = m_blocks->lastBlock();
+        BlockType *const last = blocks->lastBlock();
         const unsigned short n = last->count();
-        iterator iter = iterator(last);
-        for(unsigned i = 0; i+1 < n; i++){
+        iterator_base<Type, BlockType> iter = iterator_base<Type, BlockType>(last);
+        for(unsigned i = 0; i + 1 < n; i++){
             ++iter;
         }
         
         return iter;
     }
+    
+    iterator end() { return GetEnd<T, Block>(m_blocks); }
+    const_iterator end() const { return GetEnd<const T, const Block>(m_blocks); }
+    const_iterator cend() const { return GetEnd<const T, const Block>(m_blocks); }
     
     iterator erase(const iterator &iter){
         struct Block *const block = iter.block();
@@ -301,8 +380,17 @@ public:
     }
 };
 
+/*---------------------------------------------------------------------------*/
+
 #ifdef __WATCOMC__
 #pragma warning 391 9
 #endif
 
 } // namespace YYY
+
+/*---------------------------------------------------------------------------*/
+
+#undef YYY_MSC_ONLY_TYPENAME
+#undef YYY_ITERATORS_NEED_TYPE_TRAITS
+
+#endif YYY_MAINTAINER_HPP
