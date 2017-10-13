@@ -35,16 +35,16 @@ $(YYYLIB): $(OBJECTS)
 	lib /nologo $(OBJECTS) /OUT:$(YYYLIB)
 
 $(OBJDIR)\yyy_irc.obj: yyy_irc.cpp yyy_irc.hpp yyy_irc_core.h ..\chat\yyy_chat.hpp
-	@cl $(CLFLAGS) /c yyy_irc.cpp /Fo:$(OBJDIR)\yyy_irc.obj
+	cl $(CLFLAGS) /c yyy_irc.cpp /Fo:$(OBJDIR)\yyy_irc.obj
 
 $(OBJDIR)\yyy_irc_core.obj: yyy_irc_core.c yyy_irc_core.h yyy_irc_numerics.h
-	@cl $(CLFLAGS) /c yyy_irc_core.c /Fo:$(OBJDIR)\yyy_irc_core.obj
+	cl $(CLFLAGS) /c yyy_irc_core.c /Fo:$(OBJDIR)\yyy_irc_core.obj
 
 $(OBJDIR)\yyy_irc_numerics.obj: yyy_irc_numerics.c yyy_irc_numerics.h
-	@cl $(CLFLAGS) /c yyy_irc_numerics.c /Fo:$(OBJDIR)\yyy_irc_numerics.obj
+	cl $(CLFLAGS) /c yyy_irc_numerics.c /Fo:$(OBJDIR)\yyy_irc_numerics.obj
 
 $(OBJDIR)\yyy_irc_core_test.obj: yyy_irc_core_test.c yyy_irc_core.h
-	@cl $(CLFLAGS) /I../../test /c yyy_irc_core_test.c /Fo:$(OBJDIR)\yyy_irc_core_test.obj
+	cl $(CLFLAGS) /I../../test /c yyy_irc_core_test.c /Fo:$(OBJDIR)\yyy_irc_core_test.obj
 
 TESTOBJECTS=$(DEBUGOBJDIR)\yyy_irc_core.obj $(DEBUGOBJDIR)\yyy_irc_core_test.obj
 

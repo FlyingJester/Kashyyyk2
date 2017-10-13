@@ -113,7 +113,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RELEASE BITS=32</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=RELEASE BITS=32</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RELEASE BITS=32</NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine>cd irc &amp;&amp; nmake /nologo /f makefile.msvc clean MODE=RELEASE &amp;&amp; nmake /nologo /f makefile.msvc CRT=T MODE=RELEASE BITS=32</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(SolutionDir)src\irc</OutDir>
     <IntDir>$(SolutionDir)src\irc\objects</IntDir>

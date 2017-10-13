@@ -294,8 +294,6 @@ static bool Main(unsigned num_args, const std::string *args){
         Fl::scheme("gtk+");
     #endif
 
-    YYY_InitThemes();
-
 #else
     Fl::scheme("gtk+");
 #endif
@@ -311,7 +309,8 @@ static bool Main(unsigned num_args, const std::string *args){
 #ifdef YYY_ENABLE_DISCORD
     ChatProtocol *discord_protocol;
 #endif
-
+    
+    YYY_InitThemes();
     YYY_StartConnectThread();
     yyy_main_window.m_window = YYY_MakeWindow();
 #if _WIN32
@@ -328,13 +327,13 @@ static bool Main(unsigned num_args, const std::string *args){
         }
     }
 #endif
+
     yyy_main_window.m_server_tree = server_tree;
     yyy_main_window.m_window->show();
     yyy_main_window.m_server_thread = new ServerThread();
     yyy_main_window.m_server_thread->start();
     
     server_tree->callback(yyy_server_tree_callback, &yyy_main_window);
-    
     YYY_SetTheme(eYYY_DefaultTheme);
     
     {

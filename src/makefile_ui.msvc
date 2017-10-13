@@ -9,16 +9,16 @@ OBJECTS=$(OBJDIR)\kashyyyk2.obj $(OBJDIR)\yyy_connect.obj $(OBJDIR)\yyy_join.obj
 all: yyy2ui.lib
 
 yyy2ui.lib: $(OBJECTS)
-	lib /nologo /OUT:yyy2ui.lib $(OBJECTS)
+	@lib /nologo /OUT:yyy2ui.lib $(OBJECTS)
 
 yyy_connect.cpp: ui\yyy_connect.fl
-	$(FLUID) -c ui\yyy_connect.fl
+	@$(FLUID) -c ui\yyy_connect.fl
 
 yyy_join.cpp: ui\yyy_join.fl
-	$(FLUID) -c ui\yyy_join.fl
+	@$(FLUID) -c ui\yyy_join.fl
 
 kashyyyk2.cpp: ui\kashyyyk2.fl
-	$(FLUID) -c ui\kashyyyk2.fl
+	@$(FLUID) -c ui\kashyyyk2.fl
 
 CLFLAGS=/nologo /EHsc /DWIN32 /I$(FLTKDIR) /Iutils /M$(CRT) /Zi
 
@@ -42,7 +42,10 @@ clean:
 	@del /Q kashyyyk2.hpp
 	@del /Q yyy_connect.cpp
 	@del /Q yyy_connect.hpp
+	@del /Q yyy_join.cpp
+	@del /Q yyy_join.hpp
 	@del /Q $(OBJDIR)\kashyyyk2.obj
 	@del /Q $(OBJDIR)\yyy_connect.obj
+	@del /Q $(OBJDIR)\yyy_join.obj
 	@del /Q $(OBJDIR)\yyy_chat_widget.obj
 	@del /Q $(OBJDIR)\yyy_server_tree.obj

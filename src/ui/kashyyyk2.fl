@@ -33,38 +33,8 @@ decl {\#include <vector>} {private global
 decl {std::vector<Fl_Window*> yyy_windows;} {private local
 }
 
-Function {YYY_SetServerConnected()} {
-  comment {Sets the UI to show that the current server is connected.
-This enables any UI options that need the server to be working.} open C return_type void
-} {
-  code {join_channel_menu_item->activate();
-change_nick_menu_item->activate();
-disconnect_menu_item->activate();
-reconnect_menu_item->deactivate();} {}
-}
-
-Function {YYY_SetServerDisconnected()} {
-  comment {Sets the UI to show that the current server is connected.
-This enables any UI options that need the server to be working.} open C return_type void
-} {
-  code {join_channel_menu_item->deactivate();
-change_nick_menu_item->deactivate();
-disconnect_menu_item->deactivate();
-reconnect_menu_item->activate();} {}
-}
-
-Function {YYY_SetNoServer()} {
-  comment {Sets the UI to show that there are no servers.
-} open C return_type void
-} {
-  code {join_channel_menu_item->deactivate();
-change_nick_menu_item->deactivate();
-disconnect_menu_item->deactivate();
-reconnect_menu_item->deactivate();} {}
-}
-
 Function {theme_menu_callback(Fl_Widget *what, void *theme_p)} {
-  comment {Callback for theme submenu items. The user_data is cast to a YYY_EnumTheme.} open private C return_type void
+  comment {Callback for theme submenu items. The user_data is cast to a YYY_EnumTheme.} open selected private C return_type void
 } {
   code {const YYY_EnumTheme theme = (YYY_EnumTheme)((int)theme_p);
 assert(theme < eYYY_NumThemes);
@@ -255,8 +225,40 @@ else
 for(unsigned i = 0; i < (unsigned)eYYY_NumThemes; i++){
     kashyyyk2_menu_bar->add((base_name + '/' + YYY_Themes[i].name).c_str(),
         0, theme_menu_callback, (void*)i, 0);
-}} {selected
-  }
+}} {}
+}
+
+Function {YYY_SetServerConnected()} {
+  comment {Sets the UI to show that the current server is connected.
+This enables any UI options that need the server to be working.} open C return_type void
+} {
+  code {join_channel_menu_item->activate();
+change_nick_menu_item->activate();
+disconnect_menu_item->activate();
+reconnect_menu_item->deactivate();
+kashyyyk2_menu_bar->menu(menu_kashyyyk2_menu_bar);} {}
+}
+
+Function {YYY_SetServerDisconnected()} {
+  comment {Sets the UI to show that the current server is connected.
+This enables any UI options that need the server to be working.} open C return_type void
+} {
+  code {join_channel_menu_item->deactivate();
+change_nick_menu_item->deactivate();
+disconnect_menu_item->deactivate();
+reconnect_menu_item->activate();
+kashyyyk2_menu_bar->menu(menu_kashyyyk2_menu_bar);} {}
+}
+
+Function {YYY_SetNoServer()} {
+  comment {Sets the UI to show that there are no servers.
+} open C return_type void
+} {
+  code {join_channel_menu_item->deactivate();
+change_nick_menu_item->deactivate();
+disconnect_menu_item->deactivate();
+reconnect_menu_item->deactivate();
+kashyyyk2_menu_bar->menu(menu_kashyyyk2_menu_bar);} {}
 }
 
 Function {YYY_GetNumWindows()} {

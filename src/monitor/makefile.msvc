@@ -30,7 +30,7 @@ OBJECTS=$(YYYMONITOROBJ) $(YYYMONITORBACKENDOBJ)
 all: $(YYYLIB)
 
 $(YYYLIB): $(OBJECTS)
-	lib /nologo $(OBJECTS) /OUT:$(YYYLIB)
+	@lib /nologo $(OBJECTS) /OUT:$(YYYLIB)
 
 $(YYYMONITORBACKENDOBJ): yyy_monitor_win32.c yyy_monitor_backend.h
 	@cl $(CLFLAGS) /c yyy_monitor_win32.c /Fo:$(YYYMONITORBACKENDOBJ)

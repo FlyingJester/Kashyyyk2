@@ -29,7 +29,7 @@ OBJECTS=$(YYYTHREADOBJ)
 all: $(YYYLIB)
 
 $(YYYLIB): $(OBJECTS)
-	lib /nologo $(OBJECTS) /OUT:$(YYYLIB)
+	@lib /nologo $(OBJECTS) /OUT:$(YYYLIB)
 
 $(YYYTHREADOBJ): yyy_thread_win32.c yyy_thread.h
 	@cl $(CLFLAGS) /c yyy_thread_win32.c /Fo:$(YYYTHREADOBJ)
