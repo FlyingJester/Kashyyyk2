@@ -36,6 +36,8 @@
 
 #include "monitor/yyy_monitor.hpp"
 
+#include <string>
+
 /*---------------------------------------------------------------------------*/
 
 struct YYY_NetworkSocket;
@@ -107,6 +109,8 @@ public:
      * assigned before.
      */
     void setName(const char *name, size_t name_len);
+
+    inline const std::string &name() const { return m_name; }
 
     /**
      * @brief Sets the UI. Defined to allow a default constructor.

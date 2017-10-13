@@ -228,7 +228,9 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
     
     {
         YYY::FlLocker locker;
-        window.m_server_tree->connectionSucceeded(name, name_len, &server);
+        ServerTree::ServerData *const server_data =
+            window.m_server_tree->connectionSucceeded(name, name_len, &server);
+        server.getUI()->setUIData(server_data);
         window.m_server_tree->redraw();
     }
 }

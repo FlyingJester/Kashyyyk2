@@ -1,4 +1,33 @@
+/* 
+ *  Copyright (c) 2014-2017 Martin McDonough.  All rights reserved.
+ * 
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ * 
+ * - Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ * 
+ * - Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 
+ * - Products derived from this software may not be called "Kashyyyk", nor may
+ *     "YYY" appear in their name, without prior written permission of
+ *     the copyright holders.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+/*---------------------------------------------------------------------------*/
+
 #include "yyy_server_tree.hpp"
+
+#include "../kashyyyk2.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -74,7 +103,7 @@ ServerTree::ServerTree(int a_x, int a_y, int a_w, int a_h, const char *a_title)
 
 /*---------------------------------------------------------------------------*/
     
-void ServerTree::addConnectingServer(const char *uri,
+struct ServerTree::ServerData *ServerTree::addConnectingServer(const char *uri,
     const char *name, unsigned name_len){    
     
     if(m_num_connecting++ == 0)
@@ -92,11 +121,31 @@ void ServerTree::addConnectingServer(const char *uri,
     
     // Refresh the view
     updateChildren();
+
+    return data;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ServerTree::setSelected(Fl_Tree_Item *item){
+    Fl_Tree::select_only(item);
+    if(item != NULL){
+        ServerData *const server_data = (ServerData*)item->user_data();
+        if(server_data->arg == NULL)
+            YYY_SetNoServer();
+        else if(IsConnected(server_data))
+            YYY_SetServerConnected();
+        else
+            YYY_SetServerDisconnected();
+    }
 }
 
 /*---------------------------------------------------------------------------*/
 
 int ServerTree::handle(int e){
+
+    if(children() == 0)
+        YYY_SetNoServer();
 
     // Check that the last clicked item is still in the tree.
     bool still_exists = false;
@@ -203,7 +252,7 @@ ServerTree::ServerStatus ServerTree::getServerStatus(const char *name, unsigned 
 /*---------------------------------------------------------------------------*/
 
 // Note that Fl::lock should be called for multithreaded access to this.
-void ServerTree::setServerStatus(const std::string &server_name,
+ServerTree::ServerData *ServerTree::setServerStatus(const std::string &server_name,
     ServerTree::ServerStatus status,
     ServerCore *arg){
     
@@ -212,11 +261,12 @@ void ServerTree::setServerStatus(const std::string &server_name,
         data->status = status;
         data->arg = arg;
     }
+    return data;
 }
 
 /*---------------------------------------------------------------------------*/
 
-void ServerTree::setServerStatus(const char *name,
+ServerTree::ServerData *ServerTree::setServerStatus(const char *name,
     unsigned name_len,
     ServerTree::ServerStatus status,
     ServerCore *arg){
@@ -226,6 +276,7 @@ void ServerTree::setServerStatus(const char *name,
         data->status = status;
         data->arg = arg;
     }
+    return data;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -352,6 +403,30 @@ bool ServerTree::isSelected(const char *server_name, size_t server_len,
 bool ServerTree::isSelected(const std::string &server_name, const std::string& channel_name) const{
     return isSelected(server_name.c_str(), server_name.length(),
         channel_name.c_str(), channel_name.length());
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ServerTree::isSelected(const char *server_name, size_t server_len) const{
+
+    // WTF? Why are first_selected_item and root() not const!?
+    Fl_Tree &mutable_this = *const_cast<ServerTree*>(this);
+    Fl_Tree_Item *const selected = mutable_this.first_selected_item();
+    const Fl_Tree_Item *const l_root = mutable_this.root();
+    if(selected == NULL)
+        return false;
+
+    // Get server, or if it is a channel, the server of the channel.
+    Fl_Tree_Item *const server_item =
+        (selected->parent() == l_root) ? selected : selected->parent();
+    const char *label = server_item->label();
+    if(*label == '/')
+        label++;
+    const size_t label_size = strnlen(label, server_len+1);
+    if(label_size != server_len)
+        return false;
+    else
+        return memcmp(server_name, label, server_len) == 0;
 }
 
 } // namespace YYY

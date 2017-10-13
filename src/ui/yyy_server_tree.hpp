@@ -142,44 +142,56 @@ private:
     
     void updateChildren();
     
+    void setSelected(Fl_Tree_Item *item);
+
+    // Shadow this.
+    inline void select_only(Fl_Tree_Item *item){ setSelected(item); }
+
 public:
     
+    //! @brief Updates the main window menus to reflect the currently selected server.
+    inline void updateServerMenus(){ setSelected(first_selected_item()); }
+
     ServerTree(int a_x, int a_y, int a_w, int a_h, const char *a_title = NULL);
     virtual ~ServerTree(){}
     
-    void addConnectingServer(const char *uri,
+    struct ServerData *addConnectingServer(const char *uri,
         const char *name, unsigned name_len);
     
-    inline void connectionSucceeded(const char *name, unsigned name_len, ServerCore *arg = NULL){
-        setServerStatus(name, name_len, eConnected, arg);
+    inline ServerData *connectionSucceeded(const char *name, unsigned name_len, ServerCore *arg = NULL){
+        ServerData *const server_data = setServerStatus(name, name_len, eConnected, arg);
         updateChildren();
         assert(m_num_connecting != 0);
         if(--m_num_connecting == 0)
             Fl::remove_timeout(TimeoutCallback, this);
+        return server_data;
     }
     
-    inline void connectionSucceeded(const std::string &name, ServerCore *arg = NULL){
-        setServerStatus(name, eConnected, arg);
+    inline ServerData *connectionSucceeded(const std::string &name, ServerCore *arg = NULL){
+        ServerData *const server_data = setServerStatus(name, eConnected, arg);
         updateChildren();
         assert(m_num_connecting != 0);
         if(--m_num_connecting == 0)
             Fl::remove_timeout(TimeoutCallback, this);
+        return server_data;
     }
     
-    inline void connectionFailed(const char *name, unsigned name_len){
-        setServerStatus(name, name_len, eFailed);
+    inline ServerData *connectionFailed(const char *name, unsigned name_len){
+        ServerData *const server_data = setServerStatus(name, name_len, eFailed);
         updateChildren();
         assert(m_num_connecting != 0);
         if(--m_num_connecting == 0)
             Fl::remove_timeout(TimeoutCallback, this);
+        return server_data;
     }
     
-    inline void connectionFailed(const std::string &name){
-        setServerStatus(name, eFailed);
+    inline ServerData *connectionFailed(const std::string &name){
+        ServerData *const server_data = setServerStatus(name, eFailed);
         updateChildren();
         assert(m_num_connecting != 0);
         if(--m_num_connecting == 0)
             Fl::remove_timeout(TimeoutCallback, this);
+        return server_data;
     }
     
     void addChannel(const char *server, const std::string &name);
@@ -188,8 +200,8 @@ public:
     ServerStatus getServerStatus(const char *name, size_t name_len) const;
 
     // Note that Fl::lock should be called for multithreaded access to this.
-    void setServerStatus(const std::string &server_name, ServerStatus, ServerCore *arg = NULL);
-    void setServerStatus(const char *name, size_t name_len, ServerStatus, ServerCore *arg = NULL);
+    ServerData *setServerStatus(const std::string &server_name, ServerStatus, ServerCore *arg = NULL);
+    ServerData *setServerStatus(const char *name, size_t name_len, ServerStatus, ServerCore *arg = NULL);
     
     ServerData *getData(const std::string &server_name);
     ServerData *getData(const char *name, size_t name_len);
@@ -201,6 +213,10 @@ public:
         const char *channel_name, size_t channel_len) const;
     bool isSelected(const std::string &server_name, const std::string& channel_name) const;
 
+    bool isSelected(const char *server_name, size_t server_len) const;
+    inline bool isSelected(const std::string &server_name) const {
+        return isSelected(server_name.c_str(), server_name.length());
+    }
 };
 
 } // namespace YYY

@@ -88,7 +88,7 @@ void ServerCore::setName(const char *name, size_t name_len){
     assert(m_name.empty());
     m_name.assign(name, name_len);
 }
-    
+
 /*---------------------------------------------------------------------------*/
 
 void ServerCore::setUI(ServerUI &ui){
@@ -245,16 +245,23 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                 yyy_msg.type(type);
                 yyy_msg.assignMessage(message, message_len);
                 YYY_DateSetNow(&yyy_msg.m_date);
+                
+                {
+                    FlLocker locker;
+                    if(type == ChannelCore::ChannelMessage::eMentionMessage)
+                        getUI()->setUIMentioned();
+                    else
+                        getUI()->setUIMessage();
 
-                const std::string &channel_name = dest->name();
-                if(server_tree->isSelected(m_name, channel_name)){
-                    ChannelUI &channel = m_ui->serverChannel();
-                    channel.updateScroll(*chat_scroll);
-                    channel.updateChatWidget(*chat_widget, *chat_scroll);
-                    chat_scroll->redraw();
-                    chat_widget->redraw();
-                    chat_widget->parent()->redraw();
-                    
+                    const std::string &channel_name = dest->name();
+                    if(server_tree->isSelected(m_name, channel_name)){
+                        ChannelUI &channel = m_ui->serverChannel();
+                        channel.updateScroll(*chat_scroll);
+                        channel.updateChatWidget(*chat_widget, *chat_scroll);
+                        chat_scroll->redraw();
+                        chat_widget->redraw();
+                        chat_widget->parent()->redraw();
+                    }
                 }
             }
             break;
@@ -270,6 +277,9 @@ void ServerCore::handleMessage(const char *str, unsigned len){
     
     if(m_first_connected == false)
         firstConnected();
+
+
+
 }
 
 /*---------------------------------------------------------------------------*/

@@ -37,6 +37,8 @@
 #include <FL/Fl_Tree_Item.H>
 #include <FL/Fl_Tree.H>
 
+#include <assert.h>
+
 /*---------------------------------------------------------------------------*/
 
 namespace YYY {
@@ -45,9 +47,20 @@ namespace YYY {
 
 ServerUI::ServerUI(ServerCore &core)
   : m_core(core)
+  , m_ui_data(NULL)
   , m_channel(core.serverChannel()){
     
 }
+
+/*---------------------------------------------------------------------------*/
+
+void ServerUI::setUIData(ServerTree::ServerData *ui_data){
+    assert(m_ui_data == NULL);
+    assert(ui_data != NULL);
+    m_ui_data = ui_data;
+}
+
+/*---------------------------------------------------------------------------*/
 
 ChannelUI &ServerUI::addChannel(const char *name){
     ChannelCore &core = m_core.addChannel(name);

@@ -18,6 +18,9 @@ decl {\#include "yyy_callbacks.h"} {private global
 decl {\#include "yyy_connect.hpp"} {private global
 }
 
+decl {\#include "yyy_join.hpp"} {private global
+}
+
 decl {\#include <assert.h>} {private global
 }
 
@@ -28,6 +31,36 @@ decl {\#include <vector>} {private global
 }
 
 decl {std::vector<Fl_Window*> yyy_windows;} {private local
+}
+
+Function {YYY_SetServerConnected()} {
+  comment {Sets the UI to show that the current server is connected.
+This enables any UI options that need the server to be working.} open C return_type void
+} {
+  code {join_channel_menu_item->activate();
+change_nick_menu_item->activate();
+disconnect_menu_item->activate();
+reconnect_menu_item->deactivate();} {}
+}
+
+Function {YYY_SetServerDisconnected()} {
+  comment {Sets the UI to show that the current server is connected.
+This enables any UI options that need the server to be working.} open C return_type void
+} {
+  code {join_channel_menu_item->deactivate();
+change_nick_menu_item->deactivate();
+disconnect_menu_item->deactivate();
+reconnect_menu_item->activate();} {}
+}
+
+Function {YYY_SetNoServer()} {
+  comment {Sets the UI to show that there are no servers.
+} open C return_type void
+} {
+  code {join_channel_menu_item->deactivate();
+change_nick_menu_item->deactivate();
+disconnect_menu_item->deactivate();
+reconnect_menu_item->deactivate();} {}
 }
 
 Function {theme_menu_callback(Fl_Widget *what, void *theme_p)} {
@@ -98,7 +131,7 @@ Function {YYY_MakeWindow()} {open
       private xywh {0 0 630 25} box NO_BOX color 52 selection_color 21
     } {
       Submenu {} {
-        label File
+        label File open
         xywh {0 0 62 20}
       } {
         MenuItem {} {
@@ -141,9 +174,9 @@ else
           xywh {30 30 30 20} shortcut 0x40061
         }
       }
-      Submenu {} {
+      Submenu view_menu {
         label View open
-        xywh {0 0 62 20}
+        private xywh {0 0 62 20}
       } {
         MenuItem {} {
           label {Zoom In}
@@ -169,24 +202,33 @@ else
         }
       }
       Submenu {} {
-        label Server
+        label Server open
         xywh {0 0 62 20}
       } {
         MenuItem join_channel_menu_item {
           label {Join Channel...}
-          xywh {0 0 30 20} deactivate
+          callback {static Fl_Window *const join_dialog = YYY_CreateJoinDialog();
+if(join_dialog->shown()){
+	const int x = join_dialog->x(), y = join_dialog->y();
+	join_dialog->hide();
+	join_dialog->show();
+	join_dialog->position(x, y);
+}
+else
+	join_dialog->show();}
+          private xywh {0 0 30 20} shortcut 0x4006a deactivate
         }
         MenuItem change_nick_menu_item {
           label {Change Nick...}
-          xywh {0 0 30 20} deactivate divider
+          private xywh {0 0 30 20} deactivate divider
         }
         MenuItem disconnect_menu_item {
           label Disconnect
-          xywh {0 0 30 20} shortcut 0x40064 deactivate
+          private xywh {0 0 30 20} shortcut 0x40064 deactivate
         }
         MenuItem reconnect_menu_item {
           label Reconnect
-          xywh {10 10 30 20} shortcut 0x40072 deactivate
+          private xywh {10 10 30 20} shortcut 0x40072 deactivate
         }
       }
       Submenu {} {
@@ -209,7 +251,7 @@ else
       }
     }
   }
-  code {const std::string base_name = theme_sub_menu->label();
+  code {const std::string base_name = std::string(view_menu->label()) + '/' + theme_sub_menu->label();
 for(unsigned i = 0; i < (unsigned)eYYY_NumThemes; i++){
     kashyyyk2_menu_bar->add((base_name + '/' + YYY_Themes[i].name).c_str(),
         0, theme_menu_callback, (void*)i, 0);

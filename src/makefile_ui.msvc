@@ -28,10 +28,10 @@ $(OBJDIR)\yyy_connect.obj: yyy_connect.cpp
 $(OBJDIR)\yyy_join.obj: yyy_join.cpp
 	@cl $(CLFLAGS) /c yyy_join.cpp /Fo:$(OBJDIR)\yyy_join.obj
 
-$(OBJDIR)\kashyyyk2.obj: kashyyyk2.cpp ui\yyy_chat_widget.hpp ui\yyy_server_tree.hpp yyy_connect.cpp
+$(OBJDIR)\kashyyyk2.obj: kashyyyk2.cpp ui\yyy_chat_widget.hpp ui\yyy_server_tree.hpp yyy_connect.cpp yyy_join.cpp
 	@cl $(CLFLAGS) /c kashyyyk2.cpp /Fo:$(OBJDIR)\kashyyyk2.obj
 
-$(OBJDIR)\yyy_chat_widget.obj: ui\yyy_chat_widget.cpp ui\yyy_chat_widget.hpp
+$(OBJDIR)\yyy_chat_widget.obj: ui\yyy_chat_widget.cpp ui\yyy_chat_widget.hpp kashyyyk2.cpp
 	@cl $(CLFLAGS) /c ui\yyy_chat_widget.cpp /Fo:$(OBJDIR)\yyy_chat_widget.obj
 
 $(OBJDIR)\yyy_server_tree.obj: ui\yyy_server_tree.cpp ui\yyy_server_tree.hpp

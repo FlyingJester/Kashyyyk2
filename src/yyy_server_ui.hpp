@@ -36,6 +36,8 @@
 
 #include "ui/yyy_server_tree.hpp"
 
+#include "kashyyyk2.hpp"
+
 #include <list>
 #include <assert.h>
 
@@ -64,8 +66,25 @@ class ServerUI {
     ServerTree::ServerData *m_ui_data;
     
     ChannelUI m_channel;
+
+    // Set as an enum to ensure inlining.
+    template<enum ServerTree::ServerStatus status>
+    void SetUINotificationLevel(){
+        const int level = (int)(m_ui_data->status),
+            target = (int)status;
+        if(target > level ||
+            (ServerTree::IsConnected(status) && !ServerTree::IsConnected(m_ui_data->status))){
+            m_ui_data->status = status;
+            server_tree->redraw();
+            if(server_tree->isSelected(m_core.name()))
+                server_tree->updateServerMenus();
+        }
+    }
+
 public:
     
+    void setUIData(ServerTree::ServerData *ui_data);
+
     ServerUI(ServerCore &server);
     
     ChannelUI &serverChannel() { return m_channel; }
@@ -76,6 +95,12 @@ public:
     static void HandleTreeClick(Fl_Tree &tree);
 
     ChannelUI &addChannel(const char *name);
+    
+    // Fl::lock() must be called if these are used off the main thread.
+    inline void setUIMessage() { SetUINotificationLevel<ServerTree::eUpdate>(); }
+    inline void setUIMeta() { SetUINotificationLevel<ServerTree::eMetaUpdate>(); }
+    inline void setUIMentioned() { SetUINotificationLevel<ServerTree::eNotify>(); }
+    inline void setUIDisconnected() { SetUINotificationLevel<ServerTree::eFailed>(); }
 };
 
 } // namespace YYY

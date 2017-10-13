@@ -122,6 +122,7 @@ void ServerThread::threadCallback(){
                 }
                 break;
             case eYYYNetworkFailure:
+                // TODO: Handle a disconnected server.
                 break;
             case eYYYNetworkTimeout:
                 YYY_MILLISLEEP(10);
