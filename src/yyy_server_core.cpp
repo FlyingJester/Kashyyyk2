@@ -47,6 +47,38 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
+// In debug mode, log all messages recieved.
+#if ( defined _WIN32 ) && ( ( defined _DEBUG ) || ( defined DEBUG ) )
+
+#define DEBUG_PRINT(STR, LEN) do {\
+    char buffer[81];\
+    unsigned i;\
+    buffer[80] = '\0';\
+    for(i = 0; i + 80 < LEN; i+=80){\
+        memcpy(buffer, STR + i, 80);\
+        OutputDebugStringA(buffer);\
+    }\
+    memcpy(buffer, STR + i, LEN - i);\
+    buffer[LEN - i] = '\0';\
+    OutputDebugStringA(buffer);\
+    OutputDebugString(TEXT("\n"));\
+}while(0)
+
+#elif ! ( ( defined NDEBUG ) || ( defined _WIN32 ) ) 
+
+#define DEBUG_PRINT(STR, LEN) do {\
+    fwrite(STR, 1, LEN, stdout);\
+    putchar('\n');\
+} while(0)
+
+#else
+
+#define DEBUG_PRINT(_0, _1) (void)(_0 + _1)
+
+#endif
+
+/*---------------------------------------------------------------------------*/
+
 ServerCore::ServerCore()
   : m_protocol(NULL)
   , m_ui(NULL)
@@ -154,10 +186,11 @@ void ServerCore::firstConnected(){
 void ServerCore::handleMessage(const char *str, unsigned len){
     assert(len < YYY_MAX_MSG_LEN);
 
+    DEBUG_PRINT(str, len);
+
     Message msg;
-    if(!m_protocol->parseMessage(str, len, msg)){
-        puts("[ERROR parsing!]");
-    }
+    if(!m_protocol->parseMessage(str, len, msg))
+        return;
 
     ChannelCore *dest = NULL;
 

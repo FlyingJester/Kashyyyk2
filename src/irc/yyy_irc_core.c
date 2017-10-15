@@ -207,8 +207,30 @@ int YYY_IRC_CALL YYY_IRCParseMessage(const char *src,
                 out_msg->m.topic.topic = NULL;
                 out_msg->m.topic.topic_len = 0;
                 return 1;
+            case YYY_IRCMOTDEntryNum:
+                {
+                    /* Search for a :-. If we find one, begin the MOTD from
+                     * there. Otherwise, begin it from our current index. */
+                    const unsigned fallback_start = i;
+                    while(i + 1 < real_len ){
+                        if(src[i] == ':' && src[i + 1] == '-')
+                            break;
+                        i++;
+                    }
+                    
+                    {
+                        /* Get the start of the MOTD. If it starts with a space
+                         * move on char forward. */
+                        const unsigned motd_start =
+                            (i + 1 == real_len) ? fallback_start :
+                            ((src[i + 2] == ' ') ? (i + 3) : (i + 2));
+                        out_msg->m.message.message = src + motd_start;
+                        out_msg->m.message.message_len = real_len - motd_start;
+                        out_msg->type = eYYYChatNotification;
+                    }
+                }
+                return 1;
         }
-        return 0;
     }
     else{
         char type_buffer[10];
