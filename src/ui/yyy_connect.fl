@@ -18,7 +18,7 @@ Function {YYY_CreateConnectDialog()} {open
   code {YYY_Assert(yyy_initialized == false, "Connection dialog created more than once.");
 yyy_initialized = true;} {}
   Fl_Window connect_window {open
-    private xywh {863 703 555 230} type Double color 51 visible
+    private xywh {646 576 555 230} type Double color 51 visible
   } {
     Fl_Browser recent_list {
       label Recent
@@ -37,7 +37,7 @@ yyy_initialized = true;} {}
     Fl_Button {} {
       label {Clear Recent}
       callback {recent_list->clear();}
-      xywh {425 70 115 25} box THIN_UP_BOX
+      xywh {425 185 115 25} box THIN_UP_BOX
     }
     Fl_Return_Button {} {
       label Connect
@@ -45,8 +45,25 @@ yyy_initialized = true;} {}
 if(*uri != '\\0'){
 	YYY_Connect(uri, atoi(port_input->value()));
 	connect_window->hide();
-}} selected
+}}
       xywh {425 15 115 25} box THIN_UP_BOX
+    }
+    Fl_Choice {} {
+      label {SSL/TLS} open selected
+      xywh {475 70 65 25} down_box BORDER_BOX deactivate
+    } {
+      MenuItem {} {
+        label Auto
+        xywh {0 0 30 20}
+      }
+      MenuItem {} {
+        label Yes
+        xywh {10 10 30 20}
+      }
+      MenuItem {} {
+        label No
+        xywh {20 20 30 20}
+      }
     }
   }
 }
