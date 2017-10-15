@@ -33,6 +33,8 @@
 
 #include "network/yyy_network.h"
 
+#include "utils/yyy_attributes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,14 +55,16 @@ extern "C" {
  * @sa YYY_FailedConnection
  * @sa YYY_AddConnection
  */
-void YYY_FASTCALL YYY_AttemptingConnection(const char *uri, void *arg);
+void YYY_FASTCALL YYY_AttemptingConnection(const char *YYY_RESTRICT uri,
+    void *YYY_RESTRICT arg);
 
 /**
  * @brief Indicates a connection attempt failed.
  *
  * @sa YYY_AttemptingConnection
  */
-void YYY_FASTCALL YYY_FailedConnection(const char *uri, void *arg);
+void YYY_FASTCALL YYY_FailedConnection(const char *YYY_RESTRICT uri,
+    void *YYY_RESTRICT arg);
 
 /**
  * @brief Adds a new connection to the system.
@@ -70,8 +74,10 @@ void YYY_FASTCALL YYY_FailedConnection(const char *uri, void *arg);
  *
  * @sa YYY_AttemptingConnection
  */
-void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char *uri,
-    void *arg);
+void YYY_FASTCALL YYY_AddConnection(
+    struct YYY_NetworkSocket *YYY_RESTRICT socket,
+    const char *YYY_RESTRICT uri,
+    void *YYY_RESTRICT arg);
 
 #ifdef __cplusplus
 }

@@ -44,6 +44,8 @@
  * buffer any partial messages that are encountered.
  */
 
+#include "utils/yyy_attributes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -71,8 +73,9 @@ void YYY_DestroyMSGBuffer(struct YYY_MSGBuffer *buffer);
  * if any are waiting using YYY_GetMSGBuffer before placing another message.
  * message should be no larger than YYY_MAX_MSG_LEN
  */
-void YYY_PutMSGBuffer(struct YYY_MSGBuffer *buffer,
-    const void *message, unsigned message_len);
+void YYY_PutMSGBuffer(struct YYY_MSGBuffer *YYY_RESTRICT buffer,
+    const void * YYY_RESTRICT message,
+    unsigned message_len);
 
 /*---------------------------------------------------------------------------*/
 /**
