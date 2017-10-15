@@ -85,14 +85,26 @@ void ChannelUI::updateScroll(Fl_Valuator &to) const {
 void ChannelUI::updateChatWidget(ChatWidget &to,
     const Fl_Valuator &scroll) const {
     
+    const int scroll_value = static_cast<int>(scroll.value()),
+        num_msg = m_core->numMessages();
+
+    assert(scroll_value >= 0);
+    assert(scroll_value <= num_msg);
+
+    const unsigned skip_msgs = num_msg - scroll_value;
+    
     const unsigned max_lines = to.maxLines(),
-        num_msg = m_core->numMessages(),
-        maximum = (max_lines > num_msg) ? num_msg : max_lines;
+        maximum = (max_lines > (num_msg - skip_msgs)) ? (num_msg - skip_msgs) : max_lines;
     
     to.resize(maximum);
     
     const struct ChannelCore::MessageList *msg = m_core->messages();
-    
+    // Skip over skip_msgs messages.
+    for(unsigned i = 0; i < skip_msgs; i++){
+        YYY_Assert(msg != NULL, "Channel message count is inconsistent");
+        msg = msg->m_next;
+    }
+
     for(unsigned i = 0; i < maximum; i++){
         YYY_Assert(msg != NULL, "Channel message count is inconsistent");
         to.setMessageStatic(maximum - (i + 1), msg->m_message.m_user, msg->m_message.message());

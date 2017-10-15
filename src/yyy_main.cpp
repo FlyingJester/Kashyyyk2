@@ -237,12 +237,24 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
 
 /*---------------------------------------------------------------------------*/
 
+static void yyy_chat_scroll_callback(Fl_Widget *w, void *arg){
+    Fl_Valuator *const scroll = static_cast<Fl_Valuator *>(w);
+    ChannelUI *const UI = (ChannelUI*)arg;
+
+    if(UI == NULL)
+        return;
+
+    UI->updateChatWidget(*chat_widget, *scroll);
+}
+
+/*---------------------------------------------------------------------------*/
+
 static void yyy_server_tree_callback(Fl_Widget *w, void *arg){
     assert(w != NULL);
     assert(arg != NULL);
     Window &window = *static_cast<Window*>(arg);
     ServerTree &tree = *static_cast<ServerTree*>(w);
-    
+
     (void)window;
     
     if(tree.callback_reason() != FL_TREE_REASON_SELECTED)
@@ -262,11 +274,13 @@ static void yyy_server_tree_callback(Fl_Widget *w, void *arg){
             assert(server != NULL);
             ServerUI *const serverUI = server->getUI();
             assert(serverUI != NULL);
-            ChannelUI &channel = serverUI->serverChannel();
-            channel.updateScroll(*chat_scroll);
-            channel.updateChatWidget(*chat_widget, *chat_scroll);
+            ChannelUI &channel_ui = serverUI->serverChannel();
+            channel_ui.updateScroll(*chat_scroll);
+            channel_ui.updateChatWidget(*chat_widget, *chat_scroll);
             chat_scroll->redraw();
             chat_widget->redraw();
+
+            chat_scroll->callback(yyy_chat_scroll_callback, &channel_ui);
         }
         else if(server != NULL){
             // Since we only put a server/arg into the server data when a
@@ -332,6 +346,12 @@ static bool Main(unsigned num_args, const std::string *args){
     yyy_main_window.m_window->show();
     yyy_main_window.m_server_thread = new ServerThread();
     yyy_main_window.m_server_thread->start();
+
+    chat_scroll->callback(yyy_chat_scroll_callback, NULL);
+    chat_scroll->step(1);
+    chat_scroll->step(1.0);
+    chat_scroll->range(0.0, 1.0);
+    chat_scroll->value(0);
     
     server_tree->callback(yyy_server_tree_callback, &yyy_main_window);
     YYY_SetTheme(eYYY_DefaultTheme);

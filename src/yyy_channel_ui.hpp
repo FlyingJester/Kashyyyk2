@@ -62,6 +62,7 @@ class ChannelUI {
     
     // Message at the bottom of the screen. This is zero for the default.
     unsigned m_at;
+
 public:
     
     ChannelUI() : m_core(NULL){}
@@ -80,6 +81,7 @@ public:
     bool matches(const ChannelCore &c) const;
     void updateScroll(Fl_Valuator &to) const;
     void updateChatWidget(ChatWidget &to, const Fl_Valuator &scroll) const;
+
 };
 
 } // namespace YYY
