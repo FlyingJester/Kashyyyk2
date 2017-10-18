@@ -29,7 +29,7 @@
 #define YYY_IRC_HPP
 #pragma once
 
-#include "yyy_chat.hpp"
+#include "../chat/yyy_chat.hpp"
 
 namespace YYY {
 

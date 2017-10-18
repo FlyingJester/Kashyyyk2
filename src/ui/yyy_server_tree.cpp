@@ -27,13 +27,13 @@
 
 #include "yyy_server_tree.hpp"
 
-#include "../kashyyyk2.hpp"
+#include "kashyyyk2.hpp"
 
 #include <algorithm>
 #include <iterator>
 
-#include <cstring>
-#include <cassert>
+#include <string.h>
+#include <assert.h>
 
 #ifndef YYY_FASTCALL
 #if (defined _MSC_VER) || (defined __WATCOMC__)
@@ -64,7 +64,6 @@
 #define YYY_ALLOCA malloc
 #define YYY_ALLOCA_FREE free
 #endif
-
 
 namespace YYY {
 
@@ -182,8 +181,7 @@ int ServerTree::handle(int e){
         */
         return 1;
     }
-
-do_default_handle:
+    
     // Update the m_last_clicked.
     m_last_clicked = first_selected_item();
     if(m_last_clicked == root())
@@ -422,7 +420,12 @@ bool ServerTree::isSelected(const char *server_name, size_t server_len) const{
     const char *label = server_item->label();
     if(*label == '/')
         label++;
-    const size_t label_size = strnlen(label, server_len+1);
+    const size_t label_size =
+#ifndef __WATCOMC__
+        strnlen(label, server_len+1);
+#else
+        strlen(label);
+#endif
     if(label_size != server_len)
         return false;
     else

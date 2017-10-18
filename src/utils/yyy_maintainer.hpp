@@ -222,7 +222,7 @@ public:
         typedef iterator_base<Type, BlockType> this_type;
         BlockType *m_block;
         unsigned short m_i;
-        this_type(BlockType *block, unsigned n)
+        iterator_base(BlockType *block, unsigned n)
           : m_block(block)
           , m_i(n){}
         
@@ -253,7 +253,7 @@ public:
         inline const BlockType *block() const { return m_block; }
         inline unsigned short getI() const { return m_i; }
 
-        this_type(BlockType *block)
+        iterator_base(BlockType *block)
           : m_block(block)
           , m_i(0){
             if(m_block && !(*m_block->m_used))

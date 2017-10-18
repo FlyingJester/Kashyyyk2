@@ -55,7 +55,11 @@
 
 #define YYY_INLINE(X) __inline X
 
+#ifndef __cplusplus
 #define YYY_RESTRICT __restrict
+#else
+#define YYY_RESTRICT
+#endif
 
 /* End __WATCOMC__*/
 #endif

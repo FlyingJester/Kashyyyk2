@@ -27,6 +27,7 @@
 
 #include "yyy_channel_core.hpp"
 #include "yyy_channel_ui.hpp"
+#include "yyy_assert.h"
 
 #include <assert.h>
 
@@ -34,6 +35,8 @@
 // This is needed for std::find for some reason.
 #include <type_traits>
 #endif
+
+#include <algorithm>
 
 namespace YYY {
 

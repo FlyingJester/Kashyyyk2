@@ -15,6 +15,10 @@ NETLIB=$(NETDIR)\lib\$(PX)yyynetwork.$(SX)
 IRCDIR=irc
 IRCLIB=$(IRCDIR)\lib\$(PX)yyyirc.$(SX)
 
+# yyychat build
+CHATDIR=chat
+CHATLIB=$(CHATDIR)\lib\$(PX)yyychat.$(SX)
+
 # yyythread build
 THRDIR=thread
 THRLIB=$(THRDIR)\lib\$(PX)yyythread.$(SX)
@@ -29,6 +33,9 @@ $(NETLIB): $(NETDIR)/yyy_network.c $(NETDIR)/yyy_network.h $(NETDIR)/yyy_network
 $(IRCLIB):
 	cd $(IRCDIR) && $(MAKE) -f makefile.$(MK)
 
+$(CHATLIB):
+	cd $(CHATDIR) && $(MAKE) -f makefile.$(MK)
+
 $(THRLIB):
 	cd $(THRDIR) && $(MAKE) -f makefile.$(MK)
 
@@ -36,6 +43,7 @@ libclean:
 	cd $(MONDIR) && $(MAKE) -f makefile.$(MK) clean
 	cd $(NETDIR) && $(MAKE) -f makefile.$(MK) clean
 	cd $(IRCDIR) && $(MAKE) -f makefile.$(MK) clean
+	cd $(CHATLIB) && $(MAKE) -f makefile.$(MK) clean
 	cd $(THRDIR) && $(MAKE) -f makefile.$(MK) clean
 
-YYYLIBS= $(MONLIB) $(NETLIB) $(IRCLIB) $(THRLIB)
+YYYLIBS= $(MONLIB) $(NETLIB) $(IRCLIB) $(CHATLIB) $(THRLIB)

@@ -61,7 +61,10 @@ const struct YYY_Theme *const YYY_Themes = yyy_static_themes;
 void YYY_InitThemes(){
 #ifdef __WATCOMC__
     // Watcom 1.3 does't seem to set this properly :S
-    (const YYY_Theme*)YYY_Themes = yyy_static_themes;
+    {
+        const YYY_Theme **l_themes = const_cast<const YYY_Theme**>(&YYY_Themes);
+        l_themes[0] = yyy_static_themes;
+    }
 #endif
     const uint32_t default_background = fl_lighter(Fl::get_color(FL_BACKGROUND_COLOR)),
         default_background2 = Fl::get_color(FL_BACKGROUND2_COLOR),

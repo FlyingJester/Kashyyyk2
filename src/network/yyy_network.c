@@ -72,7 +72,7 @@ enum YYY_NetworkError YYY_DestroySocket(struct YYY_NetworkSocket *socket) {
 
 /* We have no backend, we must dummy this symbol out. */
 #ifdef YYY_NETWORK_DISABLE_TLS
-enum YYY_NetworkError YYY_EnableSocketTLS(struct YYY_NetworkSocket *){
+enum YYY_NetworkError YYY_EnableSocketTLS(struct YYY_NetworkSocket *s){
     return eYYYNetworkFailure;
 }
 #endif

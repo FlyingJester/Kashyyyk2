@@ -33,6 +33,9 @@
 
 #include "yyy_chat_message.h"
 
+#include <stdint.h>
+#include <stddef.h>
+
 /*---------------------------------------------------------------------------*/
 
 namespace YYY {

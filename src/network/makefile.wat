@@ -30,6 +30,7 @@ osdefine=DOS
 os=win32
 poll=select
 osdefine=WIN32
+CFLAGS+=-dYYY_NETWORK_DISABLE_TLS
 !endif
 
 BACKEND=yyy_network_$(os)
