@@ -164,6 +164,9 @@ LINK_KASHYYYK=$(LINKER) $(LINKFLAGS) FILE { $(OBJECTS) } LIBRARY { $(FLTK_DIR)\l
 $(KASHYYYK2): $(OBJECTS) $(YYYLIBS)
 	$(LINK_KASHYYYK)
 
+test: .SYMBOLIC
+	cd $(IRCDIR) && $(MAKE) -f makefile.wat test
+
 relink: .SYMBOLIC
 	del /q $(KASHYYYK2)
 	del /q $(MONLIB)
