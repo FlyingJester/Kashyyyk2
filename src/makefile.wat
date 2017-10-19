@@ -4,6 +4,7 @@
 CXX=wcl386
 CC=wcc386
 LINKER=wlink
+RC=wrc
 
 !ifeq os unix
 os=unix
@@ -158,10 +159,13 @@ $(OBJDIR)\yyy_date.obj: $(YYY_DATE_DEP)
 	$(CC) yyy_date.c $(CFLAGS)
 	move /Y yyy_date.obj $(OBJDIR)
 
+resource.res: resource.rc
+	wrc -r -bt=nt -I"C:\Watcom\h\nt;C:\Watcom\h" resource.rc
+
 # Application linking
 SYSLIBS=Advapi32.lib Kernel32.lib Advapi32.lib User32.lib Ws2_32.lib
-LINK_KASHYYYK=$(LINKER) $(LINKFLAGS) FILE { $(OBJECTS) } LIBRARY { $(FLTK_DIR)\lib\fltk.lib $(SYSLIBS) $(YYYLIBS) } NAME $(KASHYYYK2)
-$(KASHYYYK2): $(OBJECTS) $(YYYLIBS)
+LINK_KASHYYYK=$(LINKER) $(LINKFLAGS) RES resource.res FILE { $(OBJECTS) } LIBRARY { $(FLTK_DIR)\lib\fltk.lib $(SYSLIBS) $(YYYLIBS) } NAME $(KASHYYYK2)
+$(KASHYYYK2): $(OBJECTS) $(YYYLIBS) resource.res
 	$(LINK_KASHYYYK)
 
 test: .SYMBOLIC
