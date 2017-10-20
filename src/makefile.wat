@@ -168,8 +168,21 @@ LINK_KASHYYYK=$(LINKER) $(LINKFLAGS) RES resource.res FILE { $(OBJECTS) } LIBRAR
 $(KASHYYYK2): $(OBJECTS) $(YYYLIBS) resource.res
 	$(LINK_KASHYYYK)
 
-test: .SYMBOLIC
+# Test executables
+YYY_BUFFER_TEST=yyy_buffer_test.exe
+
+$(OBJDIR)\yyy_buffer_test.obj: yyy_buffer_test.cpp yyy_buffer.h
+	$(CXX) yyy_buffer_test.cpp $(CXXFLAGS)
+	move /Y yyy_buffer_test.obj $(OBJDIR)
+
+YYY_BUFFER_TEST_OBJECTS=$(OBJDIR)\yyy_buffer.obj $(OBJDIR)\yyy_buffer_test.obj
+$(YYY_BUFFER_TEST): $(YYY_BUFFER_TEST_OBJECTS)
+	$(LINKER) $(LINKFLAGS) FILE { $(YYY_BUFFER_TEST_OBJECTS) } LIBRARY { $(SYSLIBS) } NAME $(YYY_BUFFER_TEST)
+
+test: .SYMBOLIC $(YYY_BUFFER_TEST)
 	cd $(IRCDIR) && $(MAKE) -f makefile.wat test
+	$(YYY_BUFFER_TEST) > test.log || type test.log
+	type test.log
 
 relink: .SYMBOLIC
 	del /q $(KASHYYYK2)

@@ -84,7 +84,7 @@ void YYY_PutMSGBuffer(struct YYY_MSGBuffer *YYY_RESTRICT buffer,
  * Output will be null-terminated. @p output must be at least YYY_MAX_MSG_LEN
  * bytes long.
  *
- * @returns Number of characters written.
+ * @return Number of characters written.
  */
 unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer,
     char output[YYY_MAX_MSG_LEN]);

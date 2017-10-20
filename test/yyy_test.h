@@ -66,6 +66,16 @@ struct YYY_Test{
         }\
     } while(0)
 
+#define YYY_ASSERT_INT_NOT_EQ(WHAT, EXPECTED)\
+    do{\
+        const int what_ = (int)WHAT, expected_ = (int)EXPECTED;\
+        if(what_ == expected_) {\
+            printf("%s:%i in function %s: Expected %s (%i) to not be equal to %s (%i)\n",\
+                __FILE__, __LINE__, __FUNCTION__, #WHAT, what_, #EXPECTED, expected_);\
+            return 0;\
+        }\
+    } while(0)
+
 #define YYY_ASSERT_YYY_STR_EQ_LITERAL(STR, LITERAL)\
     YYY_ASSERT_YYY_STR_EQ_LITERAL_N(STR, strnlen(STR, sizeof(LITERAL)), LITERAL)
 
