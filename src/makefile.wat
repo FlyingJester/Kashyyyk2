@@ -169,6 +169,8 @@ $(KASHYYYK2): $(OBJECTS) $(YYYLIBS) resource.res
 	$(LINK_KASHYYYK)
 
 # Test executables
+
+# buffer test
 YYY_BUFFER_TEST=yyy_buffer_test.exe
 
 $(OBJDIR)\yyy_buffer_test.obj: yyy_buffer_test.cpp yyy_buffer.h
@@ -179,9 +181,22 @@ YYY_BUFFER_TEST_OBJECTS=$(OBJDIR)\yyy_buffer.obj $(OBJDIR)\yyy_buffer_test.obj
 $(YYY_BUFFER_TEST): $(YYY_BUFFER_TEST_OBJECTS)
 	$(LINKER) $(LINKFLAGS) FILE { $(YYY_BUFFER_TEST_OBJECTS) } LIBRARY { $(SYSLIBS) } NAME $(YYY_BUFFER_TEST)
 
-test: .SYMBOLIC $(YYY_BUFFER_TEST)
+# maintainer test
+YYY_MAINTAINER_TEST=yyy_maintainer_test.exe
+
+$(OBJDIR)\yyy_maintainer_test.obj: yyy_maintainer_test.cpp utils/yyy_maintainer.hpp
+	$(CXX) yyy_maintainer_test.cpp $(CXXFLAGS)
+	move /Y yyy_maintainer_test.obj $(OBJDIR)
+
+YYY_MAINTAINER_TEST_OBJECTS=$(OBJDIR)\yyy_maintainer_test.obj
+$(YYY_MAINTAINER_TEST): $(YYY_MAINTAINER_TEST_OBJECTS)
+	$(LINKER) $(LINKFLAGS) FILE { $(YYY_MAINTAINER_TEST_OBJECTS) } LIBRARY { $(SYSLIBS) } NAME $(YYY_MAINTAINER_TEST)
+
+test: .SYMBOLIC $(YYY_BUFFER_TEST) $(YYY_MAINTAINER_TEST)
 	cd $(IRCDIR) && $(MAKE) -f makefile.wat test
 	$(YYY_BUFFER_TEST) > test.log || type test.log
+	type test.log
+	$(YYY_MAINTAINER_TEST) > test.log || type test.log
 	type test.log
 
 relink: .SYMBOLIC
@@ -204,6 +219,8 @@ clean: .SYMBOLIC
 	del /q /f $(OBJDIR)\*
 	del /q /f $(GENDIR)\*
 	del /q $(KASHYYYK2)
+	del /q $(YYY_BUFFER_TEST)
+	del /q $(YYY_MAINTAINER_TEST)
 	del /q kashyyyk2.map
     del /q *.err
     del *.err

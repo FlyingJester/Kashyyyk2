@@ -34,6 +34,8 @@
 #include <FL/Fl_Image.H>
 #endif
 
+#include "utils/yyy_alloca.h"
+
 #include <FL/Fl_Tree_Item.H>
 #include <FL/Fl_Tree.H>
 
@@ -54,6 +56,16 @@ ServerUI::ServerUI(ServerCore &core)
 
 /*---------------------------------------------------------------------------*/
 
+void ServerUI::setupNewChannel(ChannelCore &core, ChannelUI &ui) const {
+    core.setUI(ui);
+    ui.setCore(core);
+    const std::string &server_name = m_core.name(), &channel_name = core.name();
+    ServerTree::ChannelData *const data = server_tree->addChannel(server_name, channel_name);
+    ui.setData(data);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ServerUI::setUIData(ServerTree::ServerData *ui_data){
     assert(m_ui_data == NULL);
     assert(ui_data != NULL);
@@ -62,10 +74,19 @@ void ServerUI::setUIData(ServerTree::ServerData *ui_data){
 
 /*---------------------------------------------------------------------------*/
 
-ChannelUI &ServerUI::addChannel(const char *name){
+ChannelUI &ServerUI::addChannel(const char *name, unsigned len){
+    ChannelCore &core = m_core.addChannel(name, len);
+    ChannelUI &ui = m_channels.create();
+    setupNewChannel(core, ui);
+    return ui;
+}
+
+/*---------------------------------------------------------------------------*/
+
+ChannelUI &ServerUI::addChannel(const std::string &name){
     ChannelCore &core = m_core.addChannel(name);
     ChannelUI &ui = m_channels.create();
-    core.setUI(ui);
+    setupNewChannel(core, ui);
     return ui;
 }
 

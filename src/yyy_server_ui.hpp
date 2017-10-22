@@ -81,6 +81,8 @@ class ServerUI {
         }
     }
 
+    inline void setupNewChannel(ChannelCore &core, ChannelUI &ui) const;
+
 public:
     
     void setUIData(ServerTree::ServerData *ui_data);
@@ -94,7 +96,9 @@ public:
     // the handlers for the appropriate ServerUI's.
     static void HandleTreeClick(Fl_Tree &tree);
 
-    ChannelUI &addChannel(const char *name);
+    ChannelUI &addChannel(const char *name, unsigned len);
+
+    ChannelUI &addChannel(const std::string &name);
     
     // Fl::lock() must be called if these are used off the main thread.
     inline void setUIMessage() { SetUINotificationLevel<ServerTree::eUpdate>(); }

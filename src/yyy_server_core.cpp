@@ -154,7 +154,15 @@ void ServerCore::createNewUi(){
 
 /*---------------------------------------------------------------------------*/
 
-ChannelCore &ServerCore::addChannel(const char *name){
+ChannelCore &ServerCore::addChannel(const char *name, unsigned len){
+    ChannelCore &channel = m_channels.create();
+    channel.name(name, len);
+    return channel;
+}
+
+/*---------------------------------------------------------------------------*/
+
+ChannelCore &ServerCore::addChannel(const std::string &name){
     ChannelCore &channel = m_channels.create();
     channel.name(name);
     return channel;
@@ -252,13 +260,13 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                         }
                     }
 
-                    const char *const from = msg.m.any_from.from;
-                    const unsigned short from_len = msg.m.any_from.from_len;
+                    const char *const to = msg.m.message.to;
+                    const unsigned short to_len = msg.m.message.to_len;
                     for(Maintainer<ChannelCore>::iterator iter = m_channels.begin();
                         iter != m_channels.end(); iter++){
                         const std::string &channel_name = iter->name();
-                        if(channel_name.length() == from_len &&
-                            m_protocol->compareIdentifiers(channel_name.c_str(), from, from_len)){
+                        if(channel_name.length() == to_len &&
+                            m_protocol->compareIdentifiers(channel_name.c_str(), to, to_len)){
                             dest = &(*iter);
                             break;
                         }
@@ -266,8 +274,10 @@ void ServerCore::handleMessage(const char *str, unsigned len){
 
                     // We either reached the end, or we found the channel.
                     if(dest == NULL){
-                        // TODO: Add this new channel?
-                        break;
+                        // Add the new channel.
+                        ChannelUI &channel_ui = m_ui->addChannel(to, to_len);
+                        dest = &channel_ui.getCore();
+                        assert(dest != NULL);
                     }
                 }
 
@@ -288,7 +298,7 @@ void ServerCore::handleMessage(const char *str, unsigned len){
 
                     const std::string &channel_name = dest->name();
                     if(server_tree->isSelected(m_name, channel_name)){
-                        ChannelUI &channel = m_ui->serverChannel();
+                        ChannelUI &channel = *dest->getUI();
                         channel.updateScroll(*chat_scroll);
                         channel.updateChatWidget(*chat_widget, *chat_scroll);
                         chat_scroll->redraw();

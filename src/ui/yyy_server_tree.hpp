@@ -194,7 +194,27 @@ public:
         return server_data;
     }
     
-    void addChannel(const char *server, const std::string &name);
+    ChannelData *addChannel(const char *server,
+        unsigned server_len,
+        const char *channel,
+        unsigned channel_len);
+
+    inline ChannelData *addChannel(const std::string &server,
+        const std::string &channel){
+        return addChannel(server.c_str(), server.length(), channel.c_str(), channel.length());
+    }
+    
+    inline ChannelData *addChannel(const char *server,
+        unsigned server_len,
+        const std::string &channel){
+        return addChannel(server, server_len, channel.c_str(), channel.length());
+    }
+    
+    inline ChannelData *addChannel(const std::string &server,
+        const char *channel,
+        unsigned channel_len){
+        return addChannel(server.c_str(), server.length(), channel, channel_len);
+    }
     
     ServerStatus getServerStatus(const std::string &server_name) const;
     ServerStatus getServerStatus(const char *name, size_t name_len) const;

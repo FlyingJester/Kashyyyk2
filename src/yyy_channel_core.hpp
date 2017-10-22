@@ -177,7 +177,7 @@ public:
     const std::string& name() const { return m_name; }
     std::string &name() { return m_name; }
     void name(const std::string &name) { m_name = name; }
-    void name(const char *name) { m_name = name; }
+    void name(const char *name, unsigned len) { m_name.assign(name, len); }
     
     //! @brief Used to iterate the current users.
     Maintainer<std::string>::const_iterator getUsersBegin() const;

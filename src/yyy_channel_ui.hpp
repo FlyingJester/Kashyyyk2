@@ -77,6 +77,8 @@ public:
     ChannelCore &getCore();
     const ChannelCore &getCore() const;
 
+    void setData(ServerTree::ChannelData *const data);
+
     // Allows us to check the core without actually exposing it.
     bool matches(const ChannelCore &c) const;
     void updateScroll(Fl_Valuator &to) const;

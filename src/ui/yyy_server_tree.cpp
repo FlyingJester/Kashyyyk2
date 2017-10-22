@@ -103,7 +103,7 @@ ServerTree::ServerTree(int a_x, int a_y, int a_w, int a_h, const char *a_title)
 /*---------------------------------------------------------------------------*/
     
 struct ServerTree::ServerData *ServerTree::addConnectingServer(const char *uri,
-    const char *name, unsigned name_len){    
+    const char *name, unsigned name_len){
     
     if(m_num_connecting++ == 0)
         Fl::add_timeout(0.5, TimeoutCallback, this);
@@ -223,6 +223,36 @@ ServerTree::ServerData *ServerTree::getData(const char *name, unsigned name_len)
     }
     
     return NULL;
+}
+
+/*---------------------------------------------------------------------------*/
+
+ServerTree::ChannelData *ServerTree::addChannel(const char *server,
+    unsigned server_len,
+    const char *channel,
+    unsigned channel_len){
+    
+    // Store the URI of the server
+    
+    char *const path = (char*)YYY_ALLOCA(server_len + 1 + channel_len + 1);
+    memcpy(path, server, server_len);
+    path[server_len] = '/';
+    memcpy(path + server_len + 1, channel, channel_len);
+    path[server_len + 1 + channel_len] = 0;
+
+    Fl_Tree_Item *const item = add(path);
+
+    YYY_ALLOCA_FREE(path);
+    
+    ChannelData *const data = new ChannelData();
+    data->arg = NULL;
+    data->status = eConnected;
+    item->user_data(data);
+    
+    // Refresh the view
+    updateChildren();
+
+    return data;
 }
 
 /*---------------------------------------------------------------------------*/

@@ -68,6 +68,14 @@ const ChannelCore &ChannelUI::getCore() const{
 
 /*---------------------------------------------------------------------------*/
 
+void ChannelUI::setData(ServerTree::ChannelData *const data){
+    assert(m_ui_data == NULL);
+    assert(data != NULL);
+    m_ui_data = data;
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool ChannelUI::matches(const ChannelCore &c) const { return m_core == &c; }
 
 /*---------------------------------------------------------------------------*/
