@@ -163,23 +163,26 @@ int ServerTree::handle(int e){
             m_last_clicked = next(m_last_clicked);
         select_only(m_last_clicked);
     }
-    if(e == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE){
+    if(e == FL_PUSH){
+        puts("Push!");
+        if(Fl::event_button() == FL_RIGHT_MOUSE){
         
-        Fl_Tree_Item *const l_item = find_clicked();
-        if(l_item == NULL)
-            return Fl_Tree::handle(e);
+            Fl_Tree_Item *const l_item = find_clicked();
+            if(l_item == NULL)
+                return Fl_Tree::handle(e);
         
-        const unsigned l_x = Fl::event_x(), l_y = Fl::event_y();
-        const Fl_Menu_Item *l_menu_item =
-            s_right_click_menu->popup(l_x, l_y, NULL, 0, 0);
-        if(l_menu_item == NULL)
-            return Fl_Tree::handle(e);
-        /*
-        const unsigned l_index =
-            std::distance(static_cast<const Fl_Menu_Item *>(s_right_click_menu),
-                l_menu_item);
-        */
-        return 1;
+            const unsigned l_x = Fl::event_x(), l_y = Fl::event_y();
+            const Fl_Menu_Item *l_menu_item =
+                s_right_click_menu->popup(l_x, l_y, NULL, 0, 0);
+            if(l_menu_item == NULL)
+                return Fl_Tree::handle(e);
+            /*
+            const unsigned l_index =
+                std::distance(static_cast<const Fl_Menu_Item *>(s_right_click_menu),
+                    l_menu_item);
+            */
+            return 1;
+        }
     }
     
     // Update the m_last_clicked.
@@ -191,7 +194,7 @@ int ServerTree::handle(int e){
     const int ret = Fl_Tree::handle(e);
 
     // If we deselected everything, reselect the last item.
-    if(first_selected_item() == NULL);
+    if(first_selected_item() == NULL)
         select_only(m_last_clicked);
     return ret;
 }
@@ -417,12 +420,10 @@ bool ServerTree::isSelected(const char *server_name, size_t server_len,
     // Not sure why Fl_Tree::is_selected(const char *) is not a const method...
     const bool ret = const_cast<ServerTree*>(this)->Fl_Tree::is_selected((const char *)buffer);
 
-    if(use_alloca){
+    if(use_alloca)
         YYY_ALLOCA_FREE(buffer);
-    }
-    else{
+    else
         free(buffer);
-    }
 
     return ret;
 }

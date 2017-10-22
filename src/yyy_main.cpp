@@ -282,7 +282,8 @@ static void yyy_server_tree_callback(Fl_Widget *w, void *arg){
     const char *l = item->label();
     assert(l != NULL);
     
-    if(item->parent() == tree.root()){ // Is a server
+    if(item == tree.root()){}
+    else if(item->parent() == tree.root()){ // Is a server
         ServerTree::ServerData *const data =
             (ServerTree::ServerData*)(item->user_data());
         assert(data != NULL);
