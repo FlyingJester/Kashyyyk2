@@ -194,9 +194,9 @@ $(YYY_MAINTAINER_TEST): $(YYY_MAINTAINER_TEST_OBJECTS)
 
 test: .SYMBOLIC $(YYY_BUFFER_TEST) $(YYY_MAINTAINER_TEST)
 	cd $(IRCDIR) && $(MAKE) -f makefile.wat test
-	$(YYY_BUFFER_TEST) > test.log || type test.log
+	$(YYY_BUFFER_TEST) > test.log
 	type test.log
-	$(YYY_MAINTAINER_TEST) > test.log || type test.log
+	$(YYY_MAINTAINER_TEST) > test.log
 	type test.log
 
 relink: .SYMBOLIC

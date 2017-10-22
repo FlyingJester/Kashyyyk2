@@ -85,10 +85,10 @@ public:
     // manually invoked when they are freed.
     struct Block {
         T m_data[c_block_size];
-        bool m_used[c_block_size];
+        bool m_used[c_block_size]; // TODO: Use a bitfield?
         Block *m_next;
         
-        unsigned count() const {
+        inline unsigned count() const {
             unsigned n = 0;
             for(unsigned i = 0; i < c_block_size; i++)
                 if(m_used[i])
@@ -96,25 +96,25 @@ public:
             return n;
         }
         
-        bool hasNext() const { return m_next != NULL; }
-        const Block *next() const { return m_next; }
-        Block *next() { return m_next; }
+        inline bool hasNext() const { return m_next != NULL; }
+        inline const Block *next() const { return m_next; }
+        inline Block *next() { return m_next; }
         
-        struct Block *lastBlock(){
+        inline struct Block *lastBlock(){
             struct Block *b = this;
             while(b->hasNext())
                 b = b->next();
             return b;
         }
         
-        const struct Block *lastBlock() const {
+        inline const struct Block *lastBlock() const {
             const struct Block *b = this;
             while(b->hasNext())
                 b = b->next();
             return b;
         }
         
-        bool empty() const {
+        inline bool empty() const {
             for(unsigned i = 0; i < c_block_size; i++)
                 if(m_used[i] != false)
                     return false;
@@ -123,8 +123,17 @@ public:
     };
 
 private:
-    
+
     struct Block *m_blocks;
+    
+    // Blindly appends a block to the input. Will overwrite any next block.
+    inline static struct Block *AddBlock(struct Block *to){
+        assert(to->m_next == NULL);
+        to->m_next = (struct Block*)calloc(sizeof(struct Block), 1);
+        return to->m_next;
+    }
+
+protected:
     
     // Adds a block to end of the current m_blocks list, returning the new end.
     inline struct Block *addBlock(){
@@ -134,13 +143,6 @@ private:
             m_blocks = (struct Block*)calloc(sizeof(struct Block), 1);
             return m_blocks;
         }
-    }
-    
-    // Blindly appends a block to the input. Will overwrite any next block.
-    inline static struct Block *AddBlock(struct Block *to){
-        assert(to->m_next == NULL);
-        to->m_next = (struct Block*)calloc(sizeof(struct Block), 1);
-        return to->m_next;
     }
     
     // Finds the next available memory location, returning true if present and
@@ -168,12 +170,18 @@ public:
     }
     
     ~Maintainer(){
-        while(m_blocks != NULL){
+        struct Block *block = m_blocks;
+        while(block != NULL){
             for(unsigned i = 0; i < c_block_size; i++){
-                if(m_blocks->m_used[i])
-                    m_blocks->m_data[i].~T();
+                if(block->m_used[i] == true){
+                    block->m_data[i].~T();
+#ifndef NDEBUG
+                    block->m_used[i] = false;
+#endif
+                }
             }
-            m_blocks = m_blocks->next();
+            free(block);
+            block = block->next();
         }
     }
     
@@ -182,19 +190,25 @@ public:
     // space.
     inline T *allocate(){
         
-        struct Block *block;
+        struct Block *block = NULL;
+        
+        if(m_blocks == NULL){
+            m_blocks = block = addBlock();
+            block->m_used[0] = true;
+            return block->m_data;
+        }
+        
         unsigned short i;
         if(findNextAvailable(block, i)){
             block->m_used[i] = true;
             return block->m_data + i;
         }
         else{
-            if(block)
-                block = AddBlock(block);
-            else
-                block = addBlock();
+            assert(block != NULL);
+            block = AddBlock(block);
             
-            block->m_used[0] = false;
+            // Return the first value.
+            block->m_used[0] = true;
             return block->m_data;
         }
     }
@@ -220,21 +234,42 @@ public:
         static constexpr bool type_is_const = std::is_const<Type>::value;
 #endif
         typedef iterator_base<Type, BlockType> this_type;
+        
         BlockType *m_block;
         unsigned short m_i;
+        
+        // Constructor used for known good data.
         iterator_base(BlockType *block, unsigned n)
           : m_block(block)
-          , m_i(n){}
-        
-        inline void increment(){
-            do{
-                do{
-                    m_i++;
-                }while(m_i < c_block_size && !m_block->m_used[m_i]);
-            }while(m_i >= c_block_size && (m_block = m_block->next()));
+          , m_i(n){
+            assert(m_block == NULL || m_block->m_used[m_i]);
         }
         
+        // Increments to the next found used location.
+        inline void increment(){
+            assert(m_block != NULL);
+            
+            do{
+                m_i++;
+                
+                if(m_i >= c_block_size){
+                    m_i = 0;
+                    m_block = m_block->next();
+                }
+                
+                if(m_block == NULL || m_block->m_used[m_i])
+                    return;
+                
+            }while(1);
+        }
+        
+        
     public:
+#ifndef NDEBUG
+    inline const BlockType *DEBUG_getBlock() const { return m_block; }
+    inline const unsigned short DEBUG_getIndex() const { return m_i; }
+#endif
+    
 #ifdef YYY_ITERATORS_NEED_TYPE_TRAITS
         struct const_forward_iterator_t : public std::forward_iterator_tag, public std::output_iterator_tag {};
         typedef YYY_MSC_ONLY_TYPENAME std::conditional<
@@ -247,8 +282,7 @@ public:
         typedef unsigned short distance_type;
         typedef Type &reference;
         typedef Type *pointer;
-
-        // Used only for certain performance tricks in erase.
+        
         inline BlockType *block() { return m_block; }
         inline const BlockType *block() const { return m_block; }
         inline unsigned short getI() const { return m_i; }
@@ -256,7 +290,7 @@ public:
         iterator_base(BlockType *block)
           : m_block(block)
           , m_i(0){
-            if(m_block && !(*m_block->m_used))
+            if(m_block != NULL && !(*m_block->m_used))
                 increment();
         }
         
@@ -277,7 +311,7 @@ public:
         
         inline this_type operator+(int i) const {
             assert(i >= 0);
-            this_type iter(m_block, i);
+            this_type iter(m_block, m_i);
             while(i--)
                 iter.increment();
             return iter;
@@ -311,26 +345,10 @@ public:
     inline iterator begin() { return iterator(m_blocks); }
     inline const_iterator begin() const { return const_iterator(m_blocks); }
     inline const_iterator cbegin() const { return const_iterator(m_blocks); }
-
-    // Used to create the values for end() and cend()
-    template<typename Type, typename BlockType>
-    static inline iterator_base<Type, BlockType> GetEnd(BlockType *blocks) {
-        if(blocks == NULL)
-            return iterator_base<Type, BlockType>(NULL);
-        
-        BlockType *const last = blocks->lastBlock();
-        const unsigned short n = last->count();
-        iterator_base<Type, BlockType> iter = iterator_base<Type, BlockType>(last);
-        for(unsigned i = 0; i + 1 < n; i++){
-            ++iter;
-        }
-        
-        return iter;
-    }
     
-    iterator end() { return GetEnd<T, Block>(m_blocks); }
-    const_iterator end() const { return GetEnd<const T, const Block>(m_blocks); }
-    const_iterator cend() const { return GetEnd<const T, const Block>(m_blocks); }
+    inline iterator end() { return iterator(NULL); }
+    inline const_iterator end() const { return const_iterator(NULL); }
+    inline const_iterator cend() const { return const_iterator(NULL); }
     
     iterator erase(const iterator &iter){
         struct Block *const block = iter.block();

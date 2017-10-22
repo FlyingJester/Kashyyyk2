@@ -42,7 +42,8 @@ struct ConstructionSignaller{
     }
     
     ~ConstructionSignaller(){
-        m_dest--;
+        if(m_dest != 0)
+            m_dest[0]--;
     }
 };
 
@@ -72,17 +73,39 @@ static int PushBackTest(){
 /*---------------------------------------------------------------------------*/
 
 static int PushBackContainsTest(){
+    int SUCCESS_INDICATOR = 1;
+    
     TestMaintaner maintainer = TestMaintaner();
     ConstructionSignaller &that = maintainer.create();
-    YYY_ASSERT_INT_NOT_EQ(&that, NULL);
-    YYY_ASSERT_INT_EQ(that.m_dest, NULL);
+    
+    YYY_EXPECT_INT_NOT_EQ(&that, NULL);
     // Check that we can find our one element by iterating.
     TestMaintaner::iterator i = maintainer.begin();
-    YYY_ASSERT_FALSE(i == maintainer.end());
-    YYY_ASSERT_TRUE(i+1 == maintainer.end());
-    YYY_ASSERT_INT_EQ(&(*i), &that);
-    return 1;
+    
+    YYY_EXPECT_FALSE(i == maintainer.end());
+    YYY_EXPECT_TRUE(i+1 == maintainer.end());
+    
+    YYY_EXPECT_INT_EQ(&(*i), &that);
+    return SUCCESS_INDICATOR;
 }
+
+/*---------------------------------------------------------------------------*/
+
+static int DestructorTest(){
+    int SUCCESS_INDICATOR = 1;
+    TestMaintaner *const maintainer_ptr = new TestMaintaner();
+    ConstructionSignaller &that = maintainer_ptr->create();
+    YYY_ASSERT_INT_NOT_EQ(&that, NULL);
+    int test = 23;
+    that.m_dest = &test;
+    
+    delete maintainer_ptr;
+    
+    YYY_EXPECT_INT_EQ(test, 22);
+    
+    return SUCCESS_INDICATOR;
+}
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -126,6 +149,7 @@ const struct YYY_Test YYY_MaintainerTests[] = {
     YYY_TEST(ConstructionTest),
     YYY_TEST(PushBackTest),
     YYY_TEST(PushBackContainsTest),
+    YYY_TEST(DestructorTest),
     YYY_TEST(PushBackMultipleTest),
     YYY_TEST(PushBackMultipleContainsTest)
 };
