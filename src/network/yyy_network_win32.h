@@ -101,6 +101,14 @@ static void yyy_make_socket_nonblocking(struct YYY_NetworkSocket *socket){
 
 /*---------------------------------------------------------------------------*/
 
+static int yyy_get_amount_readable(struct YYY_NetworkSocket *socket){
+    unsigned long m = 0;
+    ioctlsocket(socket->socket, FIONREAD, &m);
+    return m;
+}
+
+/*---------------------------------------------------------------------------*/
+
 #ifdef __cplusplus
 }
 #endif

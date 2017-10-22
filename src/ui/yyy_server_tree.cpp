@@ -230,7 +230,8 @@ ServerTree::ServerData *ServerTree::getData(const char *name, unsigned name_len)
 ServerTree::ChannelData *ServerTree::addChannel(const char *server,
     unsigned server_len,
     const char *channel,
-    unsigned channel_len){
+    unsigned channel_len,
+    ChannelCore *core){
     
     // Store the URI of the server
     
@@ -245,7 +246,7 @@ ServerTree::ChannelData *ServerTree::addChannel(const char *server,
     YYY_ALLOCA_FREE(path);
     
     ChannelData *const data = new ChannelData();
-    data->arg = NULL;
+    data->arg = core;
     data->status = eConnected;
     item->user_data(data);
     

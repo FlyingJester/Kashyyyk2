@@ -105,6 +105,7 @@ private:
     bool m_font_sizes_dirty;
     
     unsigned char m_click_location;
+
     inline EnumClickLocation clickLocation() const { return (EnumClickLocation)m_click_location; }
     inline void clickLocation(EnumClickLocation l) { m_click_location = (unsigned char)l; }
 };

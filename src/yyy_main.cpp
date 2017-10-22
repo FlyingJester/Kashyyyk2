@@ -308,7 +308,18 @@ static void yyy_server_tree_callback(Fl_Widget *w, void *arg){
         
     }
     else{ // Is a channel
+        ServerTree::ChannelData *const data =
+            (ServerTree::ChannelData*)(item->user_data());
         
+        ChannelUI *const channel_ui_ptr = data->arg->getUI();
+        assert(channel_ui_ptr != NULL);
+        ChannelUI &channel_ui = *channel_ui_ptr;
+        channel_ui.updateScroll(*chat_scroll);
+        channel_ui.updateChatWidget(*chat_widget, *chat_scroll);
+        chat_scroll->redraw();
+        chat_widget->redraw();
+
+        chat_scroll->callback(yyy_chat_scroll_callback, &channel_ui);
     }
 }
 

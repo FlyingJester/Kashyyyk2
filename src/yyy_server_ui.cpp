@@ -60,7 +60,8 @@ void ServerUI::setupNewChannel(ChannelCore &core, ChannelUI &ui) const {
     core.setUI(ui);
     ui.setCore(core);
     const std::string &server_name = m_core.name(), &channel_name = core.name();
-    ServerTree::ChannelData *const data = server_tree->addChannel(server_name, channel_name);
+    ServerTree::ChannelData *const data =
+        server_tree->addChannel(server_name, channel_name, &core);
     ui.setData(data);
 }
 

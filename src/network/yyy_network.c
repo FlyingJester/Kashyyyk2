@@ -221,8 +221,8 @@ enum YYY_NetworkError YYY_ReadSocket(
 #ifndef YYY_NETWORK_DISABLE_TLS
             size_t n;
             void *const decoded =
-                YYY_TLSDecode(a_socket, output, length_to_read, &n);
-            assert(n <= length_to_read);
+                YYY_TLSDecode(a_socket, output, err, &n);
+            assert(n <= err);
             if(decoded != output)
                 memcpy(output, decoded, n);
             YYY_TLSFreeDecode(a_socket, decoded);

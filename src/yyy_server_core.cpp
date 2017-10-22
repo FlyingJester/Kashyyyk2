@@ -134,6 +134,7 @@ void ServerCore::setUI(ServerUI &ui){
 void ServerCore::setSocket(YYY_NetworkSocket *socket){
     assert(m_socket == NULL);
     m_socket = socket;
+    YYY_MakeSocketNonBlocking(m_socket);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -247,9 +248,22 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                     // We are checking for the username in the message in this NULL check because
                     // this means we will only check if for messages, not notifications.
                     assert(msg.type == eYYYChatMessage);
+                    
 
+                    const char *channel_name = msg.m.message.to;
+                    unsigned short channel_name_len = msg.m.message.to_len;
+                    // If the message is addressed to us, then we change thge channel to the
+                    // sender's name.
+                    if(channel_name_len == m_username.length() &&
+                        m_protocol->compareIdentifiers(m_username.c_str(),
+                            channel_name,
+                            channel_name_len)){
+                        type = ChannelCore::ChannelMessage::eMentionMessage;
+                        channel_name = msg.m.any_from.from;
+                        channel_name_len = msg.m.any_from.from_len;
+                    }
                     // Check if our username exists in the message.
-                    if(!m_username.empty()){
+                    else if(!m_username.empty()){
                         const char *const name = m_username.c_str();
                         const unsigned short name_len = (unsigned short)m_username.length();
                         for(unsigned short i = 0; i + name_len < message_len; i++){
@@ -260,13 +274,20 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                         }
                     }
 
-                    const char *const to = msg.m.message.to;
-                    const unsigned short to_len = msg.m.message.to_len;
+                    for(unsigned i = 0; i < channel_name_len; i++){
+                        if(channel_name[i] == '/' || channel_name[i] == '!'){
+                            channel_name_len = i;
+                            break;
+                        }
+                    }
+
                     for(Maintainer<ChannelCore>::iterator iter = m_channels.begin();
                         iter != m_channels.end(); iter++){
-                        const std::string &channel_name = iter->name();
-                        if(channel_name.length() == to_len &&
-                            m_protocol->compareIdentifiers(channel_name.c_str(), to, to_len)){
+                        const std::string &iter_channel_name = iter->name();
+                        if(iter_channel_name.length() == channel_name_len &&
+                            m_protocol->compareIdentifiers(iter_channel_name.c_str(),
+                                channel_name,
+                                channel_name_len)){
                             dest = &(*iter);
                             break;
                         }
@@ -275,7 +296,7 @@ void ServerCore::handleMessage(const char *str, unsigned len){
                     // We either reached the end, or we found the channel.
                     if(dest == NULL){
                         // Add the new channel.
-                        ChannelUI &channel_ui = m_ui->addChannel(to, to_len);
+                        ChannelUI &channel_ui = m_ui->addChannel(channel_name, channel_name_len);
                         dest = &channel_ui.getCore();
                         assert(dest != NULL);
                     }
