@@ -159,7 +159,7 @@ $(OBJDIR)\yyy_date.obj: $(YYY_DATE_DEP)
 	$(CC) yyy_date.c $(CFLAGS)
 	move /Y yyy_date.obj $(OBJDIR)
 
-resource.res: resource.rc
+resource.res: resource.rc resource.h
 	wrc -r -bt=nt -I"C:\Watcom\h\nt;C:\Watcom\h" resource.rc
 
 # Application linking

@@ -82,6 +82,23 @@
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 #include "TCHAR.h"
+
+#ifdef __WATCOMC__
+#ifndef _TRUNCATE
+#define _TRUNCATE 0
+#endif
+
+static inline int _sntprintf_s(TCHAR *dest, size_t size, size_t count, const TCHAR *fmt, ...){
+    assert(count == _TRUNCATE || count <= size);
+    va_list args;
+    va_start(args, fmt);
+    const int r = _sntprintf(dest, size - 1, fmt, args);
+    va_end(args);
+    dest[size-1] = *TEXT("");
+    return r;
+}        
+#endif
+
 #endif
 
 const char help_string[] = "Kashyyyk2\n"\
@@ -327,17 +344,23 @@ static bool Main(unsigned num_args, const std::string *args){
     YYY_InitThemes();
     YYY_StartConnectThread();
     yyy_main_window.m_window = YYY_MakeWindow();
-#if _WIN32
+#ifdef _WIN32
     // Get the application icon, and set the FLTK window to this icon.
     {
         const HINSTANCE instance = GetModuleHandle(NULL);
-        HICON icon = LoadIcon(instance, IDI_APPLICATION);
+        HICON icon = LoadIcon(instance, MAKEINTRESOURCE(101));
         if(icon != NULL){
             yyy_main_window.m_window->icon(icon);
             DestroyIcon(icon);
         }
         else{
-            OutputDebugString(TEXT("Could not load icon\n"));
+            TCHAR buffer[100];
+            _sntprintf_s(buffer,
+                sizeof(buffer),
+                _TRUNCATE,
+                TEXT("Could not load icon: %i\n"),
+                GetLastError());
+            OutputDebugString(buffer);
         }
     }
 #endif
