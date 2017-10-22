@@ -36,6 +36,24 @@ struct YYY_Test{
         }\
     }while(0)
 
+#define YYY_ASSERT_TRUE(WHAT)\
+    do{\
+        if(!(WHAT)) {\
+            printf("%s:%i in function %s: Expected %s to be true\n",\
+                __FILE__, __LINE__, __FUNCTION__, #WHAT);\
+            return 0;\
+        }\
+    }while(0)
+
+#define YYY_ASSERT_FALSE(WHAT)\
+    do{\
+        if((WHAT)) {\
+            printf("%s:%i in function %s: Expected %s to be false\n",\
+                __FILE__, __LINE__, __FUNCTION__, #WHAT);\
+            return 0;\
+        }\
+    }while(0)
+
 #define YYY_EXPECT_INT_EQ(WHAT, EXPECTED)\
     do{\
         const int what_ = (int)WHAT, expected_ = (int)EXPECTED;\
