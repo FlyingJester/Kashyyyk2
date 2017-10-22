@@ -25,18 +25,18 @@ private:
 public:
     ChatWidget(int a_x, int a_y, int a_w, int a_h, const char *text = NULL)
       : Fl_Widget(a_x, a_y, a_w, a_h, text)
-      , m_font_sizes_dirty(true)
       , m_font_height(16u)
       , m_font_descent(4u)
       , m_date_sep_x(40)
       , m_name_sep_x(120)
-      , m_drag_radius(3)
-      , m_click_location(eNoClick)
+      , m_click_location((unsigned char)eNoClick)
       , m_num_messages(0)
       , m_owns_messages(NULL)
       , m_messages(NULL)
       , m_users(NULL)
-      , m_line_padding(2){
+      , m_line_padding(2)
+      , m_drag_radius(3)
+      , m_font_sizes_dirty(true){
         
         m_font_size = labelsize();
         m_font = labelfont();
@@ -80,17 +80,12 @@ private:
     
     void calculateFontHeight();
     
-    bool m_font_sizes_dirty;
     unsigned short m_font_height, m_font_descent;
     float m_space_width;
     
     unsigned short m_date_sep_x, m_name_sep_x;
     
-    unsigned short m_drag_radius;
-    
-    EnumClickLocation m_click_location;
     int m_click_x, m_click_y;
-    unsigned m_click_line;
     
     // Since each message might be static or owned, we must keep track of which
     // messages we allocated. However if no messages have been allocated, we
@@ -102,9 +97,16 @@ private:
     const char **m_users;
     
     unsigned short m_line_padding;
+    unsigned short m_drag_radius;
+
     Fl_Fontsize m_font_size;
     Fl_Font m_font;
     
+    bool m_font_sizes_dirty;
+    
+    unsigned char m_click_location;
+    inline EnumClickLocation clickLocation() const { return (EnumClickLocation)m_click_location; }
+    inline void clickLocation(EnumClickLocation l) { m_click_location = (unsigned char)l; }
 };
 
 } // namespace YYY

@@ -288,20 +288,20 @@ int ChatWidget::handle(int e){
                 m_click_y = Fl::event_y();
                 if(m_click_x < x_ || m_click_y < y_ ||
                     m_click_x > x_ + w_ || m_click_y > y_ + h_){
-                    m_click_location = eNoClick;
+                    clickLocation(eNoClick);
                     return 0;
                 }
                 if(withinDragRadius(m_click_x, m_date_sep_x))
-                    m_click_location = eDateSep;
+                    clickLocation(eDateSep);
                 else if(withinDragRadius(m_click_x, m_name_sep_x))
-                    m_click_location = eNameSep;
+                    clickLocation(eNameSep);
             }
             else
-                m_click_location = eNoClick;
+                clickLocation(eNoClick);
             return 1;
             
         case FL_RELEASE:
-            m_click_location = eNoClick;
+            clickLocation(eNoClick);
             return 1;
         
         case FL_DRAG:
@@ -315,7 +315,7 @@ int ChatWidget::handle(int e){
                 (void)click_y;
                 (void)w_;
                 
-                switch(m_click_location){
+                switch(clickLocation()){
                     case eDateSep:
                         setDateSeparator(dest);
                         break;
@@ -325,7 +325,7 @@ int ChatWidget::handle(int e){
                     default: break;
                 }
                 
-                if(m_click_location == eDateSep || m_click_location == eNameSep){
+                if(clickLocation() == eDateSep || clickLocation() == eNameSep){
                     redraw();
                     should_be_resizing(*window());
                 }
