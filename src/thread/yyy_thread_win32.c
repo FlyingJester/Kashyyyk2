@@ -20,7 +20,7 @@ unsigned YYY_ThreadSize(){
 
 void YYY_InitThread(struct YYY_Thread *thr, yyy_thread_function_t func){
     thr->func = func;
-    thr->thread = CreateThread(NULL, 0, yyy_thread_wrapper, thr, CREATE_SUSPENDED, NULL);
+    thr->thread = CreateThread(NULL, 8192L, yyy_thread_wrapper, thr, CREATE_SUSPENDED, NULL);
 }
 
 void YYY_StartThread(struct YYY_Thread *thr, void *data){

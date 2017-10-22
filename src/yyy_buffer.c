@@ -76,8 +76,9 @@ void YYY_DestroyMSGBuffer(struct YYY_MSGBuffer *buffer){
 
 /*---------------------------------------------------------------------------*/
 
-void YYY_PutMSGBuffer(struct YYY_MSGBuffer *buffer,
-    const void *message, unsigned message_len){
+void YYY_PutMSGBuffer(struct YYY_MSGBuffer *YYY_RESTRICT buffer,
+    const void *YYY_RESTRICT message,
+    unsigned message_len){
     if(message_len != 0){
         char finalchr = yyy_get_last_char(buffer, '\0');
         
