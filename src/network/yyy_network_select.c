@@ -27,6 +27,18 @@
 
 #include "yyy_network.h"
 
+/*
+ * The select backend is the only subsystem that runs on both Windows and Unix.
+ * All other backends use only one or the other, and require some level of OS
+ * support. The select backend must instead rely on system-dependant semaphore
+ * implementations, cannot depend on pipe() existing (because of Windows), or
+ * that pthreads exists (because not all Unix-like systems actually have it).
+ *
+ * The select backend should work on every platform we support, in combination
+ * with the Win32/Winsock sockets, Unix sockets, or Cygwin sockets. Socket
+ * backends like BIO or Haiku don't have to support this group backend. 
+ */
+
 /* Some big bullshit to deal with select not having an out-of-band way to
  * signal a break point, and Windows not having pipes be select()'able. */
 #ifdef YYY_NETWORK_WIN32
@@ -165,6 +177,10 @@ struct YYY_SocketGroup{
 
 unsigned YYY_SocketGroupSize(){
     return sizeof(struct YYY_SocketGroup);
+}
+
+bool YYY_SocketGroupNeedsLocking(){
+    return true;
 }
 
 void YYY_InitSocketGroup(struct YYY_SocketGroup *group){

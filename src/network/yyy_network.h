@@ -178,6 +178,25 @@ YYY_NETWORK_CONST(
 
 /*---------------------------------------------------------------------------*/
 
+/**
+ * @brief Returns true if a group must be locked before modification.
+ *
+ * If this is true, then the client must ensure mutually exclusive access to
+ * the functions on a socket group. If false, then the client can call any
+ * functions on the group at any time (excluding Init/Destroy) and the calls
+ * will not cause inconsistencies. For instance, you can add or remove a socket
+ * from the group while another thread is waiting on the group.
+ *
+ * This will generally only return true for the select() backend.
+ *
+ * This does not apply to any actions taken on the sockets in the group.
+ */
+YYY_NETWORK_CONST(
+    bool YYY_SocketGroupNeedsLocking()
+);
+
+/*---------------------------------------------------------------------------*/
+
 void YYY_InitSocketGroup(struct YYY_SocketGroup *group);
 
 /*---------------------------------------------------------------------------*/
