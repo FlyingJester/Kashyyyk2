@@ -190,9 +190,11 @@ YYY_NETWORK_CONST(
  * This will generally only return true for the select() backend.
  *
  * This does not apply to any actions taken on the sockets in the group.
+ *
+ * @return 0 if locking is not needed, 1 otherwise.
  */
 YYY_NETWORK_CONST(
-    bool YYY_SocketGroupNeedsLocking()
+    unsigned YYY_SocketGroupNeedsLocking()
 );
 
 /*---------------------------------------------------------------------------*/

@@ -179,8 +179,8 @@ unsigned YYY_SocketGroupSize(){
     return sizeof(struct YYY_SocketGroup);
 }
 
-bool YYY_SocketGroupNeedsLocking(){
-    return true;
+unsigned YYY_SocketGroupNeedsLocking(){
+    return 1;
 }
 
 void YYY_InitSocketGroup(struct YYY_SocketGroup *group){
