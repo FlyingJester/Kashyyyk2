@@ -1,5 +1,5 @@
 /* 
- *  Copyright (c) 2014-2017 Martin McDonough.  All rights reserved.
+ *  Copyright (c) 2017 Martin McDonough.  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -25,39 +25,57 @@
  */
 /*---------------------------------------------------------------------------*/
 
-#include "yyy_server_ui.hpp"
+#ifndef YYY_CHANNEL_CONTROLLER_HPP
+#define YYY_CHANNEL_CONTROLLER_HPP
+#pragma once
 
-#include "yyy_server_core.hpp"
+/*---------------------------------------------------------------------------*/
 
-#ifdef __WATCOMC__
-// Silences warnings about unary operator
-#include <FL/Fl_Image.H>
-#endif
+#include "yyy_channel_core.hpp"
+#include "yyy_channel_ui.hpp"
 
-#include "utils/yyy_alloca.h"
-#include "utils/yyy_fl_locker.hpp"
+#include "monitor/yyy_monitor.hpp"
 
-#include <FL/Fl_Tree_Item.H>
-#include <FL/Fl_Tree.H>
+/*---------------------------------------------------------------------------*/
 
-#include <assert.h>
+struct YYY_Message;
 
 /*---------------------------------------------------------------------------*/
 
 namespace YYY {
 
+/*---------------------------------------------------------------------------*/
 
-void ServerUI::handleMessage(const struct YYY_Message &msg){
+class ServerController;
 
-}
+/*---------------------------------------------------------------------------*/
 
-void ServerUI::setup(const char *name, size_t name_len, ServerController &controller){
+class ChatProtocol;
+
+/*---------------------------------------------------------------------------*/
+
+class ChannelController {
+    ChannelCore m_core;
+    ChannelUI m_ui;
+
+    Monitor m_monitor;
+
+public:
     
-    {
-        FlLocker locker;
-        m_ui_data = server_tree->connectionSucceeded(name, name_len, &controller);
-        server_tree->redraw();
-    }
-}
+    static void ChatScrollCallback(Fl_Widget *w, void *arg);
+
+    void setup(const char *channel_name,
+        unsigned channel_name_len,
+        const std::string &server_name,
+        ServerController &server_controller);
+
+    inline const std::string &name() const { return m_core.name(); }
+
+    void handleMessage(const YYY_Message &msg, bool is_mention, bool is_action);
+    
+    void select();
+};
 
 } // namespace YYY
+
+#endif // YYY_CHANNEL_CONTROLLER_HPP

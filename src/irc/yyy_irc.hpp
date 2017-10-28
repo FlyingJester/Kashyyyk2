@@ -43,7 +43,7 @@ public:
 
     virtual void freeMessageString(const char *str);
     
-    virtual bool compareIdentifiers(const char *str0, const char *str1, unsigned short len);
+    virtual bool compareIdentifiers(const char *str0, const char *str1, unsigned short len) const;
     
     virtual size_t getNumHelloMessages() const;
 

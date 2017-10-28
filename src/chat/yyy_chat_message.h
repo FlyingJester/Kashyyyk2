@@ -29,6 +29,10 @@
 #define YYY_CHAT_MESSAGE_H
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*---------------------------------------------------------------------------*/
     
 enum YYY_MessageType {
@@ -125,5 +129,9 @@ struct YYY_Message {
         } ban, kick;
     }m;
 };
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* YYY_CHAT_MESSAGE_H */

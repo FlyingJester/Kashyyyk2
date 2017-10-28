@@ -51,16 +51,16 @@ namespace YYY {
 #if ( defined _WIN32 ) && ( ( defined _DEBUG ) || ( defined DEBUG ) )
 
 #define DEBUG_PRINT(STR, LEN) do {\
-    char buffer[81];\
+    char debug_buffer[81];\
     unsigned i;\
-    buffer[80] = '\0';\
+    debug_buffer[80] = '\0';\
     for(i = 0; i + 80 < LEN; i+=80){\
-        memcpy(buffer, STR + i, 80);\
-        OutputDebugStringA(buffer);\
+        memcpy(debug_buffer, STR + i, 80);\
+        OutputDebugStringA(debug_buffer);\
     }\
-    memcpy(buffer, STR + i, LEN - i);\
-    buffer[LEN - i] = '\0';\
-    OutputDebugStringA(buffer);\
+    memcpy(debug_buffer, STR + i, LEN - i);\
+    debug_buffer[LEN - i] = '\0';\
+    OutputDebugStringA(debug_buffer);\
     OutputDebugString(TEXT("\n"));\
 }while(0)
 
@@ -79,31 +79,44 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-ServerCore::ServerCore()
-  : m_protocol(NULL)
-  , m_ui(NULL)
-  , m_socket(NULL)
-  , m_buffer((YYY_MSGBuffer*)malloc(YYY_MSGBufferSize()))
-  , m_channel()
-  , m_username("KashyyykUser")
-  , m_real("MilleniumYYY"){
-    YYY_InitMSGBuffer(m_buffer);
-#ifndef NDEBUG
-    m_first_connected = false;
-#endif
-}
-
-/*---------------------------------------------------------------------------*/
-
-ServerCore::~ServerCore(){
-    
+ServerSocketHolder::~ServerSocketHolder(){
     if(m_socket != NULL){
         YYY_CloseSocket(m_socket);
         YYY_DestroySocket(m_socket);
         free(m_socket);
     }
-    YYY_DestroyMSGBuffer(m_buffer);
+}
     
+/*---------------------------------------------------------------------------*/
+
+void ServerSocketHolder::setSocket(YYY_NetworkSocket *socket){
+    assert(m_socket == NULL);
+    m_socket = socket;
+    YYY_MakeSocketNonBlocking(m_socket);
+}
+
+/*---------------------------------------------------------------------------*/
+
+ServerSocketShare::~ServerSocketShare(){
+
+}
+
+/*---------------------------------------------------------------------------*/
+
+ServerCore::ServerCore()
+  : m_protocol(NULL)
+  , m_buffer((YYY_MSGBuffer*)malloc(YYY_MSGBufferSize()))
+  , m_username("KashyyykUser")
+  , m_real("MilleniumYYY")
+  , m_messages_queued(false){
+    YYY_InitMSGBuffer(m_buffer);
+    m_first_connected = false;
+}
+
+/*---------------------------------------------------------------------------*/
+
+ServerCore::~ServerCore(){
+    YYY_DestroyMSGBuffer(m_buffer);
     free(m_buffer);
 }
 
@@ -123,22 +136,6 @@ void ServerCore::setName(const char *name, size_t name_len){
 
 /*---------------------------------------------------------------------------*/
 
-void ServerCore::setUI(ServerUI &ui){
-    assert(m_ui == NULL);
-    m_ui = &ui;
-    m_channel.setUI(ui.serverChannel());
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ServerCore::setSocket(YYY_NetworkSocket *socket){
-    assert(m_socket == NULL);
-    m_socket = socket;
-    YYY_MakeSocketNonBlocking(m_socket);
-}
-
-/*---------------------------------------------------------------------------*/
-
 void ServerCore::setProtocol(ChatProtocol &protocol){
     assert(m_protocol == NULL);
     m_protocol = &protocol;
@@ -146,27 +143,9 @@ void ServerCore::setProtocol(ChatProtocol &protocol){
 
 /*---------------------------------------------------------------------------*/
 
-void ServerCore::createNewUi(){
-    assert(m_ui == NULL);
-    ServerUI *const ui = new ServerUI(*this);
-    m_ui = ui;
-    m_channel.setUI(ui->serverChannel());
-}
-
-/*---------------------------------------------------------------------------*/
-
-ChannelCore &ServerCore::addChannel(const char *name, unsigned len){
-    ChannelCore &channel = m_channels.create();
-    channel.name(name, len);
-    return channel;
-}
-
-/*---------------------------------------------------------------------------*/
-
-ChannelCore &ServerCore::addChannel(const std::string &name){
-    ChannelCore &channel = m_channels.create();
-    channel.name(name);
-    return channel;
+const ChatProtocol &ServerCore::getProtocol() const{
+    assert(m_protocol != NULL);
+    return *m_protocol;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -180,203 +159,105 @@ void ServerCore::firstConnected(){
     conf.m_user = "KashyyykUser";
     conf.m_real = m_real.c_str();
 
+    // Send the handshake.
     for(unsigned i = 0; i < m_protocol->getNumHelloMessages(); i++){
         Message msg;
         m_protocol->createHelloMessage(i, conf, msg);
         size_t len;
         const char *msg_str = m_protocol->messageToString(msg, len);
-        YYY_WriteSocket(m_socket, msg_str, len);
+        YYY_WriteSocket(getSocket(), msg_str, len);
         m_protocol->freeMessageString(msg_str);
     }
 }
 
 /*---------------------------------------------------------------------------*/
 
-void ServerCore::handleMessage(const char *str, unsigned len){
-    assert(len < YYY_MAX_MSG_LEN);
+bool ServerCore::getMessage(Message &out,
+    const char *&channel,
+    unsigned &channel_len,
+    char *buffer,
+    size_t buffer_len){
+    
+    // We set m_messages_queued to true if we parsed a message properly last call.
 
-    DEBUG_PRINT(str, len);
+    if(!m_messages_queued){
+        // Read available data from the socket.
+        unsigned long len;
+        YYY_ReadSocket(getSocket(), buffer, buffer_len, &len);
+    
+        assert(len < YYY_MAX_MSG_LEN);
 
-    Message msg;
-    if(!m_protocol->parseMessage(str, len, msg))
-        return;
+        // Put the data into the buffer.
+        YYY_PutMSGBuffer(m_buffer, buffer, len);
+        
+        if(m_first_connected == false)
+            firstConnected();
+    }
 
-    ChannelCore *dest = NULL;
+    // Read out of the buffer until no more messages are available.
+    while(size_t len = YYY_GetMSGBuffer(m_buffer, buffer)){
+        DEBUG_PRINT(buffer, len);
+        m_protocol->parseMessage(buffer, len, out);
 
-    switch(msg.type){
-        case eYYYChatPing:
-            m_protocol->createResponseToPingMessage(msg, msg);
-            {
-                size_t len;
-                const char *const pong = m_protocol->messageToString(msg, len);
-                YYY_WriteSocket(m_socket, pong, len);
-                m_protocol->freeMessageString(pong);
-            }
-            break;
-        case eYYYChatJoin:
-            // Check if this is a join for one of our current channels, or a confirmation of a
-            // previous join attempt.
-            {
-                bool found = false;
-                for(Maintainer<ChannelCore>::iterator iter = m_channels.begin();
-                    iter != m_channels.cend(); iter++){
-                    const std::string &name = iter->name();
-                    if(name.length() == msg.m.join.where_len &&
-                        memcmp(&(name[0]), msg.m.join.where, msg.m.join.where_len) == 0){
-                        // This is a join for a channel we are already in.
-                        iter->addUser(msg.m.join.from, msg.m.join.from_len);
-                        found = true;
+        YYY_MessageType type = out.type;
+
+        // Check for a ping.
+        if(type == eYYYChatPing){
+            // Create a response to the ping
+            m_protocol->createResponseToPingMessage(out, out);
+
+            // Send the response.
+            const char *const pong = m_protocol->messageToString(out, len);
+            YYY_WriteSocket(getSocket(), pong, len);
+
+            m_protocol->freeMessageString(pong);
+            // Check for another message.
+            continue;
+        }
+
+        // Set the destination channel, if any.
+        switch(type){
+            case eYYYChatJoin:
+                channel = out.m.join.where;
+                channel_len = out.m.join.where_len;
+                break;
+            case eYYYChatNotification:
+                channel = "";
+                channel_len = 0;
+                break;
+            case eYYYChatMessage:
+                channel = out.m.message.to;
+                channel_len = out.m.message.to_len;
+                // If the message is addressed to us, then we change thge channel to the
+                // sender's name.
+                if(channel_len == m_username.length() &&
+                    m_protocol->compareIdentifiers(m_username.c_str(),
+                        channel,
+                        channel_len)){
+                    channel = out.m.any_from.from;
+                    channel_len = out.m.any_from.from_len;
+                }
+
+                for(unsigned i = 0; i < channel_len; i++){
+                    if(channel[i] == '/' || channel[i] == '!'){
+                        channel_len = i;
                         break;
                     }
                 }
-            }
+                break;
+            default:
+                channel = NULL;
+                channel_len = 0;
+                break;
+        }
 
-            break;
-        case eYYYChatNotification:
-            dest = &m_channel;
-        case eYYYChatMessage:
-            {
-                const char *const message = msg.m.message.message;
-                const unsigned short message_len = msg.m.message.message_len;
-
-                ChannelCore::ChannelMessage::Type type =
-                    ChannelCore::ChannelMessage::eNormalMessage;
-
-                // Find the destination channel.
-                if(dest == NULL){
-                    
-                    // We are checking for the username in the message in this NULL check because
-                    // this means we will only check if for messages, not notifications.
-                    assert(msg.type == eYYYChatMessage);
-                    
-
-                    const char *channel_name = msg.m.message.to;
-                    unsigned short channel_name_len = msg.m.message.to_len;
-                    // If the message is addressed to us, then we change thge channel to the
-                    // sender's name.
-                    if(channel_name_len == m_username.length() &&
-                        m_protocol->compareIdentifiers(m_username.c_str(),
-                            channel_name,
-                            channel_name_len)){
-                        type = ChannelCore::ChannelMessage::eMentionMessage;
-                        channel_name = msg.m.any_from.from;
-                        channel_name_len = msg.m.any_from.from_len;
-                    }
-                    // Check if our username exists in the message.
-                    else if(!m_username.empty()){
-                        const char *const name = m_username.c_str();
-                        const unsigned short name_len = (unsigned short)m_username.length();
-                        for(unsigned short i = 0; i + name_len < message_len; i++){
-                            if(m_protocol->compareIdentifiers(name, message, name_len)){
-                                type = ChannelCore::ChannelMessage::eMentionMessage;
-                                break;
-                            }
-                        }
-                    }
-
-                    for(unsigned i = 0; i < channel_name_len; i++){
-                        if(channel_name[i] == '/' || channel_name[i] == '!'){
-                            channel_name_len = i;
-                            break;
-                        }
-                    }
-
-                    for(Maintainer<ChannelCore>::iterator iter = m_channels.begin();
-                        iter != m_channels.end(); iter++){
-                        const std::string &iter_channel_name = iter->name();
-                        if(iter_channel_name.length() == channel_name_len &&
-                            m_protocol->compareIdentifiers(iter_channel_name.c_str(),
-                                channel_name,
-                                channel_name_len)){
-                            dest = &(*iter);
-                            break;
-                        }
-                    }
-
-                    // We either reached the end, or we found the channel.
-                    if(dest == NULL){
-                        // Add the new channel.
-                        ChannelUI &channel_ui = m_ui->addChannel(channel_name, channel_name_len);
-                        dest = &channel_ui.getCore();
-                        assert(dest != NULL);
-                    }
-                }
-
-                // We found the destination.
-                assert(dest != NULL);
-                ChannelCore::ChannelMessage &yyy_msg = dest->pushFront();
-
-                yyy_msg.type(type);
-                yyy_msg.assignMessage(message, message_len);
-                YYY_DateSetNow(&yyy_msg.m_date);
-                
-                {
-                    FlLocker locker;
-                    if(type == ChannelCore::ChannelMessage::eMentionMessage)
-                        getUI()->setUIMentioned();
-                    else
-                        getUI()->setUIMessage();
-
-                    const std::string &channel_name = dest->name();
-                    if(server_tree->isSelected(m_name, channel_name)){
-                        ChannelUI &channel = *dest->getUI();
-                        channel.updateScroll(*chat_scroll);
-                        channel.updateChatWidget(*chat_widget, *chat_scroll);
-                        chat_scroll->redraw();
-                        chat_widget->redraw();
-                        chat_widget->parent()->redraw();
-                    }
-                }
-            }
-            break;
-        default:
-#ifndef NDEBUG
-            { // Debugging target.
-                volatile int i = 0;
-                i = 1;
-            }
-#endif
-            break;
+        // Set m_messages_queued to true to indicate that it's possible more messages can be
+        // found without reading from the socket again.
+        return (m_messages_queued = true);
     }
     
-    if(m_first_connected == false)
-        firstConnected();
-
-
-
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ServerCore::giveMessage(const char *msg, unsigned len){
-    assert(len < YYY_MAX_MSG_LEN);
-    YYY_PutMSGBuffer(m_buffer, msg, len);
-    char buffer[YYY_MAX_MSG_LEN];
-    unsigned long n = YYY_GetMSGBuffer(m_buffer, buffer);
-    if(n){
-        YYY::FlLocker locker;
-        do{
-            handleMessage(buffer, n);
-        }while(n = YYY_GetMSGBuffer(m_buffer, buffer));
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ServerCore::addToSocketGroup(YYY_SocketGroup *to){
-    YYY_AddSocketToGroup(m_socket, this, to);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ServerCore::removeFromSocketGroup(YYY_SocketGroup *group) const {
-    void *data;
-    const YYY_NetworkError err = YYY_RemoveSocketFromGroup(
-        const_cast<YYY_NetworkSocket*>(m_socket), group, &data);
-    
-    assert(err == eYYYNetworkSuccess);    
-    // A bit ugly, but it's just for the assert.
-    assert(const_cast<const void*>(data) == static_cast<const void*>(this));
+    // We need more data to get more messages.
+    return (m_messages_queued = false);
 }
 
 } // namespace YYY

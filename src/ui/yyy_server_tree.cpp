@@ -234,7 +234,7 @@ ServerTree::ChannelData *ServerTree::addChannel(const char *server,
     unsigned server_len,
     const char *channel,
     unsigned channel_len,
-    ChannelCore *core){
+    ChannelController *user_data){
     
     // Store the URI of the server
     
@@ -249,7 +249,7 @@ ServerTree::ChannelData *ServerTree::addChannel(const char *server,
     YYY_ALLOCA_FREE(path);
     
     ChannelData *const data = new ChannelData();
-    data->arg = core;
+    data->arg = user_data;
     data->status = eConnected;
     item->user_data(data);
     
@@ -286,7 +286,7 @@ ServerTree::ServerStatus ServerTree::getServerStatus(const char *name, unsigned 
 // Note that Fl::lock should be called for multithreaded access to this.
 ServerTree::ServerData *ServerTree::setServerStatus(const std::string &server_name,
     ServerTree::ServerStatus status,
-    ServerCore *arg){
+    ServerController *arg){
     
     ServerTree::ServerData *const data = getData(server_name);
     if(data){
@@ -301,7 +301,7 @@ ServerTree::ServerData *ServerTree::setServerStatus(const std::string &server_na
 ServerTree::ServerData *ServerTree::setServerStatus(const char *name,
     unsigned name_len,
     ServerTree::ServerStatus status,
-    ServerCore *arg){
+    ServerController *arg){
 
     ServerTree::ServerData *const data = getData(name, name_len);
     if(data){
@@ -396,72 +396,41 @@ void ServerTree::updateChildren(){
 
 /*---------------------------------------------------------------------------*/
 
-bool ServerTree::isSelected(const char *server_name, size_t server_len,
-    const char *channel_name, size_t channel_len) const{
-    
-    assert(server_len > 0);
-    
-    const size_t buffer_size = server_len + channel_len + 2;
-    const bool use_alloca = buffer_size < 0xFF;
+bool ServerTree::isSelected(const ServerController &controller, bool channel_only) const{
+    if(const Fl_Tree_Item *const selected = getSelected()){
+        const Fl_Tree_Item *server = NULL;
 
-    char *const buffer = (char *)(use_alloca ? YYY_ALLOCA(buffer_size) : malloc(buffer_size));
-
-    memcpy(buffer, server_name, server_len);
-    
-    if(channel_len == 0){
-        buffer[server_len] = '\0';
+        // If the selected item is a server, then use that as the check. Otherwise, if channel_only
+        // is set then we will check against the selected item's parent (server).
+        if(selected->parent() == root()){
+            server = selected;
+        }
+        else if(!channel_only){
+            server = selected->parent();
+        }
+        else{
+            return false;
+        }
+        
+        const ServerData *const server_data = (ServerData*)server->user_data();
+        return server_data->arg == &controller;
     }
-    else{
-        buffer[server_len] = '/';
-        memcpy(buffer + server_len + 1, channel_name, channel_len);
-        buffer[server_len + channel_len + 1] = '\0';
-    }
-
-    // Not sure why Fl_Tree::is_selected(const char *) is not a const method...
-    const bool ret = const_cast<ServerTree*>(this)->Fl_Tree::is_selected((const char *)buffer);
-
-    if(use_alloca)
-        YYY_ALLOCA_FREE(buffer);
-    else
-        free(buffer);
-
-    return ret;
+    
+    return false;
 }
 
-/*---------------------------------------------------------------------------*/
-
-bool ServerTree::isSelected(const std::string &server_name, const std::string& channel_name) const{
-    return isSelected(server_name.c_str(), server_name.length(),
-        channel_name.c_str(), channel_name.length());
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool ServerTree::isSelected(const char *server_name, size_t server_len) const{
-
-    // WTF? Why are first_selected_item and root() not const!?
-    Fl_Tree &mutable_this = *const_cast<ServerTree*>(this);
-    Fl_Tree_Item *const selected = mutable_this.first_selected_item();
-    const Fl_Tree_Item *const l_root = mutable_this.root();
-    if(selected == NULL)
-        return false;
-
-    // Get server, or if it is a channel, the server of the channel.
-    Fl_Tree_Item *const server_item =
-        (selected->parent() == l_root) ? selected : selected->parent();
-    const char *label = server_item->label();
-    if(*label == '/')
-        label++;
-    const size_t label_size =
-#ifndef __WATCOMC__
-        strnlen(label, server_len+1);
-#else
-        strlen(label);
-#endif
-    if(label_size != server_len)
-        return false;
-    else
-        return memcmp(server_name, label, server_len) == 0;
+bool ServerTree::isSelected(const ChannelController &controller) const{
+    if(const Fl_Tree_Item *const selected = getSelected()){
+        if(selected->parent() == root()){
+            return false;
+        }
+        else{
+            const ChannelData *const channel_data = (ChannelData*)selected->user_data();
+            return channel_data->arg == &controller;
+        }
+    }
+    
+    return false;
 }
 
 } // namespace YYY

@@ -47,8 +47,7 @@ const unsigned ChannelCore::c_default_max_messages = 312;
 /*---------------------------------------------------------------------------*/
 
 ChannelCore::ChannelCore(const std::string& name)
-  : m_ui(NULL)
-  , m_name(name)
+  : m_name(name)
   , m_max_messages(c_default_max_messages)
   , m_messages(NULL)
   , m_spare(NULL)
@@ -59,8 +58,7 @@ ChannelCore::ChannelCore(const std::string& name)
 /*---------------------------------------------------------------------------*/
 
 ChannelCore::ChannelCore(const char *name, unsigned name_len)
-  : m_ui(NULL)
-  , m_name(name, name_len)
+  : m_name(name, name_len)
   , m_max_messages(c_default_max_messages)
   , m_messages(NULL)
   , m_spare(NULL)
@@ -71,39 +69,9 @@ ChannelCore::ChannelCore(const char *name, unsigned name_len)
 /*---------------------------------------------------------------------------*/
 
 ChannelCore::~ChannelCore(){
-    FreeList(m_messages);
+    YYY_FreeMessageList(m_messages);
     if(m_spare != NULL)
         delete m_spare;
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ChannelCore::ChannelMessage::assignMessage(const char *msg, unsigned short len){
-    m_data |= len << 6;
-    char *dest;
-    if(IsInArray(len))
-        dest = m_message.m_array;
-    else
-        dest = m_message.m_ptr = (char *)malloc(len+1);
-
-    memcpy(dest, msg, len);
-    dest[len] = '\0';
-}
-
-/*---------------------------------------------------------------------------*/
-
-const char *ChannelCore::ChannelMessage::message(unsigned short &len) const {
-    if(IsInArray(len = messageLength()))
-        return m_message.m_array;
-    else
-        return m_message.m_ptr;
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ChannelCore::setUI(ChannelUI &ui){
-    assert(m_ui == NULL);
-    m_ui = &ui;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -112,7 +80,7 @@ unsigned short ChannelCore::maxMessages(unsigned short m){
     assert(m_num_messages != 0 || m_messages != NULL);
     
     if(m_max_messages > m){
-        TruncateList(m_messages, m);
+        YYY_TruncateMessageList(m_messages, m);
         m_num_messages = m;
     }
     return m_max_messages = m;
@@ -120,7 +88,7 @@ unsigned short ChannelCore::maxMessages(unsigned short m){
 
 /*---------------------------------------------------------------------------*/
 
-ChannelCore::ChannelMessage &ChannelCore::pushFront(){
+ChannelMessage &ChannelCore::pushFront(){
     assert((m_num_messages == 0) == (m_messages == NULL));
     
     struct MessageList *const new_msg =
@@ -131,6 +99,7 @@ ChannelCore::ChannelMessage &ChannelCore::pushFront(){
     m_messages = new_msg;
     
     assert(m_num_messages <= m_max_messages);
+    assert(m_max_messages != 0);
     if(m_num_messages == m_max_messages){
         struct MessageList *before_new_spare = new_msg->m_next;
         
@@ -175,46 +144,4 @@ void ChannelCore::addUser(const char *user, const size_t user_len){
     m_users.create().assign(user, user_len);
 }
 
-/*---------------------------------------------------------------------------*/
-
-void ChannelCore::FreeList(struct MessageList *list){
-    while(list != NULL){
-        struct MessageList *const to_delete = list;
-        assert(to_delete != NULL);
-        list = list->m_next;
-        delete to_delete;
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
-ChannelCore::MessageList *ChannelCore::GetElement(struct MessageList *list,
-    unsigned element_index){
-    
-    for(unsigned i = 0; i < element_index; i++){
-        assert(list != NULL);
-        list = list->m_next;
-    }
-    return list;
-}
-
-/*---------------------------------------------------------------------------*/
-
-ChannelCore::MessageList *ChannelCore::Tail(struct MessageList *list){
-    if(list == NULL)
-        return NULL;
-    
-    while(list->m_next != NULL)
-        list = list->m_next;
-    return list;
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ChannelCore::TruncateList(struct MessageList *list, unsigned len){
-    struct MessageList *const msg = GetElement(list, len);
-    FreeList(msg->m_next);
-    msg->m_next = NULL;
-}
-    
 } // namespace YYY

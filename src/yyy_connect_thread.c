@@ -172,6 +172,7 @@ void YYY_QueueConnection(const char *url, unsigned port, void *arg){
     /* Construct the new connection request */
     const unsigned len = strlen(url);
     struct yyy_connection *const conn = malloc(sizeof(struct yyy_connection) + len + 1);
+    assert(conn != NULL);
     conn->port = port;
     conn->next = NULL;
     conn->arg = arg;

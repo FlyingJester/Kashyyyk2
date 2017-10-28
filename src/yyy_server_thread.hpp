@@ -47,7 +47,7 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-class ServerCore;
+class ServerController;
 
 /*---------------------------------------------------------------------------*/
 
@@ -73,10 +73,10 @@ public:
     
     void start();
     
-    // This exists (in addition to ServerCore::addToSocketGroup) to keep the
+    // This exists (in addition to ServerController::addToSocketGroup) to keep the
     // group private and the server core to keep its socket private.
-    void addServer(ServerCore &);
-    void removeServer(const ServerCore &);
+    void addServer(ServerController &);
+    void removeServer(const ServerController &);
 };
 
 } // namespace YYY

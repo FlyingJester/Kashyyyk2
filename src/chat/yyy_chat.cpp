@@ -70,8 +70,27 @@ void ChatProtocol::createResponseToPingMessage(const Message &in, Message &out){
 
 /*---------------------------------------------------------------------------*/
 
-bool ChatProtocol::compareIdentifiers(const char *str0, const char *str1, unsigned short len){
+bool ChatProtocol::compareIdentifiers(const char *str0,
+    const char *str1,
+    unsigned short len) const {
+    
     return memcmp(str0, str1, len) == 0;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ChatProtocol::isMention(const char *name, unsigned short name_len, const Message &msg) const {
+    if(msg.type != eYYYChatMessage && msg.type != eYYYChatNotification)
+        return false;
+
+    const unsigned short max_start = msg.m.any_message.message_len - name_len;
+
+    for(unsigned short i = 0; i < max_start; i++){
+        if(compareIdentifiers(name, msg.m.any_message.message, name_len))
+            return true;
+    }
+
+    return false;
 }
 
 } // namespace YYY

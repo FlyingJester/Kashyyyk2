@@ -34,6 +34,8 @@
 #include "yyy_channel_core.hpp"
 #include "yyy_maintainer.hpp"
 
+#include "chat/yyy_chat.hpp"
+
 #include "monitor/yyy_monitor.hpp"
 
 #include <string>
@@ -67,32 +69,84 @@ class ServerUI;
 class ChatProtocol;
 
 /*---------------------------------------------------------------------------*/
+/**
+ * @brief Encapsulates the socket of a server.
+ *
+ * Keeps the socket private. This allows a child class (ServerSocketShare) to be friends with the
+ * ServerController, but 
+ */
+class ServerSocketHolder {
+private:
+    YYY_NetworkSocket *m_socket;
+protected:
+    inline YYY_NetworkSocket *getSocket() const { return m_socket; }
+    
+    /**
+     * @brief Sets the socket. Defined to allow a default constructor.
+     *
+     * Asserts that this object was default constructed and had not been
+     * assigned before.
+     */
+    void setSocket(YYY_NetworkSocket *socket);
+    
+    ServerSocketHolder() : m_socket(NULL){}
+    virtual ~ServerSocketHolder();
+};
 
-class ServerCore {
+/*---------------------------------------------------------------------------*/
+/**
+ * @brief Encapsulates the socket of a server.
+ *
+ * Allows the ServerController to access the core's socket (by being a friend class) but keeps
+ * everyone else out.
+ */
+class ServerSocketShare : private ServerSocketHolder {
+protected:
+    inline YYY_NetworkSocket *getSocket() const { return ServerSocketHolder::getSocket(); }
+    
+    /**
+     * @brief Sets the socket. Defined to allow a default constructor.
+     *
+     * Asserts that this object was default constructed and had not been
+     * assigned before.
+     */
+    inline void setSocket(YYY_NetworkSocket *socket) {
+        ServerSocketHolder::setSocket(socket);
+    }
+
+    friend class ServerController;
+
+    virtual ~ServerSocketShare();
+};
+
+/*---------------------------------------------------------------------------*/
+
+class ServerCore : public ServerSocketShare {
     
     ChatProtocol *m_protocol;
-
-    // Must not be a reference to allow us to have a default constructor so
-    // that this can be held in a vector in older C++ standard compilers.
-    ServerUI *m_ui; //!< Back reference to the UI
-    Maintainer<ChannelCore> m_channels;
-    
-    YYY_NetworkSocket *m_socket;
     YYY_MSGBuffer *const m_buffer;
-    Monitor m_monitor;
     
     void handleMessage(const char *value, unsigned len);
-    
-    //! @brief Holds the channel core for the server's notice channel
-    ChannelCore m_channel;
 
-    std::string m_username, m_real, m_name;
+    std::string m_username, m_real;
+    
+    //! @brief Name of the server.
+    std::string m_name;
 
     bool m_first_connected;
 
+    bool m_messages_queued;
+    
+    /**
+     * @brief Called when first connected to send handshake data to the server.
+     *
+     * Asserts that this is called only once.
+     */
+    void firstConnected();
+
 public:
     ServerCore();
-    ~ServerCore();
+    virtual ~ServerCore();
     
     /**
      * @brief Sets the server name. Defined to allow a default constructor.
@@ -109,34 +163,13 @@ public:
      * assigned before.
      */
     void setName(const char *name, size_t name_len);
+    
+    //! @brief Performs initial setup operations on the core.
+    inline void setup(const char *name, size_t name_len, ServerController &) {
+        setName(name, name_len);
+    }
 
     inline const std::string &name() const { return m_name; }
-
-    /**
-     * @brief Sets the UI. Defined to allow a default constructor.
-     *
-     * Asserts that this object was default constructed and had not been
-     * assigned before.
-     */
-    void setUI(ServerUI &ui);
-    
-    /**
-     * @brief Gets the UI.
-     */
-    inline ServerUI *getUI() { return m_ui; }
-    
-    /**
-     * @brief Gets the UI.
-     */
-    inline const ServerUI *getUI() const { return m_ui; }
-    
-    /**
-     * @brief Sets the UI. Defined to allow a default constructor.
-     *
-     * Asserts that this object was default constructed and had not been
-     * assigned before.
-     */
-    void setSocket(YYY_NetworkSocket *socket);
     
     /**
      * @brief Sets the protocol. Defined to allow a default constructor
@@ -145,31 +178,24 @@ public:
      * assigned before.
      */
     void setProtocol(ChatProtocol &protocol);
+    
+    const ChatProtocol &getProtocol() const;
 
-    void createNewUi();
-    
-    inline YYY_NetworkSocket *getSocket() { return m_socket; }
-
-    ChannelCore &serverChannel() { return m_channel; }
-    const ChannelCore &serverChannel() const { return m_channel; }
-    
-    ChannelCore &addChannel(const char *name, const unsigned len);
-    ChannelCore &addChannel(const std::string &name);
-    
     /**
-     * @brief Called when first connected to send handshake data to the server.
+     * @brief Gets a message from the buffer, reading from the socket if none are available.
      *
-     * Asserts that this is called only once.
-     */
-    void firstConnected();
-    
-    /**
-     * @brief Gives the server core a new message.
+     * When there is data to read from the socket, this should be called to get new messages until
+     * it returns false.
      *
-     * No parsing should be done prior. The server is capable of piecing
-     * together spliced messages, and will buffer any fragments.
+     * @p channel is valid until the next call to getMessage on this ServerCore. An empty string
+     * (but not NULL) indicates the message should go to the server. A NULL means that no channel
+     * should get the message.
      */
-    void giveMessage(const char *msg, unsigned len);
+    bool getMessage(Message &out_message,
+        const char *&channel,
+        unsigned &channel_len,
+        char *buffer,
+        unsigned buffer_len);
     
     /**
      * @brief Notifies the server that it has become disconnected.

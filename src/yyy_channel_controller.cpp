@@ -1,5 +1,5 @@
 /* 
- *  Copyright (c) 2014-2017 Martin McDonough.  All rights reserved.
+ *  Copyright (c) 2017 Martin McDonough.  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -25,31 +25,15 @@
  */
 /*---------------------------------------------------------------------------*/
 
-#ifndef KASHYYYK_YYY_SERVER_UI_HPP
-#define KASHYYYK_YYY_SERVER_UI_HPP
-#pragma once
+#include "yyy_channel_controller.hpp"
 
 /*---------------------------------------------------------------------------*/
-
-#include "yyy_channel_ui.hpp"
-#include "yyy_maintainer.hpp"
-
-#include "chat/yyy_chat_message.h"
-
-#include "ui/yyy_server_tree.hpp"
 
 #include "kashyyyk2.hpp"
 
-#include <list>
-#include <assert.h>
-
 /*---------------------------------------------------------------------------*/
 
-class Fl_Tree_Item;
-
-/*---------------------------------------------------------------------------*/
-
-class Fl_Tree;
+#include "chat/yyy_chat.hpp"
 
 /*---------------------------------------------------------------------------*/
 
@@ -57,39 +41,49 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-class ServerCore;
+void ChannelController::ChatScrollCallback(Fl_Widget *w, void *arg){
+    Fl_Valuator *const scroll = static_cast<Fl_Valuator *>(w);
+    ChannelController *const channel = (ChannelController*)arg;
+    if(channel == NULL)
+        return;
+    ChannelCore &core = channel->m_core;
+    channel->m_ui.updateChatWidget(core.messages(), core.numMessages(), false);
+}
 
 /*---------------------------------------------------------------------------*/
 
-class ServerUI {
-    ServerTree::ServerData *m_ui_data;
-
-    // Set as an enum to ensure inlining.
-    template<enum ServerTree::ServerStatus status>
-    void SetUINotificationLevel(){
-        const int level = (int)(m_ui_data->status),
-            target = (int)status;
-        if(target > level ||
-            (ServerTree::IsConnected(status) && !ServerTree::IsConnected(m_ui_data->status))){
-            m_ui_data->status = status;
-            server_tree->redraw();
-            if(server_tree->isSelected(m_core.name()))
-                server_tree->updateServerMenus();
-        }
-    }
-
-public:
+void ChannelController::setup(const char *channel_name,
+        unsigned channel_name_len,
+        const std::string &server_name,
+        ServerController &server_controller){
     
-    // These functions will handle a click for the tree itself, and will call
-    // the handlers for the appropriate ServerUI's.
-    static void HandleTreeClick(Fl_Tree &tree);
+    m_core.name(channel_name, channel_name_len);
+    m_ui.setup(channel_name, server_name.c_str(), *this);
+}
 
-    void handleMessage(const struct YYY_Message &msg);
+void ChannelController::handleMessage(const YYY_Message &msg, bool is_mention, bool is_action){
     
-    //! @brief Performs initial setup operations on the ui.
-    void setup(const char *name, size_t name_len, ServerController &controller);
-};
+    // Convert the YYY_Message into a ChannelMessage stored in the core, and add it to the UI.
+
+    ChannelMessage &yyy_msg = m_core.pushFront();
+    
+    const ChannelMessage::Type type =
+        (is_action && is_mention) ? ChannelMessage::eMentionAction :
+        is_action ? ChannelMessage::eNormalAction :
+        is_mention ? ChannelMessage::eMentionMessage :
+        ChannelMessage::eNormalMessage;
+
+    yyy_msg.type(type);
+    yyy_msg.assignMessage(msg.m.any_message.message, msg.m.any_message.message_len);
+    YYY_DateSetNow(&yyy_msg.m_date);
+    m_ui.updateUI(m_core.messages(), m_core.numMessages(), true);
+
+}
+
+
+void ChannelController::select(){
+    m_ui.select(m_core.messages(), m_core.numMessages());
+    chat_scroll->callback(ChannelController::ChatScrollCallback, this);
+}
 
 } // namespace YYY
-
-#endif // KASHYYYK_YYY_SERVER_UI_HPP

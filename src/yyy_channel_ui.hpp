@@ -35,6 +35,8 @@
 
 #include <stdlib.h>
 
+#include <string>
+
 /*---------------------------------------------------------------------------*/
 
 class Fl_Valuator;
@@ -53,37 +55,50 @@ class ChannelCore;
 
 /*---------------------------------------------------------------------------*/
 
+struct MessageList;
+
+/*---------------------------------------------------------------------------*/
+
+struct ChannelMessage;
+
+/*---------------------------------------------------------------------------*/
+
 class ChannelUI {
-    // Must not be a reference to allow us to have a default constructor so
-    // that this can be held in a vector in older C++ standard compilers.
-    ChannelCore *m_core;
 
     ServerTree::ChannelData *m_ui_data;
     
     // Message at the bottom of the screen. This is zero for the default.
     unsigned m_at;
 
+    std::string m_name;
+
+    static void RedrawUI();
+    bool isSelected() const;
+    void updateTreeUIForLastMessage(const MessageList *messages) const;
+
 public:
+
+    ChannelUI()
+      : m_ui_data(NULL)
+      , m_at(0){
+        
+    }
     
-    ChannelUI() : m_core(NULL){}
-    ChannelUI(ChannelCore &channel);
+    void setup(const char *channel_name,
+        const char *server_name,
+        ChannelController &controller);
+
+    void updateScroll(unsigned num_messages) const;
+
+    void updateChatWidget(const MessageList *messages,
+        unsigned num_messages,
+        bool new_msg) const;
     
-    /**
-     * @brief Sets the ChannelCore.
-     *
-     * This asserts that the current core is NULL, and should only be called during initialization.
-     */
-    void setCore(ChannelCore &core);
-    ChannelCore &getCore();
-    const ChannelCore &getCore() const;
+    void updateUI(const MessageList *messages,
+        unsigned num_messages,
+        bool new_msg) const;
 
-    void setData(ServerTree::ChannelData *const data);
-
-    // Allows us to check the core without actually exposing it.
-    bool matches(const ChannelCore &c) const;
-    void updateScroll(Fl_Valuator &to) const;
-    void updateChatWidget(ChatWidget &to, const Fl_Valuator &scroll) const;
-
+    void select(const MessageList *messages, unsigned num_messages);
 };
 
 } // namespace YYY

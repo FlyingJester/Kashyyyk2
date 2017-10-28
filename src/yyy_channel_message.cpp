@@ -1,5 +1,5 @@
 /* 
- *  Copyright (c) 2017 Martin McDonough.  All rights reserved.
+ *  Copyright (c) 2014-2017 Martin McDonough.  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -25,13 +25,11 @@
  */
 /*---------------------------------------------------------------------------*/
 
-#include "yyy_irc.hpp"
+#include "yyy_channel_message.hpp"
 
-#include "yyy_irc_core.h"
-
-#include <stdlib.h>
-#include <string.h>
 #include <assert.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*---------------------------------------------------------------------------*/
 
@@ -39,70 +37,79 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-static inline char irc_to_lower(const char c){
-    return (c >= 'A' && c <= 'Z') ? ((c - 'A') + 'a') :
-        (c == '{') ? '[' : 
-        (c == '|') ? '\\' : 
-        (c == '}') ? ']' : c;
+ChannelMessage::~ChannelMessage(){
+    if(!isInArray())
+        free(m_message.m_ptr);
 }
 
 /*---------------------------------------------------------------------------*/
 
-bool IRCProtocol::parseMessage(const char *src, size_t len, Message &out){
-    return YYY_IRCParseMessage(src, len, &out) != 0;
-}
-
-/*---------------------------------------------------------------------------*/
-
-const char *IRCProtocol::messageToString(const Message &msg, size_t &len){
-    return YYY_IRCMessageToString(&msg, &len);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void IRCProtocol::freeMessageString(const char *str){
-    free((void*)str);
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool IRCProtocol::compareIdentifiers(const char *str0,
-    const char *str1,
-    unsigned short len) const{
+void ChannelMessage::assignMessage(const char *msg, unsigned short len){
+    m_data &= 3;
+    m_data |= len << 6;
+    char *dest;
+    if(IsInArray(len))
+        dest = m_message.m_array;
+    else
+        dest = m_message.m_ptr = (char *)malloc(len+1);
+    assert(dest != NULL);
+    memcpy(dest, msg, len);
+    dest[len] = '\0';
     
-    for(unsigned short i = 0; i < len; i++){
-        const char c0 = str0[i], c1 = str1[i];
-        if(c0 != c1 && irc_to_lower(c0) != irc_to_lower(c1))
-            return false;
-    }
-    return true;
 }
 
 /*---------------------------------------------------------------------------*/
 
-size_t IRCProtocol::getNumHelloMessages() const {
-    return 2;
-}
-
-/*---------------------------------------------------------------------------*/
-
-#define YYY_IRC_USER_NAME "KashyyykUser"
-
-void IRCProtocol::createHelloMessage(size_t i, const Configuration &conf, Message &out_msg) const{
-    assert(i == 0 || i == 1);
-    out_msg.m.any_from.from_len = 0;
-#define SET_PARAM(TYPE, WHAT, FROM) out_msg.m.TYPE.WHAT = conf.m_ ## FROM; out_msg.m.TYPE.WHAT ## _len = strlen(conf.m_ ## FROM);
-    switch(i){
-        case 0:
-            out_msg.type = eYYYChatIdentify;
-            SET_PARAM(identify, user, user);
-            SET_PARAM(identify, real, real);
-            return;
-        case 1:
-            out_msg.type = eYYYChatNick;
-            SET_PARAM(nick, nick, nick);
-            return;
-    }
+const char *ChannelMessage::message(unsigned short &len) const {
+    if(IsInArray(len = messageLength()))
+        return m_message.m_array;
+    else
+        return m_message.m_ptr;
 }
 
 } // namespace YYY
+
+
+/*---------------------------------------------------------------------------*/
+
+void YYY_FreeMessageList(YYY_MessageList *list){
+    while(list != NULL){
+        YYY_MessageList *const to_delete = list;
+        assert(to_delete != NULL);
+        list = list->m_next;
+        delete to_delete;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+YYY_MessageList *YYY_GetMessageListElement(YYY_MessageList *list,
+    unsigned element_index){
+    
+    for(unsigned i = 0; i < element_index; i++){
+        assert(list != NULL);
+        list = list->m_next;
+    }
+    return list;
+}
+
+/*---------------------------------------------------------------------------*/
+
+YYY_MessageList *YYY_GetMessageListTail(YYY_MessageList *list){
+    if(list == NULL)
+        return NULL;
+    
+    while(list->m_next != NULL)
+        list = list->m_next;
+    return list;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void YYY_TruncateMessageList(YYY_MessageList *list, unsigned len){
+    struct YYY::MessageList *const msg = YYY_GetMessageListElement(list, len);
+    YYY_FreeMessageList(msg->m_next);
+    msg->m_next = NULL;
+}
+
+/*---------------------------------------------------------------------------*/

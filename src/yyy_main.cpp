@@ -48,6 +48,7 @@
 
 #include "ui/yyy_server_tree.hpp"
 
+#include "yyy_server_controller.hpp"
 #include "yyy_server_core.hpp"
 #include "yyy_server_ui.hpp"
 #include "yyy_server_thread.hpp"
@@ -112,7 +113,6 @@ namespace YYY {
 struct Window {
     
     Fl_Double_Window *m_window;
-    Maintainer<ServerCore> m_servers;
     
     ServerTree *m_server_tree;
     ServerThread *m_server_thread;
@@ -231,37 +231,11 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
     const char *name;
     Window &window = yyy_connection_args(uri, arg, name, name_len);
     
-    ServerCore &server = window.m_servers.create();
-    server.setName(name, name_len);
-    server.createNewUi();
-
     // TEST: Assume IRC for now.
-    server.setProtocol(*irc_protocol);
-
-    server.setSocket(socket);
+    ServerController *const server = new ServerController(*irc_protocol);
+    server->setup(name, name_len, socket);
     
-    
-    window.m_server_thread->addServer(server);
-    
-    {
-        YYY::FlLocker locker;
-        ServerTree::ServerData *const server_data =
-            window.m_server_tree->connectionSucceeded(name, name_len, &server);
-        server.getUI()->setUIData(server_data);
-        window.m_server_tree->redraw();
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-
-static void yyy_chat_scroll_callback(Fl_Widget *w, void *arg){
-    Fl_Valuator *const scroll = static_cast<Fl_Valuator *>(w);
-    ChannelUI *const UI = (ChannelUI*)arg;
-
-    if(UI == NULL)
-        return;
-
-    UI->updateChatWidget(*chat_widget, *scroll);
+    window.m_server_thread->addServer(*server);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -287,40 +261,23 @@ static void yyy_server_tree_callback(Fl_Widget *w, void *arg){
         ServerTree::ServerData *const data =
             (ServerTree::ServerData*)(item->user_data());
         assert(data != NULL);
-        ServerCore *const server = data->arg;
+        ServerController *const server = data->arg;
         if(ServerTree::IsConnected(data)){
             assert(server != NULL);
-            ServerUI *const serverUI = server->getUI();
-            assert(serverUI != NULL);
-            ChannelUI &channel_ui = serverUI->serverChannel();
-            channel_ui.updateScroll(*chat_scroll);
-            channel_ui.updateChatWidget(*chat_widget, *chat_scroll);
-            chat_scroll->redraw();
-            chat_widget->redraw();
-
-            chat_scroll->callback(yyy_chat_scroll_callback, &channel_ui);
+            server->select(NULL, 0);
         }
         else if(server != NULL){
             // Since we only put a server/arg into the server data when a
             // connection succeeds, this means we were previously connected,
             // and then got disconnected.
         }
-        
-        
     }
     else{ // Is a channel
         ServerTree::ChannelData *const data =
             (ServerTree::ChannelData*)(item->user_data());
         
-        ChannelUI *const channel_ui_ptr = data->arg->getUI();
-        assert(channel_ui_ptr != NULL);
-        ChannelUI &channel_ui = *channel_ui_ptr;
-        channel_ui.updateScroll(*chat_scroll);
-        channel_ui.updateChatWidget(*chat_widget, *chat_scroll);
-        chat_scroll->redraw();
-        chat_widget->redraw();
-
-        chat_scroll->callback(yyy_chat_scroll_callback, &channel_ui);
+        ChannelController *controller = data->arg;
+        controller->select();
     }
 }
 
@@ -368,7 +325,7 @@ static bool Main(unsigned num_args, const std::string *args){
         else{
             TCHAR buffer[100];
             _sntprintf_s(buffer,
-                sizeof(buffer),
+                sizeof(buffer) / sizeof(TCHAR),
                 _TRUNCATE,
                 TEXT("Could not load icon: %i\n"),
                 GetLastError());
@@ -382,7 +339,7 @@ static bool Main(unsigned num_args, const std::string *args){
     yyy_main_window.m_server_thread = new ServerThread();
     yyy_main_window.m_server_thread->start();
 
-    chat_scroll->callback(yyy_chat_scroll_callback, NULL);
+    chat_scroll->callback(ChannelController::ChatScrollCallback, NULL);
     chat_scroll->step(1);
     chat_scroll->step(1.0);
     chat_scroll->range(0.0, 1.0);

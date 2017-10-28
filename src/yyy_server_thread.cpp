@@ -27,7 +27,7 @@
 
 #include "yyy_server_thread.hpp"
 
-#include "yyy_server_core.hpp"
+#include "yyy_server_controller.hpp"
 
 #include "yyy_buffer.h" // For max msg len
 
@@ -112,11 +112,7 @@ void ServerThread::threadCallback(){
                 {
                     void *user_data;
                     while(YYY_GetNextWaitResult(results, &user_data) == eYYYNetworkSuccess){
-                        ServerCore *const server = (ServerCore*)user_data;
-                        char buffer[YYY_MAX_MSG_LEN-1];
-                        unsigned long len;
-                        YYY_ReadSocket(server->getSocket(), buffer, sizeof(buffer), &len);
-                        server->giveMessage(buffer, len);
+                        static_cast<ServerController*>(user_data)->messageReady();
                     }
                     YYY_DestroyWaitResult(results);
                 }
@@ -138,14 +134,14 @@ void ServerThread::threadCallback(){
 
 /*---------------------------------------------------------------------------*/
 
-void ServerThread::addServer(ServerCore &server){
+void ServerThread::addServer(ServerController &server){
     server.addToSocketGroup(m_socket_group);
     YYY_PokeSocketGroup(m_socket_group);
 }
 
 /*---------------------------------------------------------------------------*/
 
-void ServerThread::removeServer(const ServerCore &server){
+void ServerThread::removeServer(const ServerController &server){
     server.removeFromSocketGroup(m_socket_group);
 }
 

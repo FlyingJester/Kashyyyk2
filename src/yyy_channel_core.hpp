@@ -31,7 +31,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#include "yyy_date.h"
+#include "yyy_channel_message.hpp"
 
 #include "utils/yyy_maintainer.hpp"
 
@@ -51,116 +51,10 @@ class ChannelUI;
 /*---------------------------------------------------------------------------*/
 
 class ChannelCore {
-    // Must not be a reference to allow us to have a default constructor so
-    // that this can be held in a vector in older C++ standard compilers.
-    ChannelUI *m_ui; //!< Back reference to the UI
-
 public:
     ChannelCore(const std::string& name);
     ChannelCore(const char *name = NULL, unsigned name_len = 0);
     ~ChannelCore();
-    
-    //! Defined to allow a default constructor. Asserts that this object
-    //! was default constructed and had not been assigned before.
-    void setUI(ChannelUI &ui);
-    
-    //! @brief Gets the Channel UI object.
-    ChannelUI *getUI() { return m_ui; }
-    
-    //! @brief Gets the Channel UI object.
-    const ChannelUI *getUI() const { return m_ui; }
-    
-    /**
-     * @brief Stores a single Chat message.
-     *
-     * This is interpreted from a YYY_ChatMessage in the ServerCore, then is given to the channel.
-     */
-    class ChannelMessage {
-    public:
-
-        struct YYY_Date m_date;
-        const char *m_user; //!< Non-owning copy.
-    private:
-        //! If the length is greater than sizeof(char*) then this is a pointer to chars. Otherwise,
-        //! the chars are placed in the array.
-        union{
-            char *m_ptr;
-            char m_array[sizeof(char*)];
-        } m_message;
-
-        /**
-         * @brief Holds the message length and type enum packed together.
-         *
-         * @warning Access only through type()/messageLength().
-         *
-         * The least significant six bits are type, most significant ten bits are message length.
-         * This saves us two bytes per message. Right now this isn't a win since the compiler pads
-         * the message size to the nearest 4 bytes in 32-bit mode, but it allows us to add two
-         * more bytes to the message before we spill to a larger size.
-         */
-        uint16_t m_data;
-
-        static inline bool IsInArray(unsigned short l){
-            return l < sizeof(char*)-1;
-        }
-
-        inline bool isInArray() const {
-            return messageLength() < sizeof(char*)-1;
-        }
-
-    public:
-
-        enum Type {
-            eNormalMessage,
-            eMentionMessage,
-            eNormalAction,
-            eMentionAction,
-            eJoin,
-            ePart,
-            eQuit
-        };
-        
-        ChannelMessage()
-            : m_user(NULL)
-            , m_data(0){}
-
-        ~ChannelMessage(){
-            if(!isInArray())
-                free(m_message.m_ptr);
-        }
-        
-        inline unsigned short messageLength() const { return m_data >> 6; }
-
-        //! @brief Assigns the message string.
-        void assignMessage(const char *msg, unsigned short len);
-        
-        //! @brief Gets the message string and size.
-        const char *message(unsigned short &len) const;
-        
-        //! @brief Gets the message string.
-        inline const char *message() const { unsigned short l; return message(l); }
-
-        inline Type type() const { return (Type)(m_data & 0x003F); }
-        inline void type(Type type) {
-            // More clear version:
-            /*
-            const unsigned short length_mask = 0xFFC0;
-            const unsigned short masked_type = ((unsigned short)type) & 0x003F;
-            m_data &= length_mask;
-            m_data |= masked_type;
-            */
-
-            // Fewer operations:
-            const unsigned short mask = 0xFFC0 | type;
-            m_data &= mask;
-        }
-    };
-    
-    //! Used to store messages in a linked list.
-    struct MessageList {
-        ChannelMessage m_message;
-        struct MessageList *m_next;
-    };
     
     unsigned short maxMessages(unsigned short m);
     unsigned short maxMessages() const { return m_max_messages; }
@@ -169,8 +63,8 @@ public:
     
     //! Creates a new message in the front of the list, and returns a reference to it.
     ChannelMessage &pushFront();
-    
-    const struct MessageList *messages() const { return m_messages; }
+
+    const MessageList *messages() const { return m_messages; }
     
     static const unsigned c_default_max_messages;
     
@@ -188,14 +82,6 @@ public:
     inline void addUser(const std::string &user) { addUser(&(user[0]), user.length()); }
 
 private:
-    
-    static void FreeList(struct MessageList *list);
-    static struct MessageList *GetElement(struct MessageList *list,
-        unsigned element_index);
-    static struct MessageList *Tail(struct MessageList *list);
-    static void YYY_INLINE_ALL_BODY_CALLS(
-        TruncateList(struct MessageList *list, unsigned len)
-    );
     
     //! @brief  Channel Name
     std::string m_name;
@@ -221,7 +107,7 @@ private:
     Maintainer<std::string> m_users;
     
     /// A list of messages
-    struct MessageList *m_messages;
+    MessageList *m_messages;
     /**
      * @brief A 'spare' list node to avoid extra allocations.
      *

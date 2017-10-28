@@ -27,8 +27,13 @@
 
 #include "yyy_channel_ui.hpp"
 #include "yyy_channel_core.hpp"
+#include "yyy_channel_message.hpp"
 
 #include "ui/yyy_chat_widget.hpp"
+
+#include "utils/yyy_fl_locker.hpp"
+
+#include "kashyyyk2.hpp"
 
 #include <FL/Fl_Valuator.H>
 
@@ -40,84 +45,98 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-ChannelUI::ChannelUI(ChannelCore &channel)
-  : m_core(&channel){
+void ChannelUI::RedrawUI() {
+    chat_scroll->redraw();
+    chat_widget->redraw();
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool ChannelUI::isSelected() const{
+    return m_ui_data != NULL && server_tree->isSelected(m_ui_data);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChannelUI::updateTreeUIForLastMessage(const MessageList *messages) const{
+    if(messages != NULL){
+        const YYY_MessageList *msg = messages;
+        while(msg->m_next != NULL)
+            msg = msg->m_next;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChannelUI::setup(const char *channel_name,
+    const char *server_name,
+    ChannelController &controller){
+
+    m_ui_data = server_tree->addChannel(server_name, channel_name, &controller);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChannelUI::updateScroll(unsigned num_messages) const {
+    chat_scroll->step(1);
+    chat_scroll->step(1.0);
+    chat_scroll->range(0.0, num_messages);
+    chat_scroll->value(num_messages);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChannelUI::updateChatWidget(const MessageList *messages,
+    unsigned num_messages,
+    bool new_msg) const {
     
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ChannelUI::setCore(ChannelCore &core){
-    assert(m_core == NULL);
-    m_core = &core;
-}
-
-/*---------------------------------------------------------------------------*/
-
-ChannelCore &ChannelUI::getCore(){
-    assert(m_core != NULL);
-    return *m_core;
-}
-
-/*---------------------------------------------------------------------------*/
-
-const ChannelCore &ChannelUI::getCore() const{
-    assert(m_core != NULL);
-    return *m_core;
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ChannelUI::setData(ServerTree::ChannelData *const data){
-    assert(m_ui_data == NULL);
-    assert(data != NULL);
-    m_ui_data = data;
-}
-
-/*---------------------------------------------------------------------------*/
-
-bool ChannelUI::matches(const ChannelCore &c) const { return m_core == &c; }
-
-/*---------------------------------------------------------------------------*/
-
-void ChannelUI::updateScroll(Fl_Valuator &to) const {
-    to.step(1);
-    to.step(1.0);
-    const unsigned n = m_core->numMessages();
-    to.range(0.0, n);
-    to.value(n);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void ChannelUI::updateChatWidget(ChatWidget &to,
-    const Fl_Valuator &scroll) const {
-    
-    const int scroll_value = static_cast<int>(scroll.value()),
-        num_msg = m_core->numMessages();
+    const unsigned scroll_value = static_cast<unsigned>(chat_scroll->value());
 
     assert(scroll_value >= 0);
-    assert(scroll_value <= num_msg);
+    assert(scroll_value <= num_messages);
 
-    const unsigned skip_msgs = num_msg - scroll_value;
+    const unsigned skip_msgs = num_messages - scroll_value;
     
-    const unsigned max_lines = to.maxLines(),
-        maximum = (max_lines > (num_msg - skip_msgs)) ? (num_msg - skip_msgs) : max_lines;
+    const unsigned max_lines = chat_widget->maxLines();
+    const unsigned maximum = (max_lines > (num_messages - skip_msgs)) ?
+        (num_messages - skip_msgs) : max_lines;
     
-    to.resize(maximum);
-    
-    const struct ChannelCore::MessageList *msg = m_core->messages();
+    chat_widget->resize(maximum);
+
     // Skip over skip_msgs messages.
     for(unsigned i = 0; i < skip_msgs; i++){
-        YYY_Assert(msg != NULL, "Channel message count is inconsistent");
-        msg = msg->m_next;
+        YYY_Assert(messages != NULL, "Channel message count is inconsistent");
+        messages = messages->m_next;
     }
 
     for(unsigned i = 0; i < maximum; i++){
-        YYY_Assert(msg != NULL, "Channel message count is inconsistent");
-        to.setMessageStatic(maximum - (i + 1), msg->m_message.m_user, msg->m_message.message());
-        msg = msg->m_next;
+        YYY_Assert(messages != NULL, "Channel message count is inconsistent");
+        chat_widget->setMessageStatic(maximum - (i + 1),
+            messages->m_message.m_user,
+            messages->m_message.message());
+        messages = messages->m_next;
     }
-    to.redraw();
 }
+
+void ChannelUI::updateUI(const MessageList *messages,
+    unsigned num_messages,
+    bool new_msg) const {
+    FlLocker locker;
+    if(isSelected()){
+        updateScroll(num_messages);
+        updateChatWidget(messages, num_messages, new_msg);
+        RedrawUI();
+    }
+    else if(messages != NULL){
+        // TODO: Handle what the type of message is for mentions.
+    }
+}
+
+void ChannelUI::select(const MessageList *messages, unsigned num_messages){
+    FlLocker locker;
+    updateScroll(num_messages);
+    updateChatWidget(messages, num_messages, false);
+    RedrawUI();
+}
+
 } // namespace YYY

@@ -93,7 +93,7 @@ void YYY_PutMSGBuffer(struct YYY_MSGBuffer *YYY_RESTRICT buffer,
             
             finalchr = c;
             
-            if(insert == YYY_BUF_LEN - 1)
+            if(insert == YYY_BUF_LEN - 2)
                 buffer->insert = 0;
             else
                 buffer->insert++;
@@ -112,7 +112,7 @@ unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer, char *output){
         return 0;
     
     while(remove != insert){
-        const char c = buffer->buffer[remove++];
+        const char c = buffer->buffer[remove];
         if(last_char == '\r' && c == '\n'){
             buffer->crlf_count--;
             break;
@@ -123,8 +123,9 @@ unsigned YYY_GetMSGBuffer(struct YYY_MSGBuffer *buffer, char *output){
         if(c != 0x7F && (c == '\t' || c >= ' '))
             output[i++] = c;
 
-        assert(remove <= YYY_BUF_LEN + 1);
-        if(remove >= YYY_BUF_LEN + 1)
+        remove++;
+        assert(remove <= YYY_BUF_LEN);
+        if(remove >= YYY_BUF_LEN)
             remove = 0;
     }
     

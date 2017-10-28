@@ -62,11 +62,11 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
-class ServerCore;
+class ServerController;
 
 /*---------------------------------------------------------------------------*/
 
-class ChannelCore;
+class ChannelController;
 
 /**
  * @brief Tree Widget used to sort a two-level hierarchy with a status for each
@@ -102,13 +102,13 @@ public:
     
     struct ServerData {
         ServerStatus status;
-        ServerCore *arg;
+        ServerController *arg;
         const char uri[]; //!< Null-terminated
     };
     
     struct ChannelData {
         ServerStatus status;
-        ChannelCore *arg;
+        ChannelController *arg;
     };
     
     static inline bool IsConnected(const ServerStatus s){
@@ -144,11 +144,23 @@ private:
     
     void setSelected(Fl_Tree_Item *item);
 
+    inline const Fl_Tree_Item *getSelected() const {
+        const Fl_Tree &tree_this = *static_cast<const Fl_Tree*>(this);
+        Fl_Tree &mutable_tree_this = const_cast<Fl_Tree&>(tree_this);
+        const Fl_Tree_Item *const selected_item = mutable_tree_this.first_selected_item();
+        return selected_item;
+    }
+public:
+    
     // Shadow this.
     inline void select_only(Fl_Tree_Item *item){ setSelected(item); }
 
-public:
-    
+    inline Fl_Tree_Item *root() const {
+        const Fl_Tree &tree_this = *static_cast<const Fl_Tree*>(this);
+        Fl_Tree &mutable_tree_this = const_cast<Fl_Tree&>(tree_this);
+        return mutable_tree_this.root();
+    }
+
     //! @brief Updates the main window menus to reflect the currently selected server.
     inline void updateServerMenus(){ setSelected(first_selected_item()); }
 
@@ -158,7 +170,10 @@ public:
     struct ServerData *addConnectingServer(const char *uri,
         const char *name, unsigned name_len);
     
-    inline ServerData *connectionSucceeded(const char *name, unsigned name_len, ServerCore *arg = NULL){
+    inline ServerData *connectionSucceeded(const char *name,
+        unsigned name_len,
+        ServerController *arg = NULL){
+
         ServerData *const server_data = setServerStatus(name, name_len, eConnected, arg);
         updateChildren();
         assert(m_num_connecting != 0);
@@ -167,7 +182,9 @@ public:
         return server_data;
     }
     
-    inline ServerData *connectionSucceeded(const std::string &name, ServerCore *arg = NULL){
+    inline ServerData *connectionSucceeded(const std::string &name,
+        ServerController *arg = NULL){
+        
         ServerData *const server_data = setServerStatus(name, eConnected, arg);
         updateChildren();
         assert(m_num_connecting != 0);
@@ -198,11 +215,11 @@ public:
         unsigned server_len,
         const char *channel,
         unsigned channel_len,
-        ChannelCore *user_data);
+        ChannelController *user_data);
 
     inline ChannelData *addChannel(const std::string &server,
         const std::string &channel,
-        ChannelCore *user_data){
+        ChannelController *user_data){
         return addChannel(server.c_str(),
             server.length(),
             channel.c_str(),
@@ -213,7 +230,7 @@ public:
     inline ChannelData *addChannel(const char *server,
         unsigned server_len,
         const std::string &channel,
-        ChannelCore *user_data){
+        ChannelController *user_data){
         return addChannel(server,
             server_len,
             channel.c_str(),
@@ -224,7 +241,7 @@ public:
     inline ChannelData *addChannel(const std::string &server,
         const char *channel,
         unsigned channel_len,
-        ChannelCore *user_data){
+        ChannelController *user_data){
         return addChannel(server.c_str(),
             server.length(),
             channel,
@@ -236,8 +253,13 @@ public:
     ServerStatus getServerStatus(const char *name, size_t name_len) const;
 
     // Note that Fl::lock should be called for multithreaded access to this.
-    ServerData *setServerStatus(const std::string &server_name, ServerStatus, ServerCore *arg = NULL);
-    ServerData *setServerStatus(const char *name, size_t name_len, ServerStatus, ServerCore *arg = NULL);
+    ServerData *setServerStatus(const std::string &server_name,
+        ServerStatus,
+        ServerController *arg = NULL);
+    ServerData *setServerStatus(const char *name,
+        size_t name_len,
+        ServerStatus,
+        ServerController *arg = NULL);
     
     ServerData *getData(const std::string &server_name);
     ServerData *getData(const char *name, size_t name_len);
@@ -245,14 +267,25 @@ public:
     virtual int handle(int e);
     
     // Note that Fl::lock should be called for multithreaded access to this.
-    bool isSelected(const char *server_name, size_t server_len,
-        const char *channel_name, size_t channel_len) const;
-    bool isSelected(const std::string &server_name, const std::string& channel_name) const;
+    
+    /**
+     * @brief Checks if a channel of the server is selected.
+     *
+     * @p channel_only If true, then the server's channel must be selected to return true.
+     *   Otherwise, it will return true if any channel in the server is selected.
+     */
+    bool isSelected(const ServerController &controller, bool channel_only) const;
 
-    bool isSelected(const char *server_name, size_t server_len) const;
-    inline bool isSelected(const std::string &server_name) const {
-        return isSelected(server_name.c_str(), server_name.length());
+    inline bool isSelected(const ServerData *ui_data, bool channel_only) const {
+        return isSelected(*ui_data->arg, channel_only);
     }
+    
+    bool isSelected(const ChannelController &controller) const;
+    
+    inline bool isSelected(const ChannelData *ui_data) const {
+        return isSelected(*ui_data->arg);
+    }
+
 };
 
 } // namespace YYY

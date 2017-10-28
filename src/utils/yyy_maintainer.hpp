@@ -180,8 +180,9 @@ public:
 #endif
                 }
             }
+            struct Block *const next = block->next();
             free(block);
-            block = block->next();
+            block = next;
         }
     }
     

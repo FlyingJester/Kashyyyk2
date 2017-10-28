@@ -36,6 +36,8 @@
 
 #define YYY_NOINLINE(X) X __attribute__((noinline))
 
+#define YYY_PACKED_STRUCT struct __attribute__((packed))
+
 /* End __GNUC__ || __clang__ */
 
 #elif defined _MSC_VER
@@ -48,6 +50,7 @@
 #define YYY_RESTRICT __restrict
 
 #define YYY_NOINLINE(X) __declspec(noinline) X
+
 /* End MSC_VER_ */
 
 #elif defined(__WATCOMC__)
@@ -60,6 +63,8 @@
 #else
 #define YYY_RESTRICT
 #endif
+
+#define YYY_PACKED_STRUCT _Packed struct
 
 /* End __WATCOMC__*/
 #endif
@@ -126,4 +131,8 @@
 
 #ifndef YYY_NOINLINE
 #define YYY_NOINLINE(X) X
+#endif
+
+#ifndef YYY_PACKED_STRUCT
+#define YYY_PACKED_STRUCT struct
 #endif
