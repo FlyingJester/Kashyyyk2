@@ -102,6 +102,7 @@ void ServerController::setup(const char *server_name,
     m_core.setup(server_name, server_name_len, *this);
     m_core.setSocket(socket);
     m_ui.setup(server_name, server_name_len, *this);
+    m_channel.setupAsServerChannel(server_name, server_name_len);
 }
 
 void ServerController::select(const char *channel_name, unsigned channel_name_len){

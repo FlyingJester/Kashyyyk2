@@ -282,6 +282,8 @@ public:
     
     bool isSelected(const ChannelController &controller) const;
     
+    bool isServerSelected(const std::string &server_name) const;
+
     inline bool isSelected(const ChannelData *ui_data) const {
         return isSelected(*ui_data->arg);
     }

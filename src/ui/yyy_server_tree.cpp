@@ -29,6 +29,8 @@
 
 #include "kashyyyk2.hpp"
 
+#include "utils/yyy_alloca.h"
+
 #include <algorithm>
 #include <iterator>
 
@@ -418,6 +420,19 @@ bool ServerTree::isSelected(const ServerController &controller, bool channel_onl
     
     return false;
 }
+
+/*---------------------------------------------------------------------------*/
+
+bool ServerTree::isServerSelected(const std::string &server_name) const {
+    if(const Fl_Tree_Item *const selected = getSelected()){
+        if(selected->parent() == root()){
+            return server_name == selected->label();
+        }
+    }
+    return false;
+}
+
+/*---------------------------------------------------------------------------*/
 
 bool ServerTree::isSelected(const ChannelController &controller) const{
     if(const Fl_Tree_Item *const selected = getSelected()){

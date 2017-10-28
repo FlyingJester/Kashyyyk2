@@ -53,7 +53,9 @@ void ChannelUI::RedrawUI() {
 /*---------------------------------------------------------------------------*/
 
 bool ChannelUI::isSelected() const{
-    return m_ui_data != NULL && server_tree->isSelected(m_ui_data);
+    return m_ui_data == NULL ?
+        server_tree->isServerSelected(m_name) :
+        server_tree->isSelected(m_ui_data);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -71,7 +73,8 @@ void ChannelUI::updateTreeUIForLastMessage(const MessageList *messages) const{
 void ChannelUI::setup(const char *channel_name,
     const char *server_name,
     ChannelController &controller){
-
+    assert(m_name.empty());
+    m_name = channel_name;
     m_ui_data = server_tree->addChannel(server_name, channel_name, &controller);
 }
 
@@ -137,6 +140,16 @@ void ChannelUI::select(const MessageList *messages, unsigned num_messages){
     updateScroll(num_messages);
     updateChatWidget(messages, num_messages, false);
     RedrawUI();
+}
+
+void ChannelUI::name(const std::string &name){
+    assert(m_name.empty());
+    m_name = name;
+}
+
+void ChannelUI::name(const char *name, unsigned name_len){
+    assert(m_name.empty());
+    m_name.assign(name, name_len);
 }
 
 } // namespace YYY

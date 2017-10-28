@@ -57,8 +57,17 @@ void ChannelController::setup(const char *channel_name,
         const std::string &server_name,
         ServerController &server_controller){
     
+    assert(channel_name != NULL);
+
     m_core.name(channel_name, channel_name_len);
     m_ui.setup(channel_name, server_name.c_str(), *this);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ChannelController::setupAsServerChannel(const char *server_name, unsigned server_name_len){
+    m_core.name(server_name, server_name_len);
+    m_ui.name(server_name, server_name_len);
 }
 
 void ChannelController::handleMessage(const YYY_Message &msg, bool is_mention, bool is_action){

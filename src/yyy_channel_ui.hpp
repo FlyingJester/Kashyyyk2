@@ -99,6 +99,9 @@ public:
         bool new_msg) const;
 
     void select(const MessageList *messages, unsigned num_messages);
+    
+    void name(const std::string &name);
+    void name(const char *name, unsigned name_len);
 };
 
 } // namespace YYY

@@ -69,6 +69,8 @@ public:
         const std::string &server_name,
         ServerController &server_controller);
 
+    void setupAsServerChannel(const char *server_name, unsigned server_name_len);
+
     inline const std::string &name() const { return m_core.name(); }
 
     void handleMessage(const YYY_Message &msg, bool is_mention, bool is_action);
