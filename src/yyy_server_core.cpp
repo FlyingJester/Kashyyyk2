@@ -260,4 +260,13 @@ bool ServerCore::getMessage(Message &out,
     return (m_messages_queued = false);
 }
 
+/*---------------------------------------------------------------------------*/
+
+void ServerCore::send(const Message &msg){
+    size_t len;
+    const char *const msg_str = m_protocol->messageToString(msg, len);
+    YYY_WriteSocket(getSocket(), msg_str, len);
+    m_protocol->freeMessageString(msg_str);
+}
+
 } // namespace YYY

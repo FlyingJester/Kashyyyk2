@@ -64,8 +64,8 @@ static char yyy_get_last_char(const struct YYY_MSGBuffer *buffer,
 
 void YYY_InitMSGBuffer(struct YYY_MSGBuffer *buffer){
     buffer->crlf_count = 0;
-    buffer->insert = 0;
-    buffer->remove = 0;
+    buffer->insert = YYY_BUF_LEN - 2;
+    buffer->remove = YYY_BUF_LEN - 2;
 }
 
 /*---------------------------------------------------------------------------*/

@@ -57,6 +57,8 @@
 #define YYY_SERVER_CONTROLLER_HPP
 #pragma once
 
+/*---------------------------------------------------------------------------*/
+
 #include "yyy_channel_core.hpp"
 #include "yyy_channel_ui.hpp"
 #include "yyy_channel_controller.hpp"
@@ -68,10 +70,19 @@
 #include "utils/yyy_maintainer.hpp"
 
 #include <string>
+/*---------------------------------------------------------------------------*/
 
 namespace YYY {
 
+/*---------------------------------------------------------------------------*/
+
 class ChatProtocol;
+
+/*---------------------------------------------------------------------------*/
+
+struct Message;
+
+/*---------------------------------------------------------------------------*/
 
 class ServerController {
 
@@ -111,6 +122,8 @@ public:
     
     void select(const char *channel_name, unsigned channel_name_len);
     inline void select() { select(NULL, 0); }
+
+    inline void send(const Message &msg) { m_core.send(msg); }
 };
 
 } // namespace YYY

@@ -264,6 +264,8 @@ public:
     ServerData *getData(const std::string &server_name);
     ServerData *getData(const char *name, size_t name_len);
     
+    ServerData *getSelected();
+
     virtual int handle(int e);
     
     // Note that Fl::lock should be called for multithreaded access to this.

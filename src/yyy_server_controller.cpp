@@ -95,31 +95,6 @@ void ServerController::messageReady(){
     }
 }
 
-void ServerController::setup(const char *server_name,
-    unsigned server_name_len,
-    YYY_NetworkSocket *socket){
-    
-    m_core.setup(server_name, server_name_len, *this);
-    m_core.setSocket(socket);
-    m_ui.setup(server_name, server_name_len, *this);
-    m_channel.setupAsServerChannel(server_name, server_name_len);
-}
-
-void ServerController::select(const char *channel_name, unsigned channel_name_len){
-    YYY_Assert((channel_name == NULL) == (channel_name_len == 0),
-            "Selection of an empty channel or with an invalid name.");
-    if(channel_name == NULL || channel_name_len == 0){
-        m_channel.select();
-    }
-    else if(ChannelController *const channel = findChannel(channel_name, channel_name_len)){
-        channel->select();
-    }
-    else{
-        YYY_Assert(findChannel(channel_name, channel_name_len) != NULL,
-            "Selected a channel that does not exist.");
-    }
-}
-
 /*---------------------------------------------------------------------------*/
 
 void ServerController::addToSocketGroup(YYY_SocketGroup *to){
@@ -136,6 +111,35 @@ void ServerController::removeFromSocketGroup(YYY_SocketGroup *group) const {
     assert(err == eYYYNetworkSuccess);    
     // A bit ugly, but it's just for the assert.
     assert(const_cast<const void*>(data) == static_cast<const void*>(this));
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ServerController::setup(const char *server_name,
+    unsigned server_name_len,
+    YYY_NetworkSocket *socket){
+    
+    m_core.setup(server_name, server_name_len, *this);
+    m_core.setSocket(socket);
+    m_ui.setup(server_name, server_name_len, *this);
+    m_channel.setupAsServerChannel(server_name, server_name_len);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void ServerController::select(const char *channel_name, unsigned channel_name_len){
+    YYY_Assert((channel_name == NULL) == (channel_name_len == 0),
+            "Selection of an empty channel or with an invalid name.");
+    if(channel_name == NULL || channel_name_len == 0){
+        m_channel.select();
+    }
+    else if(ChannelController *const channel = findChannel(channel_name, channel_name_len)){
+        channel->select();
+    }
+    else{
+        YYY_Assert(findChannel(channel_name, channel_name_len) != NULL,
+            "Selected a channel that does not exist.");
+    }
 }
 
 } // namespace YYY

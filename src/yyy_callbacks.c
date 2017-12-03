@@ -47,5 +47,5 @@ void YYY_Connect(const char *uri, unsigned long port){
 /*---------------------------------------------------------------------------*/
 
 void YYY_Join(const char *channel){
-    (void)channel;
+    YYY_TryJoin(channel);
 }

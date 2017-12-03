@@ -62,6 +62,10 @@ namespace YYY {
 
 /*---------------------------------------------------------------------------*/
 
+struct Message;
+
+/*---------------------------------------------------------------------------*/
+
 class ServerUI;
 
 /*---------------------------------------------------------------------------*/
@@ -218,6 +222,9 @@ public:
     // without using friend classes or exposing the ServerCore's socket.
     void addToSocketGroup(YYY_SocketGroup *to);
     void removeFromSocketGroup(YYY_SocketGroup *) const;
+
+    void send(const struct Message &msg);
+
 };
 
 } // namespace YYY

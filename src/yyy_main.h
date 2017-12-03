@@ -79,6 +79,11 @@ void YYY_FASTCALL YYY_AddConnection(
     const char *YYY_RESTRICT uri,
     void *YYY_RESTRICT arg);
 
+/**
+ * @brief Sends a join message to the current server.
+ */
+void YYY_FASTCALL YYY_TryJoin(const char *channel);
+
 #ifdef __cplusplus
 }
 #endif

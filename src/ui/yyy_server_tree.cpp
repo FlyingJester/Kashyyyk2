@@ -232,6 +232,39 @@ ServerTree::ServerData *ServerTree::getData(const char *name, unsigned name_len)
 
 /*---------------------------------------------------------------------------*/
 
+ServerTree::ServerData *ServerTree::getSelected(){
+    
+    // If nothing is selected, do nothing. That shouldn't happen, though.
+    if(Fl_Tree_Item *l_selected = first_selected_item()){
+        // Determine the server that selected represents.
+        {
+            const Fl_Tree_Item *const l_root = ServerTree::root();
+            assert(l_root != NULL);
+
+            // This probably shouldn't have happened either...
+            if(l_selected == l_root)
+                return NULL;
+
+            {
+                // Check if the parent is the child of root. That means this item is a server.
+                Fl_Tree_Item *const l_parent = l_selected->parent();
+                if(l_parent != l_root){
+                    // Otherwise, the parent of this item should be a server.
+                    l_selected = l_parent->parent();
+                }
+            }
+
+            assert(l_selected->parent() == l_root);
+        }
+        return static_cast<ServerTree::ServerData*>(l_selected->user_data());
+    }
+    else{
+        return NULL;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 ServerTree::ChannelData *ServerTree::addChannel(const char *server,
     unsigned server_len,
     const char *channel,

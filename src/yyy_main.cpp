@@ -240,6 +240,23 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
 
 /*---------------------------------------------------------------------------*/
 
+extern "C"
+void YYY_FASTCALL YYY_TryJoin(const char *channel){
+    ServerTree::ServerData *const server_data = yyy_main_window.m_server_tree->getSelected();
+    YYY_Assert(server_data != NULL, "No server data found when trying to connect");
+    if(server_data){
+        Message join_msg;
+        join_msg.type = eYYYChatJoin;
+        join_msg.m.join.from = NULL;
+        join_msg.m.join.from_len = 0;
+        join_msg.m.join.where = channel;
+        join_msg.m.join.where_len = strlen(channel);
+        server_data->arg->send(join_msg);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 static void yyy_server_tree_callback(Fl_Widget *w, void *arg){
     assert(w != NULL);
     assert(arg != NULL);
