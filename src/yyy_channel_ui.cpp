@@ -121,6 +121,17 @@ void ChannelUI::updateChatWidget(const MessageList *messages,
     }
 }
 
+/*---------------------------------------------------------------------------*/
+
+void ChannelUI::updateForScroll(const MessageList *messages,
+    unsigned num_messages) const{
+    FlLocker locker;
+    updateChatWidget(messages, num_messages, false);
+    RedrawUI();
+}
+
+/*---------------------------------------------------------------------------*/
+
 void ChannelUI::updateUI(const MessageList *messages,
     unsigned num_messages,
     bool new_msg) const {

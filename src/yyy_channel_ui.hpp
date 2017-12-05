@@ -93,6 +93,9 @@ public:
     void updateChatWidget(const MessageList *messages,
         unsigned num_messages,
         bool new_msg) const;
+
+    void updateForScroll(const MessageList *messages,
+        unsigned num_messages) const;
     
     void updateUI(const MessageList *messages,
         unsigned num_messages,

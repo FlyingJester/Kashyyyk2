@@ -26,16 +26,8 @@
 /*---------------------------------------------------------------------------*/
 
 #include "yyy_channel_controller.hpp"
-
-/*---------------------------------------------------------------------------*/
-
-#include "kashyyyk2.hpp"
-
-/*---------------------------------------------------------------------------*/
-
 #include "chat/yyy_chat.hpp"
-
-/*---------------------------------------------------------------------------*/
+#include "kashyyyk2.hpp"
 
 namespace YYY {
 
@@ -46,7 +38,7 @@ void ChannelController::ChatScrollCallback(Fl_Widget *w, void *arg){
 
     if(ChannelController *const channel = (ChannelController*)arg){
         ChannelCore &core = channel->m_core;
-        channel->m_ui.updateChatWidget(core.messages(), core.numMessages(), false);
+        channel->m_ui.updateForScroll(core.messages(), core.numMessages());
     }
 }
 
