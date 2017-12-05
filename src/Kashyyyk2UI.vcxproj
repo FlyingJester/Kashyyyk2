@@ -86,6 +86,7 @@
     <NMakeCleanCommandLine>nmake /nologo /f makefile_ui.msvc clean</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>nmake /nologo /f makefile_ui.msvc clean &amp;&amp; nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=Dd </NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>$(SolutionDir)\fltk;$(SolutionDir)\src;$(SolutionDir)\src\ui</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=T</NMakeBuildCommandLine>
@@ -94,16 +95,19 @@
     <NMakeCleanCommandLine>nmake /nologo /f makefile_ui.msvc clean</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>nmake /nologo /f makefile_ui.msvc clean &amp;&amp; nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=T </NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>$(SolutionDir)\fltk;$(SolutionDir)\src;$(SolutionDir)\src\ui</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <NMakeBuildCommandLine>nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=T</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>nmake /nologo /f makefile_ui.msvc clean &amp;&amp; nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=T </NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>nmake /nologo /f makefile_ui.msvc clean</NMakeCleanCommandLine>
+    <NMakeIncludeSearchPath>$(SolutionDir)\fltk;$(SolutionDir)\src;$(SolutionDir)\src\ui</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <NMakeBuildCommandLine>nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=Dd</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>nmake /nologo /f makefile_ui.msvc clean &amp;&amp; nmake /nologo FLUID=$(SolutionDir)fltk\fluid.exe FLTKDIR=$(SolutionDir)fltk /f makefile_ui.msvc CRT=Dd </NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>nmake /nologo /f makefile_ui.msvc clean</NMakeCleanCommandLine>
+    <NMakeIncludeSearchPath>$(SolutionDir)\fltk;$(SolutionDir)\src;$(SolutionDir)\src\ui</NMakeIncludeSearchPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

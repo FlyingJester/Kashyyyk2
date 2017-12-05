@@ -8,6 +8,7 @@
 
 #include <cassert>
 
+// Get alloca
 #if (defined __WATCOMC__) || (defined _MSC_VER)
 #include <malloc.h>
 #elif defined __GNUC__
@@ -18,7 +19,7 @@
 
 namespace YYY {
 
-/*===========================================================================*/
+/*---------------------------------------------------------------------------*/
 
 struct ClippingRectangle {
     ClippingRectangle(int x, int y, unsigned w, unsigned h){

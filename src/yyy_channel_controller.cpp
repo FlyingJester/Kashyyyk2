@@ -43,11 +43,11 @@ namespace YYY {
 
 void ChannelController::ChatScrollCallback(Fl_Widget *w, void *arg){
     Fl_Valuator *const scroll = static_cast<Fl_Valuator *>(w);
-    ChannelController *const channel = (ChannelController*)arg;
-    if(channel == NULL)
-        return;
-    ChannelCore &core = channel->m_core;
-    channel->m_ui.updateChatWidget(core.messages(), core.numMessages(), false);
+
+    if(ChannelController *const channel = (ChannelController*)arg){
+        ChannelCore &core = channel->m_core;
+        channel->m_ui.updateChatWidget(core.messages(), core.numMessages(), false);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
