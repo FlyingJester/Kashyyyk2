@@ -30,13 +30,17 @@
 #pragma once
 
 /*
- * An IRC message is always terminated by a /r/n, and may be up to 255 chars
- * long, although we accept up to 640, since some networks use up to 257 and if
- * 257 is fine, we should really pick something unambiguously too big to be
- * acceptable by the standard. The reason we need more than, say, 300 is that
- * it might be possible to have all but the last byte of a message, and then
- * receive 257-ish more bytes. We need more than 500 to handle this.
+ * An old IRC message is always terminated by a /r/n, and may be up to 255
+ * chars long, although we accept up to 640, since some networks use up to 257
+ * and if 257 is fine, we should really pick something unambiguously too big to
+ * be acceptable by the standard. The reason we need more than, say, 300 is
+ * that it might be possible to have all but the last byte of a message, and
+ * then receive 257-ish more bytes. We need more than 500 to handle this.
  *
+ * This limit was raised to 510 + crlf by RFC 2812, so by the same logic we
+ * have raised the maximum message length to 544 and the internal buffer size
+ * to 1280.
+ * 
  * Since BSD-style socket libraries (including Windows implementations) do not
  * have a proper operation to read up to a certain pattern, and there are no
  * guarantees that the IRC server will write exactly an entire message at a
@@ -50,7 +54,7 @@
 extern "C" {
 #endif
 
-#define YYY_MAX_MSG_LEN 312
+#define YYY_MAX_MSG_LEN 544
 
 /*---------------------------------------------------------------------------*/
 

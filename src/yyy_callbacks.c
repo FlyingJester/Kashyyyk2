@@ -28,12 +28,56 @@
 #include "yyy_callbacks.h"
 #include "yyy_main.h"
 #include "yyy_connect_thread.h"
+#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
+
+/* This is how many messages we will batch together for an over-long msg. */
+
+#define YYY_SAY_VECTOR_LEN 16
+
+/*---------------------------------------------------------------------------*/
+
+static int yyy_is_whitespace(char c){
+    return c == ' ' || c == '\r' || c == '\n' || c == '\t';
+}
 
 /*---------------------------------------------------------------------------*/
 
 void YYY_Say(const char *text){
-    (void)text;
+    const size_t msg_len = strlen(text);
+    if(msg_len < YYY_SAFE_IRC_MSG_LEN){
+        const char *msgs[YYY_SAY_VECTOR_LEN];
+        unsigned short lens[YYY_SAY_VECTOR_LEN],
+            msg_at = 0;
+        size_t at = 0, old_at = 0;
+        
+        while(at != msg_len){
+            assert(at < msg_len);
+            do{
+                msgs[msg_at] = text + at;
+
+                if(at + YYY_SAFE_IRC_MSG_LEN <= msg_len){
+                    lens[msg_at++] = YYY_SAFE_IRC_MSG_LEN;
+                    at += YYY_SAFE_IRC_MSG_LEN;
+                }
+                else{
+                    assert(msg_len - at < ~((unsigned short)0));
+                    lens[msg_at++] = (unsigned short)(msg_len - at);
+                    at = msg_len;
+                    break;
+                }
+            }while(msg_at != YYY_SAY_VECTOR_LEN);
+
+            YYY_SendPrivateMessageV(msgs, lens, msg_at, NULL);
+
+            msg_at = 0;
+        }
+    }
+    else{
+        assert(msg_len < ~((unsigned short)0));
+        YYY_SendPrivateMessage(text, (unsigned short)msg_len, NULL);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

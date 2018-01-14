@@ -46,6 +46,19 @@ extern "C" {
 #endif
 
 /**
+ * @brief This is what we consider the "safe" message length to send.
+ *
+ * Even a server that only implements the original RFC (And does it badly)
+ * should be able to accept a message of this size.
+ *
+ * This is 256 (-1 for stupidity/safety) -2 for crlf -32 for max old-school
+ * channel length -sizeof(PRIVMSG) - sizeof( :). Although we aren't worried
+ * about crashing or compromising a server, we are worried that a server will
+ * just not accept a message longer than this.
+ */
+#define YYY_SAFE_IRC_MSG_LEN (((255 - 2) - 32) - sizeof("PRIVMSG :"))
+
+/**
  * @brief Notes that a connection attempt is being made.
  *
  * This adds a visual indicator to the UI that a connection is in progress. It
@@ -83,6 +96,37 @@ void YYY_FASTCALL YYY_AddConnection(
  * @brief Sends a join message to the current server.
  */
 void YYY_FASTCALL YYY_TryJoin(const char *channel);
+
+/**
+ * @brief Sends message to a channel.
+ *
+ * @param msg The message to send.
+ * @param len Length of the message.
+ * @param channel The channel to send to. A value of NULL indicates the 
+ *    message should be sent to the channel that currently has focus.
+ * @sa YYY_SendPrivateMessage
+ */
+void YYY_FASTCALL YYY_SendPrivateMessage(const char *msg,
+    unsigned short len,
+    const char *channel);
+
+/**
+ * @brief Sends a series of messages to a single channel.
+ *
+ * This is slightly more efficient than calling YYY_SendPrivateMessage for
+ * each message if they are going to the same channel.
+ *
+ * @param msgs An array of messages
+ * @param lens Lengths of the messages in @p msgs
+ * @param num_msgs The length of the @p msgs and @p lens arrays.
+ * @param channel The channel to send to. A value of NULL indicates the 
+ *    messages should be sent to the channel that currently has focus.
+ * @sa YYY_SendPrivateMessage
+ */
+void YYY_SendPrivateMessageV(const char **msgs,
+    const unsigned short *lens,
+    unsigned short num_msgs,
+    const char *channel);
 
 #ifdef __cplusplus
 }

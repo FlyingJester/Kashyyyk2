@@ -242,16 +242,88 @@ void YYY_FASTCALL YYY_AddConnection(struct YYY_NetworkSocket *socket, const char
 
 extern "C"
 void YYY_FASTCALL YYY_TryJoin(const char *channel){
-    ServerTree::ServerData *const server_data = yyy_main_window.m_server_tree->getSelected();
+    ServerTree::ServerData *const server_data =
+        yyy_main_window.m_server_tree->getSelectedServer();
     YYY_Assert(server_data != NULL, "No server data found when trying to connect");
     if(server_data){
         Message join_msg;
+        const size_t where_len = strlen(channel);
+        assert(where_len < ~((unsigned short)0));
         join_msg.type = eYYYChatJoin;
         join_msg.m.join.from = NULL;
         join_msg.m.join.from_len = 0;
         join_msg.m.join.where = channel;
-        join_msg.m.join.where_len = strlen(channel);
+        join_msg.m.join.where_len = (unsigned short)where_len;
         server_data->arg->send(join_msg);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+extern "C"
+void YYY_FASTCALL YYY_SendPrivateMessage(const char *msg,
+    unsigned short lens,
+    const char *channel){
+    YYY_SendPrivateMessageV(&msg, &lens, 1, channel);
+}
+
+/*---------------------------------------------------------------------------*/
+
+extern "C"
+void YYY_SendPrivateMessageV(const char **msgs,
+    unsigned short *lens,
+    unsigned short num_msgs,
+    const char *channel){
+    
+    assert(msgs);
+    assert(lens);
+
+    if(num_msgs == 0)
+        return;
+
+    Message priv_msg;
+    priv_msg.type = eYYYChatMessage;
+    priv_msg.m.message.from = NULL;
+    priv_msg.m.message.from_len = 0;
+    
+    ServerTree::ServerData *server_data = NULL;
+    if(channel == NULL){
+        if(const ServerTree::ChannelData *const channel_data =
+            yyy_main_window.m_server_tree->getSelectedChannel(&server_data)){
+
+            assert(server_data != NULL);
+        
+            const ChannelController *const channel = channel_data->arg;
+            assert(channel != NULL);
+
+            const std::string &channel_name = channel->name();
+            priv_msg.m.message.to = channel_name.c_str();
+            assert(channel_name.length() < ~((unsigned short)0));
+            priv_msg.m.message.to_len = (unsigned short)channel_name.length();
+        }
+        else{
+            // Send an error message otherwise?
+            return;
+        }
+    }
+    else{
+        server_data = yyy_main_window.m_server_tree->getSelectedServer();
+        priv_msg.m.message.to = channel;
+        const size_t channel_len = strlen(channel);
+        assert(channel_len < ~((unsigned short)0));
+        priv_msg.m.message.to_len = (unsigned short)channel_len;
+    }
+    
+    if(server_data == NULL)
+        return;
+
+    for(unsigned short i = 0; i < num_msgs; i++){
+        if(const unsigned short len = lens[i]){
+            priv_msg.m.message.message = msgs[i];
+            priv_msg.m.message.message_len = len;
+            assert(msgs[i] != NULL);
+            server_data->arg->send(priv_msg);
+        }
     }
 }
 

@@ -232,16 +232,18 @@ ServerTree::ServerData *ServerTree::getData(const char *name, unsigned name_len)
 
 /*---------------------------------------------------------------------------*/
 
-ServerTree::ServerData *ServerTree::getSelected(){
+ServerTree::ServerData *ServerTree::getSelectedServer(){
     
     // If nothing is selected, do nothing. That shouldn't happen, though.
+    // It is possible this happens on some old-ish versions of FLTK when there is nothing in the
+    // browser yet.
     if(Fl_Tree_Item *l_selected = first_selected_item()){
         // Determine the server that selected represents.
         {
             const Fl_Tree_Item *const l_root = ServerTree::root();
             assert(l_root != NULL);
-
-            // This probably shouldn't have happened either...
+            
+            // This probably shouldn't have happened either, but it is possible in early FLTK 1.3
             if(l_selected == l_root)
                 return NULL;
 
@@ -256,7 +258,49 @@ ServerTree::ServerData *ServerTree::getSelected(){
 
             assert(l_selected->parent() == l_root);
         }
-        return static_cast<ServerTree::ServerData*>(l_selected->user_data());
+        return static_cast<ServerData*>(l_selected->user_data());
+    }
+    else{
+        return NULL;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+ServerTree::ChannelData *ServerTree::getSelectedChannel(ServerData **out_server_data){
+    
+    // If nothing is selected, do nothing. That shouldn't happen, though.
+    // It is possible this happens on some old-ish versions of FLTK when there is nothing in the
+    // browser yet.
+    if(Fl_Tree_Item *l_selected = first_selected_item()){
+        // Determine the server that selected represents.
+        {
+            const Fl_Tree_Item *const l_root = ServerTree::root();
+            assert(l_root != NULL);
+
+            // This probably shouldn't have happened either, but it is possible in early FLTK 1.3
+            if(l_selected == l_root)
+                return NULL;
+
+            {
+                // Check if the parent is the child of root. That means this item is a server.
+                Fl_Tree_Item *const l_parent = l_selected->parent();
+                if(l_parent != l_root){
+
+                    // The parent (which is a server) should have the root as a parent.
+                    assert(l_parent->parent() == l_root);
+                    if(out_server_data != NULL)
+                        out_server_data[0] = static_cast<ServerData*>(l_parent->user_data());
+                    return static_cast<ChannelData*>(l_selected->user_data());
+                }
+            }
+
+            // The selected is a server then.
+            assert(l_selected->parent() == l_root);
+        }
+        if(out_server_data != NULL)
+            out_server_data[0] = static_cast<ServerData*>(l_selected->user_data());
+        return NULL;
     }
     else{
         return NULL;

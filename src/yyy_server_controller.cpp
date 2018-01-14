@@ -58,10 +58,11 @@ void ServerController::messageReady(){
     Message msg;
     const char *channel_name;
     unsigned channel_name_len;
-
     const std::string &name = m_core.name();
     const char *const name_str = name.c_str();
-    const unsigned short name_len = name.size();
+
+    assert(name.size() < ~((unsigned short)0));
+    const unsigned short name_len = (unsigned short)name.size();
     
     char buffer[YYY_MAX_MSG_LEN];
 

@@ -264,7 +264,15 @@ public:
     ServerData *getData(const std::string &server_name);
     ServerData *getData(const char *name, size_t name_len);
     
-    ServerData *getSelected();
+    ServerData *getSelectedServer();
+    
+    /* Returns NULL if a server is selected, and sets the out parameter in that case.
+     * If the out param is NULL, then nothing will be stored. */
+    ChannelData *getSelectedChannel(ServerData **out_server_data);
+
+    inline ChannelData *getSelectedChannel(){
+        return getSelectedChannel(NULL);
+    }
 
     virtual int handle(int e);
     
