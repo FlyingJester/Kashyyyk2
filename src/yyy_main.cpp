@@ -287,16 +287,18 @@ void YYY_SendPrivateMessageV(const char **msgs,
     priv_msg.m.message.from_len = 0;
     
     ServerTree::ServerData *server_data = NULL;
+    // This is used to echo the message in our own buffer if applicable.
+    ChannelController *channel_controller = NULL;
     if(channel == NULL){
         if(const ServerTree::ChannelData *const channel_data =
             yyy_main_window.m_server_tree->getSelectedChannel(&server_data)){
-
+            
             assert(server_data != NULL);
         
-            const ChannelController *const channel = channel_data->arg;
-            assert(channel != NULL);
+            assert(channel_data->arg != NULL);
+            channel_controller = channel_data->arg;
 
-            const std::string &channel_name = channel->name();
+            const std::string &channel_name = channel_controller->name();
             priv_msg.m.message.to = channel_name.c_str();
             assert(channel_name.length() < ~((unsigned short)0));
             priv_msg.m.message.to_len = (unsigned short)channel_name.length();
@@ -317,12 +319,17 @@ void YYY_SendPrivateMessageV(const char **msgs,
     if(server_data == NULL)
         return;
 
+    assert(server_data->arg != NULL);
+    ServerController &server = *server_data->arg;
+
     for(unsigned short i = 0; i < num_msgs; i++){
         if(const unsigned short len = lens[i]){
             priv_msg.m.message.message = msgs[i];
             priv_msg.m.message.message_len = len;
             assert(msgs[i] != NULL);
-            server_data->arg->send(priv_msg);
+            server.send(priv_msg);
+            if(channel_controller)
+                channel_controller->handleMessage(priv_msg, false, false);
         }
     }
 }

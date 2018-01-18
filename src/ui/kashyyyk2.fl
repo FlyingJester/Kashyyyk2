@@ -34,7 +34,7 @@ decl {std::vector<Fl_Window*> yyy_windows;} {private local
 }
 
 Function {theme_menu_callback(Fl_Widget *what, void *theme_p)} {
-  comment {Callback for theme submenu items. The user_data is cast to a YYY_EnumTheme.} open selected private C return_type void
+  comment {Callback for theme submenu items. The user_data is cast to a YYY_EnumTheme.} open private C return_type void
 } {
   code {const YYY_EnumTheme theme = (YYY_EnumTheme)((int)theme_p);
 assert(theme < eYYY_NumThemes);
@@ -90,7 +90,8 @@ Function {YYY_MakeWindow()} {open
       xywh {0 455 630 35} box FLAT_BOX color 52
     } {
       Fl_Return_Button {} {
-        callback {YYY_Say(chat_box->value());}
+        callback {YYY_Say(chat_box->value());
+chat_box->value("");} selected
         xywh {595 460 30 25} box THIN_UP_BOX
       }
       Fl_Input chat_box {
